@@ -5,7 +5,7 @@
  * defines class to generate atom feeds
  *
  *
- * copyright (c) 2008-2009 Frank Hellenkamp [jonas@depagecms.net]
+ * copyright (c) 2008-2010 Frank Hellenkamp [jonas@depagecms.net]
  *
  * @author    Frank Hellenkamp [jonas@depagecms.net]
  */

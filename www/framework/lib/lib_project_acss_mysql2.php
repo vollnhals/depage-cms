@@ -9,7 +9,7 @@
  * It needs the lib_xmldb library for database access.
  *
  *
- * copyright (c) 2002-2009 Frank Hellenkamp [jonas@depagecms.net]
+ * copyright (c) 2002-2010 Frank Hellenkamp [jonas@depagecms.net]
  *
  * @author    Frank Hellenkamp [jonas@depagecms.net]
  */

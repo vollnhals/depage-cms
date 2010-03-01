@@ -9,7 +9,7 @@
  * errorHandler with logging.
  *
  *
- * copyright (c) 2002-2009 Frank Hellenkamp [jonas@depagecms.net]
+ * copyright (c) 2002-2010 Frank Hellenkamp [jonas@depagecms.net]
  *
  * @author    Frank Hellenkamp [jonas@depagecms.net]
  */
@@ -51,7 +51,7 @@ class config {
         
         $this->app_name = 'depage::cms';
         $this->app_version = '1.1.2';
-        $this->app_copyright = '(c) 2002-2009 by Frank Hellenkamp';
+        $this->app_copyright = '(c) 2002-2010 by Frank Hellenkamp';
         $this->app_license = 'This software is released under MIT and GPL2 licenses';
 
         //'home_url' => (string) 'tool.untitled.net',

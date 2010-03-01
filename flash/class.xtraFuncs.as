@@ -3,7 +3,7 @@
  * Flash-extending functions
  *
  * actionScript-library:
- * (c)2003 jonas [jonas.info@gmx.net]
+ * (c)2003-2010 Frank Hellenkamp [jonas@depagecms.net]
  */
 
 /*
