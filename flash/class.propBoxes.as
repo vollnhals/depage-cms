@@ -3220,7 +3220,7 @@ class_propBox_edit_video.prototype.load_thumb = function() {
 	var filedata = this.inputBox.value.splitPath();
 	
 	this.buttonVideo.onClick = function() {
-		_root.mainInterface.interface.layouts.dlgChoose_files.setActive(this._parent._parent.propObj.saveFilePath, this._parent._parent.propObj, [this._parent.thumb.filepath, this._parent.data.nid, "flv"]);
+		_root.mainInterface.interface.layouts.dlgChoose_files.setActive(this._parent._parent.propObj.saveFilePath, this._parent._parent.propObj, [this._parent.thumb.filepath, this._parent.data.nid, ",mp4,m4v,flv"]);
 	}
 };
 // }}}

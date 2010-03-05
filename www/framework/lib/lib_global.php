@@ -274,6 +274,7 @@ class config {
         //$new_include_path = '';
         $new_include_path .= $path_divider . $this->path_server_root . $this->path_base . 'framework/lib';
         $new_include_path .= $path_divider . $this->path_server_root . $this->path_base . 'framework/pear';
+        $new_include_path .= $path_divider . $this->path_server_root . $this->path_base . 'framework/getid3';
         
         ini_set('include_path', $new_include_path);
     }

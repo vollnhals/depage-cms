@@ -47,9 +47,11 @@ class mediainfo {
             $info['extension'] = $fileinfo['extension'];
             $info['size'] = $fs_access->f_size_format($file);
             $info['date'] = $conf->dateUTC($conf->date_format_UTC, filemtime($file));
+
             $info = array_merge($info, mediainfo::get_img_info($file));
-            if (strtolower($info['extension']) == "flv") {
-                $info = array_merge($info, mediainfo::get_flv_info($file));
+
+            if (in_array(strtolower($info['extension']), array("flv", "mp4", "m4v", "mp3", "aac"))) {
+                $info = array_merge($info, mediainfo::get_id3_info($file));
             }
         } else {
             $info['exists'] = "false";
@@ -99,6 +101,34 @@ class mediainfo {
                 }
             }
             fclose($handle);
+        }
+
+        return $info;
+    }
+    // }}}
+    // {{{ get_id3_info()
+    function get_id3_info($file) {
+        $info = array();
+        if (file_exists($file)) {
+            require_once("getid3.php");
+
+            $getid3 = new getID3();
+            $data = $getid3->analyze($file);
+
+            //$info = $getid3->info;
+
+            if (isset($getid3->info['mime_type'])) {
+                $info["mime"] = $getid3->info['mime_type'];
+            }
+            if (isset($getid3->info['playtime_seconds'])) {
+                $info["duration"] = $getid3->info['playtime_seconds'];
+            }
+            if (isset($getid3->info['video']['resolution_x'])) {
+                $info["width"] = $getid3->info['video']['resolution_x'];
+            }
+            if (isset($getid3->info['video']['resolution_y'])) {
+                $info["height"] = $getid3->info['video']['resolution_y'];
+            }
         }
 
         return $info;
