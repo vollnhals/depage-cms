@@ -378,10 +378,15 @@ class html {
             } else {
                 $date = date("d.m.y H:m", $page['dt']);
             }
+            if (strlen($page['url']) > 43) {
+                $url = substr($page['url'], 0, 10) . "..." . substr($page['url'], -30);
+            } else {
+                $url = $page['url'];
+            }
             $h .= "<tr>";
                 $h .= "<td>";
                     $h .= "<a href=\"{$conf->path_base}projects/{$project_name}/preview/html/cached/{$lang}{$page['url']}\">";
-                        $h .= "{$page['url']}";
+                        $h .= "{$url}";
                     $h .= "</a>";
                 $h .= "</td>";
                 $h .= "<td class=\"date\">";
