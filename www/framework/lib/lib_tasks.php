@@ -98,9 +98,10 @@ class bgTasks_control {
      * @param    $pocketServerObj (ref) reference to running pocketServer object.
      */
     function handle_tasks($pocketServerObj) {
-        global $log;
+        global $conf, $log;
 
         $active_tasks = $this->get_active_tasks();
+        $waiting_tasks = $this->get_waiting_tasks();
         $planned_tasks = $this->get_planned_tasks();
         $finished_tasks = $this->get_finished_tasks();
         if (count($finished_tasks) > 0) {
@@ -128,6 +129,11 @@ class bgTasks_control {
                 
                 $active_tasks[] = $planned_tasks[$i];
             }
+        }
+
+        for ($i = 0; $i < count($waiting_tasks); $i++) {
+            //$log->add_varinfo($waiting_tasks[$i]['id']);
+            $conf->execInBackground($conf->path_server_root . $conf->path_base . "framework/", "task_do.php", $waiting_tasks[$i]['id'], true);
         }
         
         if (count($active_tasks) > 0) {
@@ -264,6 +270,34 @@ class bgTasks_control {
             "SELECT name, id, depends_on 
             FROM $this->taskTable 
             WHERE status='planned' AND start_time < NOW()"
+        );
+        if ($result) {
+            $num = mysql_num_rows($result);
+            for ($i = 0; $i < $num; $i++) {
+                $row = mysql_fetch_assoc($result);
+                $ids[] = $row;
+            }
+        }
+        //mysql_free_result($result);
+        
+        return $ids;
+    }
+    // }}}
+    // {{{ get_waiting_tasks()
+    /**
+     * gets active tasks
+     *
+     * @public
+     *
+     * @return    $ids (array) ids an other information of active tasks
+     */
+    function get_waiting_tasks() {
+        $ids = array();
+        
+        $result = db_query(
+            "SELECT name, id, depends_on 
+            FROM $this->taskTable 
+            WHERE status='wait_for_resume' AND start_time < NOW()"
         );
         if ($result) {
             $num = mysql_num_rows($result);
@@ -776,7 +810,7 @@ class bgTasks_task {
         $result = db_query(
             "SELECT status 
             FROM $this->taskTable 
-            WHERE id=$this->id"
+            WHERE id='$this->id'"
         );
         if ($result && mysql_num_rows($result) == 1) {
             $row = mysql_fetch_assoc($result);
@@ -805,7 +839,7 @@ class bgTasks_task {
         $result = db_query(
             "SELECT status_description 
             FROM $this->taskTable 
-            WHERE id=$this->id"
+            WHERE id='$this->id'"
         );
         if ($result && mysql_num_rows($result) == 1) {
             $row = mysql_fetch_assoc($result);
