@@ -95,25 +95,25 @@
                             <p style="margin-bottom:3 px"><input type="file" name="file[]" id="file2"></p>
                         </div>
                         <div id="chooser3" style="visibility:hidden;">
-                            <p style="margin-bottom:3 px"><input type="file" name="file[]" id="file3" onBlur="add_file_chooser()" onClick="add_sile_chooser"></p>
+                            <p style="margin-bottom:3 px"><input type="file" name="file[]" id="file3" onBlur="add_file_chooser()" onClick="add_file_chooser"></p>
                         </div>
                         <div id="chooser4" style="visibility:hidden;">
-                            <p style="margin-bottom:3 px"><input type="file" name="file[]" id="file4" onBlur="add_file_chooser()" onClick="add_sile_chooser"></p>
+                            <p style="margin-bottom:3 px"><input type="file" name="file[]" id="file4" onBlur="add_file_chooser()" onClick="add_file_chooser"></p>
                         </div>
                         <div id="chooser5" style="visibility:hidden;">
-                            <p style="margin-bottom:3 px"><input type="file" name="file[]" id="file5" onBlur="add_file_chooser()" onClick="add_sile_chooser"></p>
+                            <p style="margin-bottom:3 px"><input type="file" name="file[]" id="file5" onBlur="add_file_chooser()" onClick="add_file_chooser"></p>
                         </div>
                         <div id="chooser6" style="visibility:hidden;">
-                            <p style="margin-bottom:3 px"><input type="file" name="file[]" id="file6" onBlur="add_file_chooser()" onClick="add_sile_chooser"></p>
+                            <p style="margin-bottom:3 px"><input type="file" name="file[]" id="file6" onBlur="add_file_chooser()" onClick="add_file_chooser"></p>
                         </div>
                         <div id="chooser7" style="visibility:hidden;">
-                            <p style="margin-bottom:3 px"><input type="file" name="file[]" id="file7" onBlur="add_file_chooser()" onClick="add_sile_chooser"></p>
+                            <p style="margin-bottom:3 px"><input type="file" name="file[]" id="file7" onBlur="add_file_chooser()" onClick="add_file_chooser"></p>
                         </div>
                         <div id="chooser8" style="visibility:hidden;">
-                            <p style="margin-bottom:3 px"><input type="file" name="file[]" id="file8" onBlur="add_file_chooser()" onClick="add_sile_chooser"></p>
+                            <p style="margin-bottom:3 px"><input type="file" name="file[]" id="file8" onBlur="add_file_chooser()" onClick="add_file_chooser"></p>
                         </div>
                         <div id="chooser9" style="visibility:hidden;">
-                            <p style="margin-bottom:3 px"><input type="file" name="file[]" id="file9" onBlur="add_file_chooser()" onClick="add_sile_chooser"></p>
+                            <p style="margin-bottom:3 px"><input type="file" name="file[]" id="file9" onBlur="add_file_chooser()" onClick="add_file_chooser"></p>
                         </div>
                     </td>
                 </tr>
