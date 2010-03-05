@@ -259,6 +259,7 @@ class rpc_phpConnect_functions extends rpc_functions_class {
         // {{{ get page_data
         } elseif ($args['type'] == 'page_data') {
             $xml_def = $project->get_page_data_test_lang($project_name, $args['id']);
+            //$xml_def = $project->get_page_data($project_name, $args['id']);
             if ($xml_def !== false) {
                 $data['data'] = $xml_def->dump_node($xml_def->document_element());
             } else {

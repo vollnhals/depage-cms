@@ -1,0 +1,51 @@
+copyright (c) 2002-2010 Frank Hellenkamp [jonas@depagecms.net]
+
+@author    Frank Hellenkamp [jonas@depagecms.net]
+
+
+
+jQuery JavaScript Library v1.3.2
+http://jquery.com/
+
+Copyright (c) 2009 John Resig
+Dual licensed under the MIT and GPL licenses.
+http://docs.jquery.com/License
+
+
+
+jQuery Cookie plugin
+
+Copyright (c) 2006 Klaus Hartl (stilbuero.de)
+Dual licensed under the MIT and GPL licenses:
+http://www.opensource.org/licenses/mit-license.php
+http://www.gnu.org/licenses/gpl.html
+
+
+
+PEAR parts
+Copyright (c) 1997-2003 The PHP Group
+Authors: Vincent Blavet <vincent@blavet.net>
+         Chuck Hagenbuch <chuck@horde.org>
+         Jon Parise <jon@php.net>
+         Damian Alejandro Fernandez Sosa <damlists@cnba.uba.ar>
+         Richard Heyes <richard@phpguru.org>
+         Stig Bakken <ssb@fast.no>
+
+
+getID3() by James Heinrich <info@getid3.org>
+available at http://getid3.sourceforge.net
+          or http://www.getid3.org
+
+
+
+actionscript XPATH:
+	"This product includes software developed by Neeld Tanksley
+	(http://xfactorstudio.com)."
+
+
+
+RegExp object for Flash5 ActionScript Ver1.01
+	Author: Pavils Jurjans
+	Email : pavils@mailbox.riga.lv
+        Default source for this file can be found at:
+              http://www.jurjans.lv/flash/RegExp.html
