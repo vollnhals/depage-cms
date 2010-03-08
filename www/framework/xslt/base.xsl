@@ -10,6 +10,7 @@
         <xsl:param name="pretext" select="@pretext"/>
         <xsl:param name="aptext" select="@aptext"/>
         <xsl:param name="content"/>
+        <xsl:param name="altcontent"/>
         <xsl:param name="class" select="@class"/>
         <xsl:param name="id" select="@id"/>
         <xsl:param name="onFocus" select="@onFocus"/>
@@ -90,11 +91,14 @@
 
             <xsl:value-of select="$pretext" disable-output-escaping="yes" />
             <xsl:choose>
-                <xsl:when test="$href_id and not($content) and not($linkdesc = '')">
-                    <xsl:value-of select="$linkdesc"/>
-                </xsl:when>
                 <xsl:when test="$content != '' ">
                     <xsl:value-of select="$content"/>
+                </xsl:when>
+                <xsl:when test="$href_id and not($linkdesc = '')">
+                    <xsl:value-of select="$linkdesc"/>
+                </xsl:when>
+                <xsl:when test="$altcontent != '' ">
+                    <xsl:value-of select="$altcontent"/>
                 </xsl:when>
                 <xsl:otherwise>
                     <xsl:apply-templates/>
