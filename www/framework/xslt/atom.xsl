@@ -27,9 +27,12 @@
     <!-- {{{ init-feed -->
     <xsl:template name="init-feed">
         <title><xsl:value-of select="$title" /></title>
+
         <link><xsl:attribute name="href"><xsl:value-of select="$baseurl" /></xsl:attribute></link>
+        <link rel="self"><xsl:attribute name="href"><xsl:value-of select="concat($baseurl,$tt_lang,'/atom.xml')" /></xsl:attribute></link>
+
         <id><xsl:value-of select="$baseurl" /></id>
-        <updated><xsl:value-of select="document('call:formatdate////Y-m-d\TH:i:s')" /></updated>
+        <updated><xsl:value-of select="document('call:formatdate////Y-m-d\TH:i:s\Z')" /></updated>
         <author>
             <name><xsl:value-of select="$author" /></name>
         </author>
@@ -47,10 +50,10 @@
         <xsl:param name="url" />
 
         <link><xsl:attribute name="href"><xsl:value-of select="concat($baseurl,$tt_lang,$url)" /></xsl:attribute></link>
-        <id>urn:uuid:<xsl:value-of select="$url" /></id>
-        <updated><xsl:value-of select="document(concat('call:formatdate/',edit:date/@value,'/','Y-m-d\TH:i:s'))" /></updated>
+        <id><xsl:value-of select="concat($baseurl,$url)" /></id>
+        <updated><xsl:value-of select="document(concat('call:formatdate/',edit:date/@value,'/','Y-m-d\TH:i:s\Z'))" /></updated>
         <title><xsl:value-of select="edit:text_headline[@lang = $tt_lang]/*" /></title>
-        <summary><xsl:value-of select="//edit:text_formatted[@lang = $tt_lang and 1]/*" /></summary>
+        <summary><xsl:value-of select=".//edit:text_formatted[@lang = $tt_lang and 1]/*" /></summary>
         <content type="xhtml">
             <div>
                 <xsl:attribute name="xmlns">http://www.w3.org/1999/xhtml</xsl:attribute>
