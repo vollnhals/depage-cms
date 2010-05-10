@@ -287,6 +287,9 @@ class tpl_engine_xslt extends tpl_engine {
         $this->ids_used = array();
         $this->colorscheme = $colorscheme;
         $this->baseurl = $baseurl;
+        if (substr($baseurl, -1) != "/") {
+            $this->baseurl .= "/";
+        }
         $transformed = array();
         
         $settings = $this->get_settings($project_name, $type);

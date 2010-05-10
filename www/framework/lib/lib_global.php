@@ -50,7 +50,7 @@ class config {
         $inifile = parse_ini_file($this->settingsPath . $file, false);
         
         $this->app_name = 'depage::cms';
-        $this->app_version = '1.1.3';
+        $this->app_version = '1.1.4';
         $this->app_copyright = '(c) 2002-2010 by Frank Hellenkamp';
         $this->app_license = 'This software is released under MIT and GPL2 licenses';
 
