@@ -14,7 +14,7 @@
                         <xsl:if test="position() &lt; $num_items">
                             <entry>
                                 <xsl:call-template name="entry">
-                                    <xsl:with-param name="url" select="$url" />
+                                    <xsl:with-param name="url" select="concat($url,'#entry',position())" />
                                 </xsl:call-template>
                             </entry>
                         </xsl:if>
