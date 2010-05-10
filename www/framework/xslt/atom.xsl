@@ -48,8 +48,8 @@
         <link><xsl:value-of select="concat($baseurl,$tt_lang,$url)" /></link>
         <id>urn:uuid:<xsl:value-of select="$url" /></id>
         <updated><xsl:value-of select="document(concat('call:formatdate/',edit:date/@value,'/','Y-m-d\TH:i:s'))" /></updated>
-        <title><xsl:value-of select="edit:text_headline/*" /></title>
-        <summary><xsl:value-of select="//edit:text_formatted[1]/*" /></summary>
+        <title><xsl:value-of select="edit:text_headline[@lang = $tt_lang]/*" /></title>
+        <summary><xsl:value-of select="//edit:text_formatted[@lang = $tt_lang and 1]/*" /></summary>
         <content type="xhtml">
             <div>
                 <xsl:attribute name="xmlns">http://www.w3.org/1999/xhtml</xsl:attribute>
