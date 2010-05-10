@@ -1,97 +1,93 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE xsl:stylesheet [ ]>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:rpc="http://cms.depagecms.net/ns/rpc" xmlns:db="http://cms.depagecms.net/ns/database" xmlns:proj="http://cms.depagecms.net/ns/project" xmlns:pg="http://cms.depagecms.net/ns/page" xmlns:sec="http://cms.depagecms.net/ns/section" xmlns:edit="http://cms.depagecms.net/ns/edit" xmlns:backup="http://cms.depagecms.net/ns/backup" version="1.0" extension-element-prefixes="xsl rpc db proj pg sec edit backup ">
-    <!-- {{{ init-feed -->
-    <xsl:template name="init-feed">
-        require_once("<xsl:value-of select="$depage_path_server_root" /><xsl:value-of select="$depage_path_base" />framework/lib/lib_atom.php"); 
 
-        $feed = new atom("<xsl:value-of select="document(concat('call:phpescape/',$baseurl))/php" />", "<xsl:value-of select="document(concat('call:phpescape/',$title))/php" />");
-
-        $feed-<xsl:text disable-output-escaping="yes">&gt;</xsl:text>add_author("<xsl:value-of select="document(concat('call:phpescape/',$author))/php" />");
-        $feed-<xsl:text disable-output-escaping="yes">&gt;</xsl:text>add_rights("<xsl:value-of select="document(concat('call:phpescape/',$rights))/php" />");
-        $feed-<xsl:text disable-output-escaping="yes">&gt;</xsl:text>add_icon("<xsl:value-of select="document(concat('call:phpescape/',$logo))/php" />");
-        $feed-<xsl:text disable-output-escaping="yes">&gt;</xsl:text>add_logo("<xsl:value-of select="document(concat('call:phpescape/',$favicon))/php" />");
+    <!-- {{{ root -->
+    <xsl:template match="/">
+        <feed>
+            <xsl:attribute name="xmlns">http://www.w3.org/2005/Atom</xsl:attribute>
+            <xsl:call-template name="init-feed" />
+            <xsl:for-each select="document('get:navigation')/proj:pages_struct//*[@nav_atom = 'true']//pg:page[not(@nav_hidden = 'true')]">
+                <xsl:if test="position() &lt; $num_items">
+                    <xsl:variable name="url" select="@url" />
+                    <xsl:for-each select="document(concat('get:page','/',@db:id))//pg:page_data//*[name() = $entries]">
+                        <xsl:if test="position() &lt; $num_items">
+                            <entry>
+                                <xsl:call-template name="entry">
+                                    <xsl:with-param name="url" select="$url" />
+                                </xsl:call-template>
+                            </entry>
+                        </xsl:if>
+                    </xsl:for-each>
+                </xsl:if>
+            </xsl:for-each>
+        </feed>
     </xsl:template>
     <!-- }}} -->
-    <!-- {{{ output-feed -->
-    <xsl:template name="output-feed">
-        $feed-<xsl:text disable-output-escaping="yes">&gt;</xsl:text>header();
-        echo($feed-<xsl:text disable-output-escaping="yes">&gt;</xsl:text>generate(<xsl:value-of select="$num_items" />));
+    <!-- {{{ init-feed -->
+    <xsl:template name="init-feed">
+        <title><xsl:value-of select="$title" /></title>
+        <link><xsl:value-of select="$baseurl" /></link>
+        <updated></updated>
+        <author>
+            <name><xsl:value-of select="$author" /></name>
+        </author>
+        <rights><xsl:value-of select="$rights" /></rights>
+        <xsl:if test="$icon != ''">
+            <icon><xsl:value-of select="concat($baseurl,$icon)" /></icon>
+        </xsl:if>
+        <xsl:if test="$logo != ''">
+            <logo><xsl:value-of select="concat($baseurl,$logo)" /></logo>
+        </xsl:if>
     </xsl:template>
     <!-- }}} -->
     <!-- {{{ entry -->
     <xsl:template name="entry">
-        <xsl:param name="title" />
-        <xsl:param name="text" />
-        <xsl:param name="link" />
-        <xsl:param name="date" />
-        <xsl:param name="author" />
+        <xsl:param name="url" />
 
-        $text = <xsl:text disable-output-escaping="yes">&lt;&lt;&lt;</xsl:text>EOT
-<xsl:apply-templates select="$text" />
-EOT;
-
-        $feed-<xsl:text disable-output-escaping="yes">&gt;</xsl:text>add_entry(
-            "<xsl:value-of select="document(concat('call:phpescape/',$title))/php" />", 
-            <!--"<xsl:for-each select="$text"><xsl:apply-templates select="." /></xsl:for-each>",-->
-            $text,
-            "<xsl:value-of select="document(concat('call:phpescape/',$link))/php" />" 
-            <xsl:if test="$date != ''">
-                ,"<xsl:value-of select="document(concat('call:phpescape/',$date))/php" />" 
-            </xsl:if>
-            <xsl:if test="$author != ''">
-                ,"<xsl:value-of select="document(concat('call:phpescape/',$author))/php" />"
-            </xsl:if>
-        );
-    </xsl:template>
-    <!-- }}} -->
-
-    <!-- {{{ pg:folder -->
-    <xsl:template match="pg:folder">
-        <xsl:if test="not(@nav_hidden = 'true')">
-            <xsl:apply-templates />
-        </xsl:if>
-    </xsl:template>
-    <!-- }}} -->
-    <!-- {{{ pg:page -->
-    <xsl:template match="pg:page">
-        <xsl:if test="not(@nav_hidden = 'true')">
-            <xsl:apply-templates select="document(concat('get:page','/',@db:id))//pg:page_data">
-                <xsl:with-param name="url"><xsl:value-of select="$tt_lang" /><xsl:value-of select="@url" /></xsl:with-param>
-            </xsl:apply-templates>
-            <xsl:apply-templates />
-        </xsl:if>
+        <link><xsl:value-of select="concat($baseurl,$tt_lang,$url)" /></link>
+        <id>urn:uuid:<xsl:value-of select="$url" /></id>
+        <updated><xsl:value-of select="document(concat('call:formatdate/',edit:date/@value,'/','Y-m-d\TH:i:s'))" /></updated>
+        <title><xsl:value-of select="edit:text_headline/*" /></title>
+        <summary><xsl:value-of select="//edit:text_formatted[1]/*" /></summary>
+        <content type="xhtml">
+            <div>
+                <xsl:attribute name="xmlns">http://www.w3.org/1999/xhtml</xsl:attribute>
+                <xsl:call-template name="content" />
+            </div>
+        </content>
     </xsl:template>
     <!-- }}} -->
 
     <!-- {{{ edit:text_formatted -->
     <xsl:template match="edit:text_formatted">
-        <xsl:apply-templates />
+        <xsl:if test="@lang = $tt_lang">
+            <xsl:apply-templates />
+        </xsl:if>
     </xsl:template>
     <!-- }}} -->
     <!-- {{{ edit:text_headline -->
     <xsl:template match="edit:text_headline">
-        <h1>
-            <xsl:for-each select="p">
-                <xsl:apply-templates />
-            </xsl:for-each>
-        </h1>
+        <xsl:if test="@lang = $tt_lang and count(p) &gt; 0">
+            <h1>
+                <xsl:for-each select="p">
+                    <xsl:apply-templates />
+                </xsl:for-each>
+            </h1>
+        </xsl:if>
     </xsl:template>
     <!-- }}} -->
     <!-- {{{ edit:img -->
     <xsl:template match="edit:img">
-        <img>
-            <xsl:choose>
-                <xsl:when test="@src != ''">
-                    <xsl:attribute name="src">
-                        <xsl:value-of select="$baseurl" />lib<xsl:value-of select="substring(@src,8)"/>
-                    </xsl:attribute>
-                    <xsl:attribute name="width"><xsl:value-of select="document(concat('call:fileinfo/', @src))/file/@width"/></xsl:attribute>
-                    <!--xsl:attribute name="height"><xsl:value-of select="document(concat('call:fileinfo/', @src))/file/@height"/></xsl:attribute-->
-                </xsl:when>
-            </xsl:choose>
-        </img>
-        
+        <xsl:if test="@src != ''">
+            <img>
+                <xsl:attribute name="src">
+                    <xsl:value-of select="$baseurl" />lib<xsl:value-of select="substring(@src,8)"/>
+                </xsl:attribute>
+                <xsl:attribute name="width"><xsl:value-of select="document(concat('call:fileinfo/', @src))/file/@width"/></xsl:attribute>
+                <xsl:attribute name="height"><xsl:value-of select="document(concat('call:fileinfo/', @src))/file/@height"/></xsl:attribute>
+            </img>
+        </xsl:if>
     </xsl:template>
     <!-- }}} -->
 
@@ -121,22 +117,32 @@ EOT;
                 </xsl:otherwise>
             </xsl:choose>
             <xsl:apply-templates />
+            <xsl:text> </xsl:text>
         </a>
     </xsl:template>
     <!-- }}} -->
     <!-- {{{ b -->
     <xsl:template match="b">
-        <b><xsl:apply-templates /></b>
+        <b>
+            <xsl:apply-templates />
+            <xsl:text> </xsl:text>
+        </b>
     </xsl:template>
     <!-- }}} -->
     <!-- {{{ i -->
     <xsl:template match="i">
-        <i><xsl:apply-templates /></i>
+        <i>
+            <xsl:apply-templates />
+            <xsl:text> </xsl:text>
+        </i>
     </xsl:template>
     <!-- }}} -->
     <!-- {{{ small -->
     <xsl:template match="small">
-        <small><xsl:apply-templates /></small>
+        <small>
+            <xsl:apply-templates />
+            <xsl:text> </xsl:text>
+        </small>
     </xsl:template>
     <!-- }}} -->
 

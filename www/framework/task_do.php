@@ -568,7 +568,10 @@ class rpc_bgtask_functions extends rpc_functions_class {
         $args['task']->set_description('%task_publish_caching_templates%');
         
         $tempdoc = $this->xml_proc->_get_template_from_cache($this->project, $this->template_set);
-        $tempdoc->dump_file($this->cache_path . 'template.xsl', false, true);
+        $tempdoc->dump_file($this->cache_path . 'template_' . $this->template_set . '.xsl', false, true);
+
+        $tempdoc = $this->xml_proc->_get_template_from_cache($this->project, "atom");
+        $tempdoc->dump_file($this->cache_path . 'template_atom.xsl', false, true);
         
         //$tempdoc->free();
     }
@@ -927,10 +930,8 @@ class rpc_bgtask_functions extends rpc_functions_class {
         $pb = new publish($this->project, $args['publish_id']);
         $args['task']->set_description('%task_publish_feeds%');
         
-        $feed = new atom($args['baseurl'], $args['title']);
-
-        $xmlstr = $feed->generate();
-        if (!$this->file_access->f_write_string($this->output_path . "/" . $lang . "/atom.xml", $xmlstr)) {
+        $transformed = $this->xml_proc->generate_page_atom($this->project, "atom", $args['lang'], $args["baseurl"], true);
+        if (!$this->file_access->f_write_string($this->output_path . "/" . $args['lang'] . "/atom.xml", $transformed['value'])) {
             $log->add_entry("Could not write atom-feed");
         }
     }

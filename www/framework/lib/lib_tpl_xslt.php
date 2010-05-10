@@ -32,6 +32,7 @@ class tpl_engine_xslt extends tpl_engine {
         'html' => 'text/html',
         'xhtml' => 'text/html',
         'xml' => 'application/xml',
+        'atom' => 'application/atom+xml',
         'text' => 'application/text',
     );
 
@@ -238,6 +239,89 @@ class tpl_engine_xslt extends tpl_engine {
             
             // Process the document
             $result = xslt_process($xh, "get:css", "get:template/{$this->type}/" . ($this->use_cached_template ? 'cached' : 'noncached'), null, $arguments = null, $param = null);
+            if (!$result) {
+                $log->add_entry("ERROR " . xslt_errno($xh) . ": " . xslt_error($xh) . ".\n");
+                $this->error .= "ERROR " . xslt_errno($xh) . ": " . xslt_error($xh) . ".\n";
+            } else {
+                $this->error = "";
+            }
+            //xslt_free($xh);
+            
+            $transformed['value'] = $this->_post_transform($project_name, $type, $result);
+            $transformed['content_type'] = $this->content_type;
+            $transformed['content_encoding'] = $this->content_encoding;
+        }
+        return $transformed;
+    }
+    // }}}
+    // {{{ generate_page_atom()
+    /**
+     * generates atom feed for project
+     *
+     * @public
+     *
+     * @param    $project_name (string) project name
+     * @param    $type (string) name of template-set that should be used
+     * @param    $lang (string) current language
+     * @param    $use_cached_template (bool) true, if to use cached template, false for using template from db for previewing
+     */
+    function generate_page_atom($project_name, $type, $lang = '', $baseurl = '', $use_cached_template = true) {
+        global $conf, $log;
+
+        if ($lang == '') {
+            $output_languages = array();
+            $xml_temp = $this->get_languages($project_name);
+            $xpath_temp = project::xpath_new_context($xml_temp);
+            $xfetch = xpath_eval($xpath_temp, "/{$conf->ns['project']['ns']}:languages/{$conf->ns['project']['ns']}:language/@shortname");
+            for ($i = 0; $i < count($xfetch->nodeset); $i++) {
+                $output_languages[$i] = $xfetch->nodeset[$i]->get_content();
+            }
+            $lang = $output_languages[0];
+        }
+        
+        $this->project = $project_name;
+        $this->type = $type;
+        $this->id = -1;
+        $this->lang = $lang;
+        $this->use_cached_template = $use_cached_template;
+        $this->ids_used = array();
+        $this->colorscheme = $colorscheme;
+        $this->baseurl = $baseurl;
+        $transformed = array();
+        
+        $settings = $this->get_settings($project_name, $type);
+        $tempNode = $settings->document_element();
+        
+        $this->method = "xml";
+        $this->indent = "yes";
+        $this->content_encoding = $tempNode->get_attribute('encoding');
+        $this->content_type = $this->methods["atom"];
+        
+        //set variables
+        $this->variables = array(
+            'tt_actual_id' => "'{$this->id}'",
+            'tt_lang' => "'{$this->lang}'",
+            'tt_multilang' => "/{$conf->ns['page']['ns']}:page/@multilang",
+            'baseurl' => "'{$this->baseurl}'",
+            'content_type' => "'{$this->content_type}'",
+            'content_encoding' => "'{$this->content_encoding}'",
+            'tt_actual_colorscheme' => "'{$this->colorscheme}'",
+        );
+        
+        $xml_colors = $this->get_colors($this->project);
+        $xpath_colors = project::xpath_new_context($xml_colors);
+            
+        //process data
+        if ($this->use == 'sablotron') {
+            // Allocate a new XSLT processor
+            $schemeHandlerArray = array(
+                'get_all' => 'urlSchemeHandler',
+            );
+            $xh = xslt_create();
+            xslt_set_scheme_handlers($xh, $schemeHandlerArray);
+            
+            // Process the document
+            $result = xslt_process($xh, "get:atom", "get:template/{$this->type}/" . ($this->use_cached_template ? 'cached' : 'noncached'), null, $arguments = null, $param = null);
             if (!$result) {
                 $log->add_entry("ERROR " . xslt_errno($xh) . ": " . xslt_error($xh) . ".\n");
                 $this->error .= "ERROR " . xslt_errno($xh) . ": " . xslt_error($xh) . ".\n";
@@ -569,7 +653,7 @@ class tpl_engine_xslt extends tpl_engine {
                 $this->templates[$project_name][$type] = $this->_get_template_from_db($this->project, $this->type);
             }
         } else {
-            $this->templates[$project_name][$type] = domxml_open_file($project->get_project_path($project_name) . '/publish/template.xsl');
+            $this->templates[$project_name][$type] = domxml_open_file($project->get_project_path($project_name) . "/publish/template_{$type}.xsl");
         }
         
         $actual_template = $this->templates[$project_name][$type];
@@ -1129,7 +1213,7 @@ function urlSchemeHandler($processor, $scheme, $param) {
             $value = $xml_template->dump_mem(false);
         } else if ($func == 'xslt') {
             $value = file_get_contents("{$conf->path_server_root}{$conf->path_base}framework/xslt/$id");
-        } else if ($func == 'navigation') {
+        } else if ($func == 'navigation' || $func == 'atom') {
             $xml_navigation = $xml_proc->get_navigation($xml_proc->project);
             if ($xml_proc->id != -1) {
                 $xml_proc->add_extras_to_navigation($xml_proc->project, $xml_proc->id, $xml_proc->type, $xml_proc->lang, $xml_navigation);

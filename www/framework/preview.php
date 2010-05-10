@@ -48,16 +48,10 @@ function getParameterByUrl($url, $project = "", $type = "", $access = "") {
     $param = array();
     
     if ($project == "") {
-        $param['access'] = 'preview';
-        
         $url = parse_url($url);
         $path = explode('/', substr($url['path'], strpos($url['path'], 'projects')));
         $param['project'] = $path[1];
         $param['type'] = $path[3];
-        /*
-        $param['sid'] = $path[4];
-        $param['wid'] = $path[5];
-         */
         if ($path[4] == 'cached') {
             $param['cached'] = true;
         } else {
@@ -73,6 +67,11 @@ function getParameterByUrl($url, $project = "", $type = "", $access = "") {
         }
         $param['id_file_path'] = '/' . implode('/', array_slice($path, 6));
         $param['file_path'] = '/' . implode('/', array_slice($path, 5));
+        if ($param['id_file_path'] == "/atom.xml") {
+            $param['access'] = 'atom';
+        } else {
+            $param['access'] = 'preview';
+        }
         $param['path'] = '/' . implode('/', array_slice($path, 5, -1));
         $param['lang'] = $path[5];
     } else {
@@ -238,6 +237,20 @@ if ($param['project'] != "") {
         echo("<pre>");
         echo($transformed['value']);
         echo("</pre>");
+    // }}}
+    // {{{ atom
+    } else if ($param['access'] == 'atom') { 
+        $xml_proc->actual_path = '/';
+        $id = 0;
+        $baseurl = 'http://' . $_SERVER['HTTP_HOST'] . $conf->path_projects . '/' . $project_name . '/';
+        if (!$param['cached']) {
+            $transformed = $xml_proc->generate_page_atom($project_name, $param['type'], $param['lang'], $baseurl, $param['cached']);
+        } else if (($transformed = $xml_proc->get_from_transform_cache($project_name, $param['type'], 0, $param['file_name'], $param['access'])) === false) {
+            $transformed = $xml_proc->generate_page_atom($project_name, $param['type'], $param['file_name'], $baseurl, $param['cached']);
+            $xml_proc->add_to_transform_cache($project_name, $param['type'], 0, $param['file_name'], $param['access'], $transformed, array());
+        }
+        headerType($transformed['content_type'], $transformed['content_encoding']);
+        echo($transformed['value']);
     // }}}
     // {{{ index
     } else if ($param['access'] == 'index') { 
