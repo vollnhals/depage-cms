@@ -242,7 +242,7 @@ if ($param['project'] != "") {
     } else if ($param['access'] == 'atom') { 
         $xml_proc->actual_path = '/';
         $id = 0;
-        $baseurl = 'http://' . $_SERVER['HTTP_HOST'] . $conf->path_projects . '/' . $project_name . '/';
+        $baseurl = 'http://' . $_SERVER['HTTP_HOST'] . $conf->path_projects . '/' . $project_name . '/preview/html/cached/';
         if (!$param['cached']) {
             $transformed = $xml_proc->generate_page_atom($project_name, $param['type'], $param['lang'], $baseurl, $param['cached']);
         } else if (($transformed = $xml_proc->get_from_transform_cache($project_name, $param['type'], 0, $param['file_name'], $param['access'])) === false) {

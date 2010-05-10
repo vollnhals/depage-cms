@@ -27,8 +27,9 @@
     <!-- {{{ init-feed -->
     <xsl:template name="init-feed">
         <title><xsl:value-of select="$title" /></title>
-        <link><xsl:value-of select="$baseurl" /></link>
-        <updated></updated>
+        <link><xsl:attribute name="href"><xsl:value-of select="$baseurl" /></xsl:attribute></link>
+        <id><xsl:value-of select="$baseurl" /></id>
+        <updated><xsl:value-of select="document('call:formatdate////Y-m-d\TH:i:s')" /></updated>
         <author>
             <name><xsl:value-of select="$author" /></name>
         </author>
@@ -45,7 +46,7 @@
     <xsl:template name="entry">
         <xsl:param name="url" />
 
-        <link><xsl:value-of select="concat($baseurl,$tt_lang,$url)" /></link>
+        <link><xsl:attribute name="href"><xsl:value-of select="concat($baseurl,$tt_lang,$url)" /></xsl:attribute></link>
         <id>urn:uuid:<xsl:value-of select="$url" /></id>
         <updated><xsl:value-of select="document(concat('call:formatdate/',edit:date/@value,'/','Y-m-d\TH:i:s'))" /></updated>
         <title><xsl:value-of select="edit:text_headline[@lang = $tt_lang]/*" /></title>
