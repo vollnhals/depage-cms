@@ -7,7 +7,7 @@
         <feed>
             <xsl:attribute name="xmlns">http://www.w3.org/2005/Atom</xsl:attribute>
             <xsl:call-template name="init-feed" />
-            <xsl:for-each select="document('get:navigation')/proj:pages_struct//*[@nav_atom = 'true']//pg:page[not(@nav_hidden = 'true')]">
+            <xsl:for-each select="document('get:navigation')/proj:pages_struct//*[@nav_atom = 'true']/descendant-or-self::pg:page[not(@nav_hidden = 'true')]">
                 <xsl:if test="position() &lt; $num_items">
                     <xsl:variable name="url" select="@url" />
                     <xsl:for-each select="document(concat('get:page','/',@db:id))//pg:page_data//*[name() = $entries]">
@@ -112,7 +112,7 @@
                 </xsl:when>
                 <xsl:otherwise>
                     <xsl:attribute name="href">
-                        <xsl:value-of select="$baseurl" /><xsl:value-of select="document(concat('pageref:/', @href_id, '/', $lang))/." disable-output-escaping="yes" />
+                        <xsl:value-of select="$baseurl" /><xsl:value-of select="document(concat('pageref:/', @href_id, '/', $tt_lang))/." disable-output-escaping="yes" />
                     </xsl:attribute>
                 </xsl:otherwise>
             </xsl:choose>
