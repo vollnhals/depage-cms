@@ -10,7 +10,7 @@ class_tree.prototype.showRootNode = true;
 class_tree.prototype.showChildrenInitLevel = 3;
 class_tree.prototype.allowReordering = true;
 // }}}
-// {{{ init()
+// {{{Â init()
 class_tree.prototype.init = function(type, projectObj) {
 	this.type = type;
 	
@@ -575,7 +575,7 @@ class_tree_pages.prototype.move_in = function(node, targetNode) {
 	}
 };
 // }}}
-// {{{ move_before()
+// {{{Â move_before()
 class_tree_pages.prototype.move_before = function(node, targetNode) {
 	if (node != targetNode && this.isValidMove(node, targetNode.parentNode)) {
 		this.loading = true;
@@ -586,7 +586,7 @@ class_tree_pages.prototype.move_before = function(node, targetNode) {
 	}
 };
 // }}}
-// {{{ move_after()
+// {{{Â move_after()
 class_tree_pages.prototype.move_after = function(node, targetNode) {
 	if (node != targetNode && this.isValidMove(node, targetNode.parentNode)) {
 		this.loading = true;
@@ -715,14 +715,29 @@ class_tree_pages.prototype.getUriById = function(id) {
 	while (tempNode != this.data) {
 		if (tempNode != this.data.getRootNode()) {
 			if (id == tempNode.nid && !this.isFolder(tempNode)) {
-				path = tempNode.attributes.name;
+				//path = tempNode.attributes.name;
+				path = tempNode.attributes.name.glpEncode();
 			} else {
-				path = tempNode.attributes.name + "/" + path;
+				path = tempNode.attributes.name.glpEncode() + "/" + path;
 			}
 		}
 		tempNode = tempNode.parentNode;
 	}
 	
+	return  conf.url_page_scheme_intern + ":/" + path;
+};
+// }}}
+// {{{ getUrlById()
+class_tree_pages.prototype.getUrlById = function(id) {
+	var path = "";
+	var tempNode = this.data.searchForId(id);
+	
+	if (tempNode == null) {
+		return "";
+	}
+	
+        path = tempNode.attributes.url;
+
 	return  conf.url_page_scheme_intern + ":/" + path;
 };
 // }}}
@@ -743,7 +758,7 @@ class_tree_pages.prototype.getIdByURI = function(uri) {
 		tempNode = this.data.getRootNode();
 		for (i = 1; i < uri.length - 1; i++) {
 			tempNode = tempNode.firstChild;
-			while (tempNode != null && tempNode.attributes.name != uri[i]) {
+			while (tempNode != null && tempNode.attributes.name.glpEncode() != uri[i]) {
 				tempNode = tempNode.nextSibling;
 			}
 			if (tempNode == null) {
@@ -795,7 +810,7 @@ class_tree_page_data.prototype = new class_tree();
 
 class_tree_page_data.prototype.setNodeIds = class_tree_pages.prototype.setNodeIds;
 // }}}
-// {{{ init()
+// {{{Â init()
 class_tree_page_data.prototype.init = function(type, projectObj) {
 	super.init(type, projectObj);
 		
@@ -856,7 +871,7 @@ class_tree_page_data.prototype.isTreeNode = function(node) {
 	return node.getNameSpace() == conf.ns.section.toString() || node.nodeName == conf.ns.page + ":page_data" || node.nodeName == conf.ns.page + ":folder_data" || node.nodeName == conf.ns.page + ":meta" || node.nodeName == conf.ns.edit + ":plain_source";	
 };
 // }}}
-// {{{ getAddNodes()
+// {{{Â getAddNodes()
 class_tree_page_data.prototype.getAddNodes = function(targetNode) {
 	if (targetNode == undefined) {
 		targetNodeName = conf.ns.page + ":page_data";
@@ -1243,7 +1258,7 @@ class_tree_colors.prototype.init = function(type, projectObj) {
 	_root.pocketConnect.msgHandler.register_func("update_tree_" + this.type, this.set_data, this);
 };
 // }}}
-// {{{ load()
+// {{{Â load()
 class_tree_colors.prototype.load = function() {
 	this.loading = true;
 	_root.phpConnect.send("get_tree", [["sid", conf.user.sid], ["wid", conf.user.wid], ["project_name", conf.project_name], ["type", this.type]]);
@@ -1263,7 +1278,7 @@ class_tree_colors.prototype.set_data = function(args) {
 	}
 };
 // }}}
-// {{{ isTreeNode()
+// {{{Â isTreeNode()
 class_tree_colors.prototype.isTreeNode = function(node) {
 	return node.getNameSpace() == conf.ns.project.toString() || this.isSeparatorNode(node);	
 };
@@ -1476,7 +1491,7 @@ class_tree_tpl_templates.prototype = new class_tree();
 class_tree_tpl_templates.prototype.showRootNode = false;
 class_tree_tpl_templates.prototype.showChildrenInitLevel = 2;
 // }}}
-// {{{ init()
+// {{{Â init()
 class_tree_tpl_templates.prototype.init = function(type, projectObj) {
 	super.init(type, projectObj);	
 	_root.phpConnect.msgHandler.register_func("update_tree_" + this.type, this.set_data, this);
@@ -1484,7 +1499,7 @@ class_tree_tpl_templates.prototype.init = function(type, projectObj) {
 	_root.pocketConnect.msgHandler.register_func("update_tree_" + this.type, this.set_data, this);
 };
 // }}}
-// {{{ load()
+// {{{Â load()
 class_tree_tpl_templates.prototype.load = function() {
 	this.loading = true;
 	_root.phpConnect.send("get_tree", [["sid", conf.user.sid], ["wid", conf.user.wid], ["project_name", conf.project_name], ["type", this.type]]);
@@ -1590,7 +1605,7 @@ class_tree_tpl_newnodes.prototype.init = function(type, projectObj) {
 	_root.pocketConnect.msgHandler.register_func("update_tree_" + this.type, this.set_data, this);
 };
 // }}}
-// {{{ load()
+// {{{Â load()
 class_tree_tpl_newnodes.prototype.load = function() {
 	this.loading = true;
 	_root.phpConnect.send("get_tree", [["sid", conf.user.sid], ["wid", conf.user.wid], ["project_name", conf.project_name], ["type", this.type]]);
@@ -1606,7 +1621,7 @@ class_tree_tpl_newnodes.prototype.set_data = function(args) {
 	}
 };
 // }}}
-// {{{ isTreeNode()
+// {{{Â isTreeNode()
 class_tree_tpl_newnodes.prototype.isTreeNode = function(node) {
 	return node.nodeName == conf.ns.page + ":newnode" || node.nodeName == conf.ns.project + ":tpl_newnodes";
 };
@@ -1680,14 +1695,14 @@ class_tree_tpl_newnodes.prototype.isValidCopy = function(node, targetNode) {
  *	Extends class_tree()
  *	Handles Project-Settings and its Modules
  */
-// {{{ constructor()
+// {{{Â constructor()
 class_tree_settings = function() {};
 class_tree_settings.prototype = new class_tree();
 
 class_tree_settings.prototype.showRootNode = false;
 class_tree.prototype.showChildrenInitLevel = 2;
 // }}}
-// {{{ init()
+// {{{Â init()
 class_tree_settings.prototype.init = function(type, projectObj) {
 	super.init(type, projectObj);	
 	_root.phpConnect.msgHandler.register_func("update_tree_" + this.type, this.set_data, this);
@@ -1719,7 +1734,7 @@ class_tree_settings.prototype.set_data = function(args) {
 // {{{ setNodeIds()
 class_tree_settings.prototype.setNodeIds = class_tree_pages.prototype.setNodeIds;
 // }}}
-// {{{ onDelete()
+// {{{Â onDelete()
 class_tree_settings.prototype.onDelete = class_tree_pages.prototype.onDelete;
 // }}}
 // {{{ duplicate()
@@ -1814,7 +1829,7 @@ class_tree_settings.prototype.isValidDelete = function(node) {
 	}
 };
 // }}}
-// {{{ isValidDuplicate()
+// {{{Â isValidDuplicate()
 class_tree_settings.prototype.isValidDuplicate = function(node) {
 	if (node.nodeName == conf.ns.project + ":navigation") {
 		return true;		

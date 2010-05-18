@@ -122,41 +122,41 @@ String.prototype.glpEncode = function() {
 	var newValue = "";
 	var i;
 	var charCode;
+        var oldChar = "-";
+        var newChar = "";
         
         //@todo fix bug with "()" in folder and page names
 	
 	for (i = 0; i < this.length; i++) {
 		charCode = this.charCodeAt(i);
 		if (this.charAt(i) == "ä" || this.charAt(i) == "Ä") {
-			newValue += "ae";
+			newChar = "ae";
 		} else if (this.charAt(i) == "ö" || this.charAt(i) == "Ö") {
-			newValue += "oe";
+			newChar = "oe";
 		} else if (this.charAt(i) == "ü" || this.charAt(i) == "Ü") {
-			newValue += "ue";
+			newChar = "ue";
 		} else if (this.charAt(i) == "ß") {
-			newValue += "ss";
+			newChar = "ss";
                 } else if (this.charAt(i) == "á" || this.charAt(i) == "Á" || this.charAt(i) == "à" || this.charAt(i) == "À" || this.charAt(i) == "â" || this.charAt(i) == "Â") {
-			newValue += "a";
+			newChar = "a";
                 } else if (this.charAt(i) == "ó" || this.charAt(i) == "Ó" || this.charAt(i) == "ò" || this.charAt(i) == "Ò" || this.charAt(i) == "ô" || this.charAt(i) == "Ô") {
-			newValue += "o";
+			newChar = "o";
                 } else if (this.charAt(i) == "ú" || this.charAt(i) == "Ú" || this.charAt(i) == "ù" || this.charAt(i) == "Ù" || this.charAt(i) == "û" || this.charAt(i) == "Û") {
-			newValue += "u";
+			newChar = "u";
 		} else if (this.charAt(i) == "ö" || this.charAt(i) == "Ö") {
-			newValue += "oe";
+			newChar = "oe";
 		} else if (this.charAt(i) == "ü" || this.charAt(i) == "Ü") {
-			newValue += "ue";
+			newChar = "ue";
 		} else if (this.charAt(i) == "-" || this.charAt(i) == "_" || this.charAt(i) == "." || (charCode >= 48 && charCode <= 57) || (charCode >= 97 && charCode <= 122) || (charCode >= 65 && charCode <= 90)) {
-			newValue += this.charAt(i);
-		} else {
-			newValue += "-";
-		}
-		/*
-		if (this.charAt(i) == "-" || this.charAt(i) == "_" || this.charAt(i) == "." || (charCode >= 48 && charCode <= 57) || (charCode >= 97 && charCode <= 122) || (charCode >= 65 && charCode <= 90)) {
-			newValue += this.charAt(i);
-		} else {
-			newValue += "";
-		}
-		*/
+			newChar = this.charAt(i);
+		} else  {
+			newChar = "-";
+                }
+
+                if (oldChar != "-" || newChar != "-") {
+                    newValue += newChar;
+                }
+                oldChar = newChar;
 	}	
 	
 	newValue = newValue.toLowerCase();
