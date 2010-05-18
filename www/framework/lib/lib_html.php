@@ -24,6 +24,7 @@ class html {
         $this->lang = $conf->getTexts($conf->interface_language, '', false);
         $lang_keys = array();
         foreach ($this->lang as $key => $text) {
+            $this->lang[$key] = htmlentities($text, ENT_COMPAT, "UTF-8");
             $this->lang_keys[] = "%$key%";
         }
     }
@@ -33,13 +34,13 @@ class html {
     function head($extra_content = "") {
         global $conf;
 
-        headerType("text/html", "ISO-8859-1");
+        headerType("text/html", "utf-8");
 
         ?><!DOCTYPE html>
 <html>
         <head>
             <title><?php echo(str_replace(array("%app_name%", "%app_version%"), array($conf->app_name, $conf->app_version), $this->lang["inhtml_main_title"])); ?></title>
-            <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+            <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
             <?php
                 if ($_GET['autorefresh'] == 'true') {
             ?>

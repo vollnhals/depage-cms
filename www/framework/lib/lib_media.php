@@ -24,7 +24,7 @@ class mediainfo {
         $info = mediainfo::get_file_info($file);
         $xml = "<file";
         foreach ($info as $key => $value) {
-            $xml .= " $key=\"" . htmlentities($value) . "\"";
+            $xml .= " $key=\"" . htmlspecialchars($value) . "\"";
         }
         $xml .= " />";
 

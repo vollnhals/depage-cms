@@ -123,7 +123,7 @@ class rpc_phpConnect_functions extends rpc_functions_class {
         $conf_array['interface_text'] = "";
         $lang = $conf->getTexts($conf->interface_language);
         foreach ($lang as $key => $val) {
-            $conf_array['interface_text'] .= "<text name=\"$key\" value=\"" . utf8_encode($val) . "\" />";
+            $conf_array['interface_text'] .= "<text name=\"$key\" value=\"" . $val . "\" />";
         }
         
         $conf_array['interface_scheme'] = '';
@@ -1342,7 +1342,7 @@ class rpc_phpConnect_functions extends rpc_functions_class {
  * MAIN
  */ 
 headerNoCache();
-headerType('text/xml');
+headerType('text/xml', "UTF-8");
 set_time_limit(0);
 ignore_user_abort(true);
 

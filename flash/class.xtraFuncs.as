@@ -127,7 +127,6 @@ String.prototype.glpEncode = function() {
 	
 	for (i = 0; i < this.length; i++) {
 		charCode = this.charCodeAt(i);
-                //@todo add support áàâ etc (exactely as in php)
 		if (this.charAt(i) == "ä" || this.charAt(i) == "Ä") {
 			newValue += "ae";
 		} else if (this.charAt(i) == "ö" || this.charAt(i) == "Ö") {
@@ -136,6 +135,16 @@ String.prototype.glpEncode = function() {
 			newValue += "ue";
 		} else if (this.charAt(i) == "ß") {
 			newValue += "ss";
+                } else if (this.charAt(i) == "á" || this.charAt(i) == "Á" || this.charAt(i) == "à" || this.charAt(i) == "À" || this.charAt(i) == "â" || this.charAt(i) == "Â") {
+			newValue += "a";
+                } else if (this.charAt(i) == "ó" || this.charAt(i) == "Ó" || this.charAt(i) == "ò" || this.charAt(i) == "Ò" || this.charAt(i) == "ô" || this.charAt(i) == "Ô") {
+			newValue += "o";
+                } else if (this.charAt(i) == "ú" || this.charAt(i) == "Ú" || this.charAt(i) == "ù" || this.charAt(i) == "Ù" || this.charAt(i) == "û" || this.charAt(i) == "Û") {
+			newValue += "u";
+		} else if (this.charAt(i) == "ö" || this.charAt(i) == "Ö") {
+			newValue += "oe";
+		} else if (this.charAt(i) == "ü" || this.charAt(i) == "Ü") {
+			newValue += "ue";
 		} else if (this.charAt(i) == "-" || this.charAt(i) == "_" || this.charAt(i) == "." || (charCode >= 48 && charCode <= 57) || (charCode >= 97 && charCode <= 122) || (charCode >= 65 && charCode <= 90)) {
 			newValue += this.charAt(i);
 		} else {

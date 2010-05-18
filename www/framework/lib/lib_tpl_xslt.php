@@ -959,34 +959,35 @@ class tpl_engine_xslt extends tpl_engine {
         //@todo fix bug with "()" in folder and page names
 
         $repl = array(
-            "ä" => "ae",
-            "ö" => "oe",
-            "ü" => "ue",
-            "ß" => "ss",
-            "á" => "a",
-            "à" => "a",
-            "â" => "a",
-            "é" => "e",
-            "è" => "e",
-            "ê" => "e",
-            "í" => "i",
-            "ì" => "i",
-            "î" => "i",
-            "ó" => "o",
-            "ò" => "o",
-            "ô" => "o",
-            "ú" => "u",
-            "ù" => "u",
-            "û" => "u",
+            "Ã¤" => "ae",
+            "Ã¶" => "oe",
+            "Ã¼" => "ue",
+            "ÃŸ" => "ss",
+            "Ã¡" => "a",
+            "Ã " => "a",
+            "Ã¢" => "a",
+            "Ã©" => "e",
+            "Ã¨" => "e",
+            "Ãª" => "e",
+            "Ã­" => "i",
+            "Ã¬" => "i",
+            "Ã®" => "i",
+            "Ã³" => "o",
+            "Ã²" => "o",
+            "Ã´" => "o",
+            "Ãº" => "u",
+            "Ã¹" => "u",
+            "Ã»" => "u",
         );
 
         $search = array('/[^a-z0-9_\.]/', '/--+/', '/^-+/', '/-+$/' );
         $replace = array( '-', '-', '', '');
         
         if (is_callable(mb_strtolower)) {
-            $str = strtr(mb_strtolower(utf8_decode($str), 'ISO-8859-1'), $repl);
+            //$str = strtr(mb_strtolower(utf8_decode($str), 'ISO-8859-1'), $repl);
+            $str = strtr(mb_strtolower($str), $repl);
         } else {
-            $str = strtr(strtolower(utf8_decode($str)), $repl);
+            $str = strtr(strtolower($str), $repl);
         }
         $str = preg_replace($search, $replace, $str);
 
@@ -1311,5 +1312,5 @@ function urlSchemeHandler($processor, $scheme, $param) {
 }
 // }}}
 
-/* vim:set fenc=latin1 ft=php sw=4 sts=4 fdm=marker : */
+/* vim:set fenc=utf-8 ft=php sw=4 sts=4 fdm=marker : */
 ?>
