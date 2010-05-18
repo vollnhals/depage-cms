@@ -1687,12 +1687,9 @@ class project_acss_mysql2 extends project {
         $this->_set_project($project_name);
 
         if ($publish_id == "") {
-            $project_id = $xml_db->get_doc_id_by_name($project_name);
-            $publish_ids = $xml_db->get_node_ids_by_xpath($project_id, "//{$conf->ns['project']['ns']}:publish/{$conf->ns['project']['ns']}:publish_folder");
+            $publish_id = $this->get_default_publish_id($project_name);
 
-            if (count(publish_ids) > 0) {
-                $publish_id = $publish_ids[0];
-            } else {
+            if ($publish_id == -1 ) {
                 return;
             }
         }
@@ -1880,6 +1877,23 @@ class project_acss_mysql2 extends project {
         
         foreach ($dirarray['dirs'] as $dir) {
             $this->_publish_project_lib_add_dir($funcs, $path . $dir .  '/');
+        }
+    }
+    // }}}
+    // {{{ get_default_publish_id()
+    function get_default_publish_id($project_name) {
+        global $conf;
+        global $xml_db, $log;
+        
+        $this->_set_project($project_name);
+
+        $project_id = $xml_db->get_doc_id_by_name($project_name);
+        $publish_ids = $xml_db->get_node_ids_by_xpath($project_id, "//{$conf->ns['project']['ns']}:publish/{$conf->ns['project']['ns']}:publish_folder");
+
+        if (count(publish_ids) > 0) {
+            return $publish_ids[0];
+        } else {
+            return -1;
         }
     }
     // }}}

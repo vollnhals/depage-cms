@@ -90,6 +90,7 @@ $texts = array(
 	'inhtml_projects_backup_save' => "backup project",
 	'inhtml_projects_backup_restore' => "restore project from backup",
 	'inhtml_lastchanged_pages' => "Recently changed pages",
+	'inhtml_last_publishing' => "Last publishing",
 	'inhtml_extra_functions' => "Additional actions",
 	'inhtml_toolbar_home' => "home",
 	'inhtml_toolbar_reload' => "reload",

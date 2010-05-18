@@ -50,7 +50,7 @@ class config {
         $inifile = parse_ini_file($this->settingsPath . $file, false);
         
         $this->app_name = 'depage::cms';
-        $this->app_version = '1.1.4';
+        $this->app_version = '1.1.5';
         $this->app_copyright = '(c) 2002-2010 by Frank Hellenkamp';
         $this->app_license = 'This software is released under MIT and GPL2 licenses';
 
@@ -478,6 +478,25 @@ class config {
             return date($format, (date('U') - date('Z')));
         } else {
             return date($format, (date('U', $timestamp) - date('Z', $timestamp)));
+        }
+    }
+    // }}}
+    // {{{ dateLocal()
+    /**
+     * gets date converted to UTC
+     *
+     * @public
+     *
+     * @param    $format (string)
+     * @param    $timestamp (int)
+     *
+     * @return    $date (string)
+     */
+    function dateLocal($format, $timestamp = null) {
+        if ($timestamp == null) {
+            return date($format, (date('U') + date('Z')));
+        } else {
+            return date($format, (date('U', $timestamp) + date('Z', $timestamp)));
         }
     }
     // }}}

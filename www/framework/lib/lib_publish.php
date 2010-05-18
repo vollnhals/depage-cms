@@ -220,6 +220,31 @@ class publish {
         return false;
     }
     /* }}} */
+    /* {{{ get_last_publish_date */
+    function get_last_publish_date() {
+        global $conf;
+
+        // get lastmod entry
+        $result = db_query(
+            "SELECT
+                lastmod
+            FROM $this->db_table_publish_files 
+            WHERE
+                pid={$this->publish_id}
+            ORDER BY
+                lastmod DESC
+            LIMIT 1
+            "
+        );
+
+        if ($result && mysql_num_rows($result) > 0) {
+            $row = mysql_fetch_assoc($result);
+            return strtotime($row['lastmod']);
+        }
+
+        return false;
+    }
+    /* }}} */
     
     // {{{ _set_project()
     /**

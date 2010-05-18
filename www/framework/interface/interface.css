@@ -190,6 +190,12 @@ ul.projectlisting {
     right: 0;
     top: 0;
 }
+.projectlisting div.details table.lastchanged_pages .lastpublish {
+    font-size: 10px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    text-align: center;
+}
 .toolbar {
     margin: 2px 12px;
 }

@@ -107,11 +107,14 @@ class html {
                     color: <?php echo($settings['color_active2']); ?>;
                     background: <?php echo($settings['color_face']); ?>;
                 }
-                .projectlisting div.details ul.lastchanged_pages li .date {
+                .projectlisting div.details table.lastchanged_pages .date,
+                .projectlisting div.details table.lastchanged_pages .lastpublish,
+                .projectlisting div.details table.lastchanged_pages .published a {
                     color: <?php echo($settings['color_inactive']); ?>;
                 }
-                .projectlisting div.details ul.lastchanged_pages li:hover .date {
-                    color: <?php echo($settings['color_font']); ?>;
+                .projectlisting div.details table.lastchanged_pages tr:hover a .date,
+                .projectlisting div.details table.lastchanged_pages tr:hover a {
+                    color: <?php echo($settings['color_active2']); ?>;
                 }
                 #dlg {
                     background: <?php echo($settings['color_tooltipMsg_face']); ?>;
@@ -367,6 +370,15 @@ class html {
 
         $h = "";
 
+        $publish_id = $project->get_default_publish_id($project_name);
+        if ($publish_id != -1) {
+            $publish = new publish($project_name, $publish_id);
+            $last_publish_date = $publish->get_last_publish_date();
+        } else {
+            $last_publish_date = -1;
+        }
+        $published_class = "";
+
         $pages = $project->get_lastchanged_pages($project_name);
         $languages = $project->get_languages($project_name);
         $languages = array_keys($languages);
@@ -376,15 +388,27 @@ class html {
             if ($page['dt'] == 0) {
                 $date = "";
             } else {
-                $date = date("d.m.y H:m", $page['dt']);
+                $date = $conf->dateLocal("d.m.y H:m", $page['dt']);
             }
+
+            //$h .= "<tr><td>{$page['dt']} $last_publish_date</td></tr>";
+            if ($page['dt'] + date('Z') < $last_publish_date) {
+                $h .= "<tr>";
+                    $h .= "<td class=\"lastpublish\" colspan=\"2\">&mdash; " . $this->lang['inhtml_last_publishing'] . " ";
+                        $h .= "<span class=\"date\">" . date("d.m.y H:m",$last_publish_date) . "</span>";
+                    $h .= " &mdash;</td>";
+                $h .= "</tr>";
+                $last_publish_date = -1;
+                $published_class = "class=\"published\"";
+            }
+
             if (strlen($page['url']) > 43) {
                 $url = substr($page['url'], 0, 10) . "..." . substr($page['url'], -30);
             } else {
                 $url = $page['url'];
             }
             $h .= "<tr>";
-                $h .= "<td>";
+                $h .= "<td $published_class>";
                     $h .= "<a href=\"{$conf->path_base}projects/{$project_name}/preview/html/cached/{$lang}{$page['url']}\">";
                         $h .= "{$url}";
                     $h .= "</a>";

@@ -931,7 +931,12 @@ class rpc_bgtask_functions extends rpc_functions_class {
         $args['task']->set_description('%task_publish_feeds%');
         
         $transformed = $this->xml_proc->generate_page_atom($this->project, "atom", $args['lang'], $args["baseurl"], true);
-        if (!$this->file_access->f_write_string($this->output_path . "/" . $args['lang'] . "/atom.xml", $transformed['value'])) {
+        if ($this->file_access->f_write_string($this->output_path . "/" . $args['lang'] . "/atom.xml", $transformed['value'])) {
+            $pb = new publish($this->project, $args['publish_id']);
+            $file = new publish_file("/" . $args['lang'] . "/", "atom.xml");
+            $file->sha1 = sha1($transformed['value']);
+            $pb->add_file_to_db($file);
+        } else {
             $log->add_entry("Could not write atom-feed");
         }
     }
@@ -955,7 +960,12 @@ class rpc_bgtask_functions extends rpc_functions_class {
         // @todo add real baseurl instead of the dummy-url
         $xmlstr = $sitemap->generate($args['publish_id'], $args['baseurl']);
 
-        if (!$this->file_access->f_write_string($this->output_path . "/sitemap.xml", $xmlstr)) {
+        if ($this->file_access->f_write_string($this->output_path . "/sitemap.xml", $xmlstr)) {
+            $pb = new publish($this->project, $args['publish_id']);
+            $file = new publish_file("/", "sitemap.xml");
+            $file->sha1 = sha1($xmlstr);
+            $pb->add_file_to_db($file);
+        } else {
             $log->add_entry("Could not write sitemap");
         }
     }
