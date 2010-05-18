@@ -708,7 +708,7 @@ class ttUser{
         $sid = $this->get_sid();
         $opaque = md5($sid);
         $realm = $this->realm;
-        $domain = $conf->path_base;
+        $domain = "http://" . $_SERVER['HTTP_HOST'] . $conf->path_base;
         $nonce = $sid;
 
         if (isset($_COOKIE[session_name()]) && $_COOKIE[session_name()] != "" && $data['response'] == $valid_response) {
