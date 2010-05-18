@@ -399,7 +399,7 @@ class project_acss_mysql2 extends project {
 
         usort($pages, Array($this, "_date_cmp"));
 
-        return array_splice($pages, 0, 10);
+        return $pages;
     }
     
     function _date_cmp($a, $b) {

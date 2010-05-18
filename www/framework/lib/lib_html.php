@@ -24,7 +24,6 @@ class html {
         $this->lang = $conf->getTexts($conf->interface_language, '', false);
         $lang_keys = array();
         foreach ($this->lang as $key => $text) {
-            $this->lang[$key] = htmlentities($text, ENT_COMPAT, "UTF-8");
             $this->lang_keys[] = "%$key%";
         }
     }
@@ -381,21 +380,26 @@ class html {
         $published_class = "";
 
         $pages = $project->get_lastchanged_pages($project_name);
+        //$pages = array_splice($pages, 0, 15);
         $languages = $project->get_languages($project_name);
         $languages = array_keys($languages);
         $lang = $languages[0];
 
-        foreach ($pages as $page) {
+        foreach ($pages as $i => $page) {
             if ($page['dt'] == 0) {
                 $date = "";
             } else {
                 $date = $conf->dateLocal("d.m.y H:m", $page['dt']);
             }
 
+            if (($last_publish_date == -1 && $i > 5) || $i > 15) {
+                break;
+            }
+
             //$h .= "<tr><td>{$page['dt']} $last_publish_date</td></tr>";
             if ($page['dt'] + date('Z') < $last_publish_date) {
                 $h .= "<tr>";
-                    $h .= "<td class=\"lastpublish\" colspan=\"2\">&mdash; " . $this->lang['inhtml_last_publishing'] . " ";
+                    $h .= "<td class=\"lastpublish\" colspan=\"2\">&mdash; " . htmlentities($this->lang['inhtml_last_publishing'], ENT_COMPAT, "UTF-8") . ": ";
                         $h .= "<span class=\"date\">" . date("d.m.y H:m",$last_publish_date) . "</span>";
                     $h .= " &mdash;</td>";
                 $h .= "</tr>";
