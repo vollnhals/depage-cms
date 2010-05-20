@@ -941,6 +941,43 @@ class project_acss_mysql2 extends project {
         }
     }
     // }}}
+    // {{{ add_page_redirect()
+    /**
+     * adds new redirect to document tree
+     *
+     * @param    $project_name (string) name of project
+     * @param    $target_id (int) id of page to rename
+     * @param    $newname (string) new name
+     */
+    function add_page_redirect($project_name, $target_id, $newname) {
+        global $conf, $log;
+
+        $this->_set_project($project_name);
+        $doc_page = @file_get_contents('xml/pages_new_redirect.xml');
+        $doc_page_data = @file_get_contents('xml/pages_new_redirect_data.xml');
+        if ($doc_page != '' && $doc_page_data != '' && in_array($type = $this->get_type($target_id, $data_id), array('pages'))) {
+            //set name
+            $doc_page = str_replace('%insert_default_name%', htmlspecialchars($newname), $doc_page);
+            if ($xml_page_data = $this->domxml_open_mem($doc_page_data)) {
+                $languages = $this->get_languages($project_name);
+                $this->_test_pageObj_languages($xml_page_data, 'true', $languages);
+                $data_ids = $this->xmldb->get_node_ids_by_xpath($this->get_projectId($project_name), "//{$conf->ns['project']['ns']}:pages");
+                $new_id = $this->xmldb->save_node(&$xml_page_data, $data_ids[0]);                
+                $doc_page = str_replace('%insert_data_id%', $new_id, $doc_page);
+                $xml_page = $this->domxml_open_mem($doc_page);
+                if ($xml_page) {
+                    $new_id = $this->xmldb->save_node(&$xml_page, $target_id);
+
+                    return $new_id;
+                } else {
+                    $log->add_entry('no valid xml data to insert', 'debug');
+                }
+            } else {
+                $log->add_entry('no valid xml data to insert', 'debug');
+            }
+        }
+    }
+    // }}}
     // {{{ add_page_separator()
     /**
      * adds new folder to document tree

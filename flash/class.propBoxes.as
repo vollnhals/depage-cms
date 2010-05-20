@@ -2418,7 +2418,7 @@ class_propBox_proj_language.prototype.saveData = function(forceSave) {
 // }}}
 
 /*
- *	Class PropBox_paroj_navigation
+ *	Class PropBox_proj_navigation
  *
  *	Extends class_propBox
  *	Handles Settings-Navigations
@@ -2598,6 +2598,8 @@ class_propBox_edit_a.prototype.setComponents = function() {
 // {{{ setData()
 class_propBox_edit_a.prototype.setData = function() {
 	super.setData();
+	
+	this.setMultilangProp();
 	
 	this.inputBox.value = this.data.firstChild.nodeValue;
 	this.inputBox.explain = conf.lang.prop_tt_a_name;

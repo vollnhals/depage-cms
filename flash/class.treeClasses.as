@@ -638,7 +638,7 @@ class_tree_pages.prototype.copy_after = function(node, targetNode) {
 // }}}
 // {{{ getAddNodes()
 class_tree_pages.prototype.getAddNodes = function(targetNode) {
-	return [conf.lang.tree_name_new_folder, [conf.lang.tree_name_new_page, [conf.lang.tree_name_new_page_empty].concat(this.project.tree.page_data.getAddNodes())], conf.lang.tree_name_new_separator];	
+	return [conf.lang.tree_name_new_folder, [conf.lang.tree_name_new_page, [conf.lang.tree_name_new_page_empty].concat(this.project.tree.page_data.getAddNodes())], conf.lang.tree_name_new_separator, conf.lang.tree_name_new_redirect];	
 };
 // }}}
 // {{{ addNode()
@@ -653,6 +653,9 @@ class_tree_pages.prototype.addNode = function(targetNode, type, subType) {
         } else if (type == conf.lang.tree_name_new_separator) {
 		type = "separator";
 		var newNode = super.addNode(targetNode, conf.ns.section + ":separator");	
+        } else if (type == conf.lang.tree_name_new_redirect) {
+		type = "redirect";
+		var newNode = super.addNode(targetNode, conf.ns.section + ":page");	
 	} else if (type == conf.lang.tree_name_new_page) {
 		type = "page";
 		if (subType != null && subType != conf.lang.tree_name_new_page_empty) {

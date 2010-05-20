@@ -405,6 +405,40 @@
     </xsl:template>
     <!-- }}} -->
 
+    <!-- {{{ sec:redirect -->
+    <xsl:template match="sec:redirect">
+        <xsl:apply-templates select="edit:a[@lang = $tt_lang]" />
+    </xsl:template>
+    <!-- }}} -->
+
+<!-- {{{ PHP Header -->
+<xsl:template name="php_header">
+	<xsl:text disable-output-escaping="yes">&lt;?php </xsl:text>
+		$tt_lang = "<xsl:value-of select="$tt_lang" />";
+                <xsl:if test="/pg:page/@redirect = 'true'">
+                    @header(
+                    <xsl:for-each select="//sec:redirect/edit:a[@lang = $tt_lang]">
+                        <xsl:choose>
+                            <xsl:when test="@href and substring(@href, 1, 8) = 'libref:/'">
+                                "Location: <!--xsl:value-of select="$baseurl" /-->lib<xsl:value-of select="substring(@href,8)" disable-output-escaping="yes" />"
+                            </xsl:when>
+                            <xsl:when test="@href and not(substring(@href, 1, 8) = 'pageref:')">
+                                "Location: <xsl:value-of select="@href" disable-output-escaping="yes" />"
+                            </xsl:when>
+                            <xsl:otherwise>
+                                "Location: <!--xsl:value-of select="$baseurl" /--><xsl:value-of select="document(concat('pageref:/', @href_id, '/', $tt_lang))/." disable-output-escaping="yes" />"
+                            </xsl:otherwise>
+                        </xsl:choose>
+                    </xsl:for-each>
+                    );
+                </xsl:if>
+
+		@header('Content-type: <xsl:value-of select="$content_type"/>; charset=<xsl:value-of select="$content_encoding"/>');
+	<xsl:text disable-output-escaping="yes">?&gt;</xsl:text>
+</xsl:template>
+<!-- }}} -->
+    
+
     <!-- vim:set ft=xml sw=4 sts=4 fdm=marker : -->
 </xsl:stylesheet>
 
