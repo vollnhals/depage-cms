@@ -10,6 +10,7 @@
         <xsl:param name="pretext" select="@pretext"/>
         <xsl:param name="aptext" select="@aptext"/>
         <xsl:param name="content"/>
+        <xsl:param name="redirect"/>
         <xsl:param name="altcontent"/>
         <xsl:param name="class" select="@class"/>
         <xsl:param name="id" select="@id"/>
@@ -65,8 +66,8 @@
                     <xsl:attribute name="target">_blank</xsl:attribute>
                 </xsl:when>
             </xsl:choose>
-            <xsl:if test="$class != ''">
-                <xsl:attribute name="class"><xsl:value-of select="$class"/></xsl:attribute>
+            <xsl:if test="$class != '' or $redirect != ''">
+                <xsl:attribute name="class"><xsl:value-of select="$class"/><xsl:if test="$redirect != ''"> redirect</xsl:if></xsl:attribute>
             </xsl:if>
             <xsl:if test="$id != ''">
                 <xsl:attribute name="id"><xsl:value-of select="$id"/></xsl:attribute>
@@ -412,29 +413,24 @@
     <!-- }}} -->
 
 <!-- {{{ PHP Header -->
-<xsl:template name="php_header">
-	<xsl:text disable-output-escaping="yes">&lt;?php </xsl:text>
-		$tt_lang = "<xsl:value-of select="$tt_lang" />";
-                <xsl:if test="/pg:page/@redirect = 'true'">
-                    @header(
-                    <xsl:for-each select="//sec:redirect/edit:a[@lang = $tt_lang]">
-                        <xsl:choose>
-                            <xsl:when test="@href and substring(@href, 1, 8) = 'libref:/'">
-                                "Location: <!--xsl:value-of select="$baseurl" /-->lib<xsl:value-of select="substring(@href,8)" disable-output-escaping="yes" />"
-                            </xsl:when>
-                            <xsl:when test="@href and not(substring(@href, 1, 8) = 'pageref:')">
-                                "Location: <xsl:value-of select="@href" disable-output-escaping="yes" />"
-                            </xsl:when>
-                            <xsl:otherwise>
-                                "Location: <!--xsl:value-of select="$baseurl" /--><xsl:value-of select="document(concat('pageref:/', @href_id, '/', $tt_lang))/." disable-output-escaping="yes" />"
-                            </xsl:otherwise>
-                        </xsl:choose>
-                    </xsl:for-each>
-                    );
-                </xsl:if>
-
-		@header('Content-type: <xsl:value-of select="$content_type"/>; charset=<xsl:value-of select="$content_encoding"/>');
-	<xsl:text disable-output-escaping="yes">?&gt;</xsl:text>
+<xsl:template name="php_redirect">
+    <xsl:if test="/pg:page/@redirect = 'true'">
+        @header(
+        <xsl:for-each select="//sec:redirect/edit:a[@lang = $tt_lang]">
+            <xsl:choose>
+                <xsl:when test="@href and substring(@href, 1, 8) = 'libref:/'">
+                    "Location: lib<xsl:value-of select="substring(@href,8)" disable-output-escaping="yes" />"
+                </xsl:when>
+                <xsl:when test="@href and not(substring(@href, 1, 8) = 'pageref:')">
+                    "Location: <xsl:value-of select="@href" disable-output-escaping="yes" />"
+                </xsl:when>
+                <xsl:otherwise>
+                    "Location: <xsl:value-of select="document(concat('pageref:/', @href_id, '/', $tt_lang))/." disable-output-escaping="yes" />"
+                </xsl:otherwise>
+            </xsl:choose>
+        </xsl:for-each>
+        );
+    </xsl:if>
 </xsl:template>
 <!-- }}} -->
     
