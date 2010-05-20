@@ -22,13 +22,13 @@
     if ($_GET['logout']) {
         if ($_COOKIE[session_name()] != "") {
             $project->user->logout($_COOKIE[session_name()]);
-
-            setcookie(session_name(), "", time() - 3600);
-            unset($_COOKIE[session_name()]);
-
-            $html->head();
-            $html->message($html->lang["inhtml_logout_headline"], str_replace("%app_name%", $conf->app_name, $html->lang["inhtml_logout_text"]), "<p class=\"bottom right\">" . $html->lang["inhtml_logout_relogin"] . "</p>");
         }
+
+        setcookie(session_name(), "", time() - 3600);
+        unset($_COOKIE[session_name()]);
+
+        $html->head();
+        $html->message($html->lang["inhtml_logout_headline"], str_replace("%app_name%", $conf->app_name, $html->lang["inhtml_logout_text"]), "<p class=\"bottom right\">" . $html->lang["inhtml_logout_relogin"] . "</p>");
     } else {
         $project->user->auth_http();
 
