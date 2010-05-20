@@ -10,7 +10,7 @@ function open_edit(project, page) {
     flashwin = open(url, "tt" + project, options);
     if (!flashwin) {
         // @todo localisation
-        alert("Sie müssen Popups für diese Seite zulassen, um depage::cms nutzen zu können.");
+        alert("Sie mÃ¼ssen Popups fÃ¼r diese Seite zulassen, um depage::cms nutzen zu kÃ¶nnen.");
     } else {
         flashwin.opener = top;
     }
@@ -185,13 +185,13 @@ function msg(newmsg) {
     newmsg = newmsg.replace(/<br>/g, "\n");
     newmsg = newmsg.replace(/&apos;/g, "'");
     newmsg = newmsg.replace(/&quot;/g, "\"");
-    newmsg = newmsg.replace(/&auml;/g, "ä");
-    newmsg = newmsg.replace(/&Auml;/g, "Ä");
-    newmsg = newmsg.replace(/&ouml;/g, "ö");
-    newmsg = newmsg.replace(/&Ouml;/g, "Ö");
-    newmsg = newmsg.replace(/&uuml;/g, "ü");
-    newmsg = newmsg.replace(/&Uuml;/g, "Ü");
-    newmsg = newmsg.replace(/&szlig;/g, "ß");
+    newmsg = newmsg.replace(/&auml;/g, "Ã¤");
+    newmsg = newmsg.replace(/&Auml;/g, "Ã„");
+    newmsg = newmsg.replace(/&ouml;/g, "Ã¶");
+    newmsg = newmsg.replace(/&Ouml;/g, "Ã–");
+    newmsg = newmsg.replace(/&uuml;/g, "Ã¼");
+    newmsg = newmsg.replace(/&Uuml;/g, "Ãœ");
+    newmsg = newmsg.replace(/&szlig;/g, "ÃŸ");
     alert(newmsg);
 }
 /* }}} */
@@ -241,7 +241,7 @@ function open_upload(sid, wid, path) {
     uploadwin.opener = window;
 }
 /* }}} */
-			
+
 /* {{{ edit_page */
 function edit_page(page) {
     if (opener) {
@@ -272,7 +272,6 @@ function edit_page(page) {
 /* {{{ logout */
 function logout() {
     window.location = document.location.protocol + "//" + document.location.host + document.location.pathname.replace(/index\.php/, "") + "?logout=true";
-    //content.location = document.location.protocol + "//" + document.location.host + document.location.pathname.replace(/index\.php/, "") + "?logout=true";
 }
 /* }}} */
 /* {{{ publish */

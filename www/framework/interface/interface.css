@@ -91,7 +91,8 @@ a img {
     margin-top: 6px;
     padding-left: 0;
 }
-.centered_box small {
+.centered_box small,
+.centered_box small a {
     font-size: 10px;
 }
 .centered_box .icon {
