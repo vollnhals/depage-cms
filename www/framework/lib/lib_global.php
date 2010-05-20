@@ -1147,9 +1147,11 @@ function die_error($msg, $redirect_url = null) {
 
     $html->head($redirect_url != null ? "<meta http-equiv=\"refresh\" content=\"3; URL=" . $redirect_url . "\">" : "");
 
-    echo("<body bgcolor=\"" . $settings['color_background'] . "\">"); 
-        $html->message("Error", $msg); 
-    echo("</body>"); 
+    if (preg_match("/^%(.*)%$/", $msg, $matches)) {
+        $html->message($html->lang["error"], $html->lang[$matches[1]]); 
+    } else {
+        $html->message($html->lang["error"], $msg); 
+    }
 
     $html->end();
 
@@ -1173,7 +1175,7 @@ if ($conf->interface_language_by_browser) {
 }
 
 if (IS_IN_CONTOOL !== true || !defined('IS_IN_CONTOOL')){
-    die_error('you are not allowed to do this!');
+    die_error("%auth_not_allowed%");
 }
 
 //error_reporting(0);

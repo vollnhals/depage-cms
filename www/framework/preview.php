@@ -220,7 +220,7 @@ if ($param['project'] != "") {
                 $html->end();
             }
         } else {
-            die_error("not a valid id");
+            die_error("%error_invalid_page_id%");
         }
         // }}}
     // {{{ css
@@ -286,7 +286,7 @@ if ($param['project'] != "") {
     }
     // }}}
 } else {
-    die_error('you are not logged in' );
+    die_error("%auth_not_loggedin%");
 }
 
 /* vim:set ft=php sw=4 sts=4 fdm=marker : */

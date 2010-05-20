@@ -658,9 +658,7 @@ class ttUser{
         header("WWW-Authenticate: Basic realm=\"$realm\"");
         header("HTTP/1.1 401 Unauthorized");
 
-        phpinfo();
-        die();
-        //die_error("you are not allowed to to this!");
+        die_error("%auth_wrong_credentials%");
     } 
     // }}}
     // {{{ auth_digest()
@@ -725,7 +723,7 @@ class ttUser{
         header("WWW-Authenticate: Digest realm=\"$realm\", domain=\"$domain\", qop=\"auth\", algorithm=MD5-sess, nonce=\"$nonce\", opaque=\"$opaque\"$stale");
         header("HTTP/1.1 401 Unauthorized");
 
-        die_error("you are not allowed to to this!");
+        die_error("%auth_wrong_credentials%");
     } 
     // }}}
     // {{{ http_digest_parse()
