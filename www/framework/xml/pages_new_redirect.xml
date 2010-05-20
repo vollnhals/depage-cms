@@ -1,0 +1,1 @@
+<pg:page name="%insert_default_name%"  multilang="true" redirect="true" file_type="php" db:ref="%insert_data_id%" />
