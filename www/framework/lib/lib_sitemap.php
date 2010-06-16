@@ -48,7 +48,7 @@ class sitemap {
     function add_page_data($node, $depth = 0) {
         global $project;
 
-        if ($node->tagname == "page" && $node->get_attribute("nav_hidden") != "true") {
+        if ($node->tagname == "page" && $node->get_attribute("nav_hidden") != "true" && $node->get_attribute("redirect") != "true") {
             $pathinfo = pathinfo($node->get_attribute("url"));
             foreach ($this->languages as $lang) {
                 $file = new publish_file("/{$lang}{$pathinfo['dirname']}", $pathinfo['basename']);
