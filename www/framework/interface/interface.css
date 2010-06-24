@@ -63,6 +63,9 @@ a img {
     width: 100%;
     margin-top: 20px;
 }
+.centered_box .spaceafter {
+    margin-bottom: 120px;
+}
 .centered_box .content {
     position: relative;
     width: 420px;
@@ -79,6 +82,11 @@ a img {
     height: 200px;
     min-height: 200px;
     margin-top: 100px;
+}
+.centered_box.big .content {
+    width: auto;
+    margin-left: 100px;
+    margin-right: 100px;
 }
 .centered_box .bottom {
     position: absolute;
@@ -107,6 +115,23 @@ a img {
     width: 48px;
     height: 48px;
 }
+    /* {{{ table (import) */
+    .centered_box.big .content .scrolltable {
+        width: 100%;
+        overflow-x: scroll;
+        margin: 24px 0;
+    }
+    .centered_box.big .content .scrolltable table {
+        width: 5000px;
+        border-spacing: 0;
+        border-collapse: collapse;
+        table-layout: fixed;
+    }
+    .centered_box table th {
+        vertical-align: top;
+        text-align: left;
+    }
+    /* }}} */
 /* }}} */
 /* {{{ tasks */
 #box_tasks {
@@ -200,8 +225,20 @@ ul.projectlisting {
 .toolbar {
     margin: 2px 12px;
 }
+.toolbar:after {
+    content: ".";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden;
+    zoom: 1;
+}
+.centered_box .toolbar {
+    margin: 2px 0;
+}
 .toolbar a,
-.projectlisting a {
+.projectlisting a,
+a.textbutton {
     display: block;
     float: left;
     line-height: 22px;

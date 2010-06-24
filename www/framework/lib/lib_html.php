@@ -13,6 +13,7 @@
  * @author    Frank Hellenkamp [jonas@depagecms.net]
  */
 
+
 if (!function_exists('die_error')) require_once('lib_global.php');
 
 class html {
@@ -94,6 +95,7 @@ class html {
                 .toolbar a:hover {
                     background: <?php echo($settings['color_face']); ?>;
                 }
+                .centered_box .toolbar a:hover,
                 .projectlisting a:hover {
                     background: <?php echo($settings['color_background']); ?>;
                 }
@@ -176,14 +178,30 @@ class html {
     function box($content, $icon = "", $class = "") {
         $h = "";
 
+        $h .= $this->box_start($icon, $class);
+            $h .= $content;
+        $h .= $this->box_end();
+
+        return $h;
+    }
+    /* }}} */
+    /* {{{ box_start */
+    function box_start($icon = "", $class = "") {
+        $h = "";
+
         $h .= "<div id=\"box_$icon\" class=\"centered_box $class\"><div class=\"content\">";
             if ($icon != "") {
                 $h .= "<div class=\"icon\">";
                     $h .= $this->icon($icon);
                 $h .= "</div>";
             }
-            $h .= $content;
-        $h .= "</div></div>";
+
+        return $h;
+    }
+    /* }}} */
+    /* {{{ box_end */
+    function box_end() {
+        $h = "</div></div>";
 
         return $h;
     }
@@ -212,10 +230,22 @@ class html {
     /* }}} */
     /* {{{ preview_frame */
     function preview_frame() {
+        global $conf;
+        global $log;
+        global $project;
+
+        $toolbar = "framework/interface/toolbar.php";
+        $importpath = $project->get_project_path($_COOKIE["depage-import-project"]). "/import/";
+
+        if ($_COOKIE["depage-import-project"] != "" && $_COOKIE["depage-import-project"] != "deleted" && is_file("{$importpath}{$_COOKIE["depage-import-filename"]}")) {
+            $content = "framework/interface/import.php";
+        } else {
+            $content = "framework/interface/home.php";
+        }
         ?>
         <frameset rows="30,100%,*" frameborder="1" border="1"  framespacing="0" bordercolor="#000000" onUnload="close_edit()">
-            <frame id="toolbarFrame" name="toolbarFrame" src="framework/interface/toolbar.php" scrolling="no" noresize frameborder="1" border="1" framespacing="0">
-            <frame id="contentFrame" name="content" src="framework/interface/home.php" scrolling="auto" noresize frameborder="0" border="0" framespacing="0" onload="set_preview_title()">
+            <frame id="toolbarFrame" name="toolbarFrame" src="<?php echo($toolbar); ?>" scrolling="no" noresize frameborder="1" border="1" framespacing="0">
+            <frame id="contentFrame" name="content" src="<?php echo($content); ?>" scrolling="auto" noresize frameborder="0" border="0" framespacing="0" onload="set_preview_title()">
         </frameset>
         <?php
     }

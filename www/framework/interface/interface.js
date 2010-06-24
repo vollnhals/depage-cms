@@ -437,6 +437,31 @@ function attach_events() {
             opacity: 0.3
         }, "fast");
     });
+
+    // {{{ replace buttons by textlinks
+    var formnum = 0;
+
+    $("form").each(function() {
+        var form = this;
+
+        if (!form.id) {
+            form.id = "textbutton" + formnum++ + "form";
+        }
+        $("input.textbutton", form).each( function() {
+            $(this).hide();
+
+            if (this.type == "submit") {
+                ionclick = "document.forms." + form.id + ".submit(); return false;";
+            } else if (this.type == "reset") {
+                ionclick = "document.forms." + form.id + ".reset(); return false;";
+            } else {
+                ionclick = this.onclick;
+            }
+
+            $(this).after("<a href=\"#\" onclick=\"" + ionclick + "\" class=\"textbutton\">" + this.value + "</a>");
+        });
+    });
+    // }}}
 }
 /* }}} */
 
@@ -454,6 +479,7 @@ function add_first_chooser() {
     add_file_chooser();
 }
 /* }}} */
+
 
 chooserNum = 1;
 

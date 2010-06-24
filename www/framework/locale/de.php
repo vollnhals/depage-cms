@@ -92,6 +92,7 @@ $texts = array(
 	'inhtml_main_title' => "%app_name% %app_version%",
 	'inhtml_needed_flash' => "Sie benötigen den Macromedia Flash Player%minversion%, um %app_name% nutzen zu können.",
 	'inhtml_noscript' => "Sie mössen Javascript aktivieren, um %app_name% benutzen zu können.",
+	'inhtml_no_import' => "Für dieses Projekt ist keine Import-Routine installiert.",
 	'inhtml_preview_error' => "Fehler beim Transformieren",
 	'inhtml_projects_backup_restore' => "Sicherung wiederherstellen",
 	'inhtml_projects_backup_save' => "Projekt sichern",
