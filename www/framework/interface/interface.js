@@ -363,15 +363,19 @@ function projectlisting_add_events() {
                 $(".projectlisting > li").removeClass("open");
                 $(this).parents("li").addClass("open");
                 $(this).parents("li").find(".lastchanged_pages").each(function() {
+                    var lastchanged_list = this;
+
                     $.cookie("depage-details-open", project, { 
                         path: '/', 
                         expires: 30 
                     });
 
-                    $(this).load("status.php", {
-                        type: "lastchanged_pages",
-                        project: project
-                    });  
+                    setTimeout(function() {
+                        $(lastchanged_list).load("status.php", {
+                            type: "lastchanged_pages",
+                            project: project
+                        });  
+                    }, 200);
                 })
             }
         });
