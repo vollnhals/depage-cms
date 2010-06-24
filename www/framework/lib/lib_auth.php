@@ -14,6 +14,16 @@
  * @author    Frank Hellenkamp [jonas@depagecms.net]
  */
 
+/*
+ * links:
+ * http://stackoverflow.com/questions/449788/http-authentication-logout-via-php
+ * http://trac-hacks.org/wiki/TrueHttpLogoutPatch
+ * http://www.ietf.org/rfc/rfc2617.txt
+ * http://www.peej.co.uk/projects/phphttpdigest.html
+ *
+ * http://www.peej.co.uk/articles/http-auth-with-html-forms.html
+ */
+
 if (!function_exists('die_error')) require_once('lib_global.php');
 
 /**
@@ -25,6 +35,12 @@ class ttUser{
 
     // {{{ variables
     var $sid, $wid, $uid;
+    // }}}
+    
+    // {{{ constructor()
+    function ttUser() {
+        session_name("depageID");
+    }
     // }}}
     // {{{ uniqid16()
     /**
@@ -603,14 +619,14 @@ class ttUser{
     // }}}
     
     // {{{ auth_http()
-    function auth_http() {
+    function auth_http($accept_only_logout = false) {
         if (isset($_ENV["HTTP_AUTHORIZATION"]) || function_exists('getallheaders')) {
-            $this->auth_digest();
+            $this->auth_digest($accept_only_logout);
         } else {
             if (isset($_ENV["HTTP_AUTHORIZATION"])) {
                 list($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) = explode(':' , base64_decode(substr($_SERVER['HTTP_AUTHORIZATION'], 6)));
             }
-            $this->auth_basic();
+            $this->auth_basic($accept_only_logout);
         }
     } 
     // }}}
@@ -627,7 +643,10 @@ class ttUser{
             if ($HA1 == md5($_SERVER['PHP_AUTH_USER'] . ':' . $this->realm . ':' . $_SERVER['PHP_AUTH_PW'])) {
                 if (($uid = $this->is_valid_sid($_COOKIE[session_name()])) !== false) {
                     if ($uid == "") {
-                        $log->add_entry("'{$_SERVER['PHP_AUTH_USER']}' has logged in from '{$_SERVER["REMOTE_ADDR"]}'", "auth");
+                        $browser = get_browser($_SERVER["HTTP_USER_AGENT"]);
+                        $info = " on {$browser->browser} {$browser->version} {$browser->platform}";
+
+                        $log->add_entry("'{$_SERVER['PHP_AUTH_USER']}' has logged in from '{$_SERVER["REMOTE_ADDR"]}' $info", "auth");
                         $sid = $this->register_session($this->get_uid_by_name($_SERVER['PHP_AUTH_USER']), $_COOKIE[session_name()]);
                     } else {
                         $sid = $this->set_sid($_COOKIE[session_name()]);
@@ -637,7 +656,7 @@ class ttUser{
 
                     return;
                 } elseif (isset($_COOKIE[session_name()]) && $_COOKIE[session_name()] != "") {
-                    setcookie(session_name(), "", time() - 3600);
+                    setcookie(session_name(), "", time() - 3600, $_SERVER['HTTP_HOST']);
                     unset($_COOKIE[session_name()]);
                 }
             }
@@ -662,68 +681,108 @@ class ttUser{
     } 
     // }}}
     // {{{ auth_digest()
-    function auth_digest() {
+    function auth_digest($accept_only_logout = false) {
         global $conf;
         global $log;
-
-        if (function_exists('getallheaders')) {
-            $headers = getallheaders();
-            if (isset($headers['Authorization']) && !empty($headers['Authorization'])) {
-                $digest_header = substr($headers['Authorization'], strpos($headers['Authorization'],' ') + 1);
-            }
-        } else {
-            $_ENV["HTTP_AUTHORIZATION"] = str_replace('\"', '"', $_ENV["HTTP_AUTHORIZATION"]);
-            $digest_header = substr($_ENV["HTTP_AUTHORIZATION"], strpos($_ENV["HTTP_AUTHORIZATION"],' ') + 1);
-        }
         
-        if (!empty($digest_header) && $data = $this->http_digest_parse($digest_header)) { 
-            // generate the valid response
-            $HA1 = $this->get_passwd_hash($data['username']);
-            $HA1sess = md5($HA1 . ":{$data['nonce']}:{$data['cnonce']}");
-            $HA2 = md5("{$_SERVER['REQUEST_METHOD']}:{$data['uri']}");
-            $valid_response = md5("{$HA1sess}:{$data['nonce']}:{$data['nc']}:{$data['cnonce']}:{$data['qop']}:{$HA2}");
-
-            $n = hexdec($data['nc']);
-
-            if ($data['response'] == $valid_response) {
-                if (($uid = $this->is_valid_sid($_COOKIE[session_name()])) !== false) {
-                    if ($uid == "") {
-                        $log->add_entry("'{$data['username']}' has logged in from '{$_SERVER["REMOTE_ADDR"]}'", "auth");
-                        $sid = $this->register_session($this->get_uid_by_name($data['username']), $_COOKIE[session_name()]);
-                    } else {
-                        $sid = $this->set_sid($_COOKIE[session_name()]);
-                    }
-                    session_id($sid);
-                    session_start();
-
-                    return;
-                } elseif (isset($_COOKIE[session_name()]) && $_COOKIE[session_name()] != "") {
-                    setcookie(session_name(), "", time() - 3600);
-                    unset($_COOKIE[session_name()]);
-                }
-            }
-        }
-        $sid = $this->get_sid();
-        $opaque = md5($sid);
-        $realm = $this->realm;
-        $domain = "http://" . $_SERVER['HTTP_HOST'] . $conf->path_base;
-        $nonce = $sid;
-
-        if (isset($_COOKIE[session_name()]) && $_COOKIE[session_name()] != "" && $data['response'] == $valid_response) {
-        //if (isset($_COOKIE[session_name()]) && $_COOKIE[session_name()] != "") {
-            //$log->add_entry("stale!!! sid: $sid - nonce: {$data['nonce']}");
-            //$log->add_varinfo($headers);
-            $stale = ", stale=true";
+        $authdata = $this->check_auth_data($accept_only_logout);
+        if ($authdata) {
+            $sid = $authdata["sid"];
         } else {
+            $sid = $_COOKIE[session_name()];
+        }
+        $sid_is_valid = ($uid = $this->is_valid_sid($sid)) !== false;
+
+        if ($authdata["valid_logout"]) {
+            die("user logged out");
+        }
+
+        if ($sid_is_valid && $authdata["valid_response"] && $authdata["sid"] == $sid && $authdata["uid"] == $uid) {
+            if ($uid == "") {
+                // user not registered sid before
+                $uid = $this->get_uid_by_name($authdata['username']);
+
+                $browser = get_browser($_SERVER["HTTP_USER_AGENT"]);
+                $info = "on {$browser->browser} {$browser->version} {$browser->platform}";
+
+                $log->add_entry("'{$authdata['username']}' has logged in from '{$_SERVER["REMOTE_ADDR"]}' $info", "auth");
+
+                $sid = $this->register_session($uid, $sid);
+
+                $nonce = implode("-", array($sid, $uid, date("Ymdhis")));
+            } else {
+                $sid = $this->set_sid($sid);
+            }
+
             session_id($sid);
             session_start();
+
+            return true;
+        } else if (!$sid_is_valid) {
+            setcookie(session_name(), "", time() - 3600, $_SERVER['HTTP_HOST']);
+            setcookie("depageUser", "", time() - 3600, $_SERVER['HTTP_HOST']);
+
+            $sid = "";
+        }
+
+        if ($sid == "") {
+            // no sid - get a new one
+            $sid = $this->get_sid();
+        } else {
+            // set existing sid 
+            $sid = $this->set_sid($sid);
+        }
+
+        $opaque = md5($sid);
+        $domain = "http://" . $_SERVER['HTTP_HOST'] . $conf->path_base;
+        $nonce = implode("-", array($sid, $uid, date("Ymdhis")));
+
+        if ($sid_is_valid && (!$authdata || $authdata["uid"] == "")) {
+            // stale (for safari which makes first request without auth-header)
+            $stale = ", stale=true";
+        } else {
             $stale = "";
         }
 
-        header("WWW-Authenticate: Digest realm=\"$realm\", domain=\"$domain\", qop=\"auth\", algorithm=MD5-sess, nonce=\"$nonce\", opaque=\"$opaque\"$stale");
+        header("WWW-Authenticate: Digest realm=\"{$this->realm}\", qop=\"auth\", algorithm=\"MD5\", nonce=\"$nonce\", opaque=\"$opaque\"$stale");
         header("HTTP/1.1 401 Unauthorized");
 
+        session_id($sid);
+        session_start();
+
         die_error("%auth_wrong_credentials%");
+    } 
+    // }}}
+    // {{{ check_auth_data()
+    function check_auth_data($accept_only_logout = false) {
+        global $log;
+
+        $digest_header = $this->get_digest_header();
+
+        if (!empty($digest_header)) { 
+            $data = $this->http_digest_parse($digest_header);
+                
+            // generate the valid response
+            if ($accept_only_logout) {
+                $HA1 = md5("logout" . ':' . $this->realm . ':' . "logout");
+            } else {
+                $HA1 = $this->get_passwd_hash($data['username']);
+            }
+            $HA2 = md5("{$_SERVER['REQUEST_METHOD']}:{$data['uri']}");
+            $valid_response = $data['response'] == md5("{$HA1}:{$data['nonce']}:{$data['nc']}:{$data['cnonce']}:{$data['qop']}:{$HA2}");
+
+            if ($valid_response) {
+                list($data["sid"], $data["uid"], $data["date"]) = explode("-", $data['nonce']);
+
+                $data["n"] = hexdec($data['nc']);
+                $data["valid_response"] = true;
+                $data["logout"] = $accept_only_logout;
+            }
+        } else {
+            $data = false;
+        }
+
+        return $data;
     } 
     // }}}
     // {{{ http_digest_parse()
@@ -749,6 +808,21 @@ class ttUser{
         }
 
         return $needed_parts ? false : $data;
+    } 
+    // }}}
+    // {{{ get_digest_header()
+    function get_digest_header() {
+        if (function_exists('getallheaders')) {
+            $headers = getallheaders();
+            if (isset($headers['Authorization']) && !empty($headers['Authorization'])) {
+                $digest_header = substr($headers['Authorization'], strpos($headers['Authorization'],' ') + 1);
+            }
+        } else {
+            $_ENV["HTTP_AUTHORIZATION"] = str_replace('\"', '"', $_ENV["HTTP_AUTHORIZATION"]);
+            $digest_header = substr($_ENV["HTTP_AUTHORIZATION"], strpos($_ENV["HTTP_AUTHORIZATION"],' ') + 1);
+        }
+        
+        return $digest_header;
     } 
     // }}}
     // {{{ get_nonce

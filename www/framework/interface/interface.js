@@ -271,7 +271,19 @@ function edit_page(page) {
 /* }}} */
 /* {{{ logout */
 function logout() {
-    window.location = document.location.protocol + "//" + document.location.host + document.location.pathname.replace(/index\.php/, "") + "?logout=true";
+    var logouturl = document.location.protocol + "//" + document.location.host + document.location.pathname.replace(/index\.php/, "") + "?logout";
+
+    $.ajax({ 
+        type: "GET", 
+        url: logouturl + "=true", 
+        cache: false,
+        async: true,
+        username: "logout",
+        password: "logout",
+        complete: function(XMLHttpRequest, textStatus) {
+            window.location = logouturl + "=done";
+        }
+    });
 }
 /* }}} */
 /* {{{ publish */
