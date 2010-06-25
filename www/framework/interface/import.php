@@ -1,11 +1,11 @@
 <?php
 /**
- * @file    home.php
+ * @file    interface/import.php
  *
  * index file
  *
  *
- * copyright (c) 2002-2010 Frank Hellenkamp [jonas@depagecms.net]
+ * copyright (c) 2007-2010 Frank Hellenkamp [jonas@depagecms.net]
  *
  * @author    Frank Hellenkamp [jonas@depagecms.net]
  */
@@ -30,8 +30,6 @@
         setcookie("depage-import-filename", "", time() - 3600, $_SERVER['HTTP_HOST']);
     }
 
-    $log->add_varinfo($_SESSION);
-
     $html = new html();
 
     $html->head();
@@ -43,7 +41,7 @@
             $importpath = "$projectpath/import/";
             $importfile = "{$importpath}{$_SESSION["depage-import-filename"]}";
 
-            $log->add_entry("importfile: $importfile");
+            $log->add_entry("importing: $importfile");
 
             if ($_SESSION["depage-import-filename"] != "" && $_SESSION["depage-import-project"] != "") {
                 echo($html->box_start("import", "first big"));
