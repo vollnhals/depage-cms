@@ -1326,11 +1326,11 @@ class_interfaceLayout_dlgChoose_files.prototype.generate = function(dlgArgs) {
             extraText += "\n" + conf.lang.msg_choose_file_filter_type + dlgArgs[2];
             this.treeTopOffset += 22;
         }
-        if (dlgArgs[3] != "") {
+        if (int(dlgArgs[3]) > 0) {
             extraText += "\n" + conf.lang.msg_choose_file_filter_width + dlgArgs[3] + "px";
             this.treeTopOffset += 22;
         }
-        if (dlgArgs[4] != "") {
+        if (int(dlgArgs[4]) > 0) {
             extraText += "\n" + conf.lang.msg_choose_file_filter_height + dlgArgs[4] + "px";
             this.treeTopOffset += 22;
         }
