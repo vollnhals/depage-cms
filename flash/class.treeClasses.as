@@ -1725,6 +1725,7 @@ class_tree_settings.prototype.set_data = function(args) {
 		this.data = new XML(args['data']);
 		this.setNodeIds();
 		this.navigations = this.getNavigations();
+		this.variables = this.getVariables();
 		this.languages = this.getLanguages();
 		this.templateSets = this.getTemplateSets();
 
@@ -1761,6 +1762,8 @@ class_tree_settings.prototype.isTreeNode = function(node) {
 			return true;
 		} else if ((node.nodeName == conf.ns.project + ":navigations" || node.nodeName == conf.ns.project + ":navigation") && conf.user.mayEditSettingsNavigation()) {
 			return true;
+		} else if ((node.nodeName == conf.ns.project + ":variables" || node.nodeName == conf.ns.project + ":variable") && conf.user.mayEditSettingsVariable()) {
+			return true;
 		} else if ((node.nodeName == conf.ns.project + ":backup" || node.nodeName == conf.ns.project + ":backup_backup" || node.nodeName == conf.ns.project + ":backup_restore") && conf.user.mayBackup()) {
 			return true;
 		} else {
@@ -1773,12 +1776,14 @@ class_tree_settings.prototype.isTreeNode = function(node) {
 // }}}
 // {{{ isFolder()
 class_tree_settings.prototype.isFolder = function(node) {
-	return node.nodeName == conf.ns.project + ":publish" || node.nodeName == conf.ns.project + ":template_sets" || node.nodeName == conf.ns.project + ":global_files" || node.nodeName == conf.ns.project + ":languages" || node.nodeName == conf.ns.project + ":navigations" || node.nodeName == conf.ns.project + ":backup";	
+	return node.nodeName == conf.ns.project + ":publish" || node.nodeName == conf.ns.project + ":template_sets" || node.nodeName == conf.ns.project + ":global_files" || node.nodeName == conf.ns.project + ":languages" || node.nodeName == conf.ns.project + ":navigations" || node.nodeName == conf.ns.project + ":variables" || node.nodeName == conf.ns.project + ":backup";	
 };
 // }}}
 // {{{ isRenamable()
 class_tree_settings.prototype.isRenamable = function(node) {
 	if (node.nodeName == conf.ns.project + ":navigation") {
+		return true;		
+	} else if (node.nodeName == conf.ns.project + ":variable") {
 		return true;		
 	} else if (node.nodeName == conf.ns.project + ":language") {
 		return true;		
@@ -1796,6 +1801,8 @@ class_tree_settings.prototype.isRenamable = function(node) {
 // {{{ isValidMove()
 class_tree_settings.prototype.isValidMove = function(node, targetNode) {
 	if (node.nodeName == conf.ns.project + ":navigation" && targetNode.nodeName == conf.ns.project + ":navigations") {
+		return true;		
+	} else if (node.nodeName == conf.ns.project + ":variable" && targetNode.nodeName == conf.ns.project + ":variables") {
 		return true;		
 	} else if (node.nodeName == conf.ns.project + ":language" && targetNode.nodeName == conf.ns.project + ":languages") {
 		return true;		
@@ -1819,6 +1826,8 @@ class_tree_settings.prototype.isValidCopy = function(node, targetNode) {
 class_tree_settings.prototype.isValidDelete = function(node) {
 	if (node.nodeName == conf.ns.project + ":navigation") {
 		return true && (node.previousSibling != null || node.nextSibling != null);
+	} else if (node.nodeName == conf.ns.project + ":variable") {
+		return true && (node.previousSibling != null || node.nextSibling != null);		
 	} else if (node.nodeName == conf.ns.project + ":language") {
 		return true && (node.previousSibling != null || node.nextSibling != null);		
 	} else if (node.nodeName == conf.ns.project + ":template_set") {
@@ -1835,6 +1844,8 @@ class_tree_settings.prototype.isValidDelete = function(node) {
 // {{{ isValidDuplicate()
 class_tree_settings.prototype.isValidDuplicate = function(node) {
 	if (node.nodeName == conf.ns.project + ":navigation") {
+		return true;		
+	} else if (node.nodeName == conf.ns.project + ":variable") {
 		return true;		
 	} else if (node.nodeName == conf.ns.project + ":language") {
 		return true;		
@@ -1883,6 +1894,28 @@ class_tree_settings.prototype.getNavigations = function() {
 				});
 			}
 			return navigations;
+		}
+			
+		tempNode = tempNode.nextSibling;
+	}
+};
+// }}}
+// {{{ getVariables()
+class_tree_settings.prototype.getVariables = function() {
+	var tempNode;
+	var tempObj;
+	var variables = [];
+	
+	tempNode = this.data.getRootNode().firstChild;
+	while (tempNode != null) {
+		if (tempNode.nodeName == conf.ns.project + ":variables") {
+			for (i = 0; i < tempNode.childNodes.length; i++) {
+				variables.push({
+					name		: tempNode.childNodes[i].attributes.name,
+					value    	: tempNode.childNodes[i].attributes.value
+				});
+			}
+			return variables;
 		}
 			
 		tempNode = tempNode.nextSibling;

@@ -1481,9 +1481,23 @@ class_propBox_edit_type.prototype.setData = function() {
 // {{{ setDataNow()
 class_propBox_edit_type.prototype.setDataNow = function() {
 	var i;
+	var j;
         var options;
+        var variables;
 	
-        options = this.data.attributes['options'].split(",");
+        options = this.data.attributes['options'];
+
+        if (options.substring(0, 5) == "%var_") {
+            variables = conf.project.tree.settings.variables;
+
+            for (j = 0; j < variables.length; j++) {
+                if (variables[j].name == options.substring(5, options.length - 1)) {
+                    options = variables[j].value;
+                }
+            }
+        }
+
+        options = options.split(",");
 
         this.comboBox.setValues(options);
 
@@ -2440,6 +2454,41 @@ class_propBox_proj_navigation.prototype.generateComponents = function() {
 // {{{ saveData()
 class_propBox_proj_navigation.prototype.saveData = function(forceSave) {
 	this.data.attributes.shortname = this.inputBox.value;
+
+	return super.saveData(forceSave);
+};
+// }}}
+
+/*
+ *	Class PropBox_proj_variable
+ *
+ *	Extends class_propBox
+ *	Handles Settings-Variables
+ */
+// {{{ constructor()
+class_propBox_proj_variable = function() {};
+class_propBox_proj_variable.prototype = new class_propBox_edit_text_singleline();
+
+class_propBox_proj_variable.prototype.propName = [];
+class_propBox_proj_variable.prototype.propName[0] = conf.lang.prop_name_proj_variable;
+// }}}
+// {{{ generateComponents()
+class_propBox_proj_variable.prototype.generateComponents = function() {
+	super.generateComponents();
+	this.inputBox.restrict = "";	
+	this.inputBox.maxChars = null;
+};
+// }}}
+// {{{ setData()
+class_propBox_proj_variable.prototype.setData = function() {
+	super.setData();
+	
+	this.inputBox.value = this.data.attributes.value;
+};
+// }}}
+// {{{ saveData()
+class_propBox_proj_variable.prototype.saveData = function(forceSave) {
+	this.data.attributes.value = this.inputBox.value;
 
 	return super.saveData(forceSave);
 };
@@ -5159,6 +5208,7 @@ Object.registerClass("prop_edit_newnode_valid_parents", class_propBox_edit_newno
 // {{{ settings
 Object.registerClass("prop_proj_language", class_propBox_proj_language);
 Object.registerClass("prop_proj_navigation", class_propBox_proj_navigation);
+Object.registerClass("prop_proj_variable", class_propBox_proj_variable);
 Object.registerClass("prop_proj_template_set", class_propBox_proj_template_set);
 Object.registerClass("prop_proj_global_file", class_propBox_proj_global_file);
 Object.registerClass("prop_proj_publish_folder", class_propBox_proj_publish_folder);

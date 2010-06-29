@@ -375,6 +375,7 @@ class_user.prototype.mayEditSettingsTemplateSets = function() { return this.leve
 class_user.prototype.mayBackup = function() { return this.level <= 1; };
 class_user.prototype.mayEditSettingsLanguages = function() { return this.level <= 1; };
 class_user.prototype.mayEditSettingsNavigation = function() { return this.level <= 2; };
+class_user.prototype.mayEditSettingsVariable = function() { return this.level <= 2; };
 // }}}
 
 /* vim:set ft=javascript sw=4 sts=4 fdm=marker : */
