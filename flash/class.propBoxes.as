@@ -2918,14 +2918,24 @@ class_propBox_edit_img.prototype.load_thumb = function() {
 	this._parent.propObj.getImageProp(filedata.path, filedata.name, this.setImageProp, this);
 
 	this.buttonImg.onClick = function() {
-		_root.mainInterface.interface.layouts.dlgChoose_files.setActive(this._parent._parent.propObj.saveFilePath, this._parent._parent.propObj, [this._parent.thumb.filepath, this._parent.data.nid, "jpg,jpeg,gif,png", this._parent.data.attributes.force_width, this._parent.data.attributes.force_height]);
+            var force = this._parent.data.attributes.force_size.split("x");
+
+            if (force.length == 2) {
+                var force_width = force[0] == "X" ? "" : force[0];
+                var force_height = force[1] == "X" ? "" : force[1];
+            } else {
+                var force_width = this._parent.data.attributes.force_width;
+                var force_height =  this._parent.data.attributes.force_height;
+            }
+
+            _root.mainInterface.interface.layouts.dlgChoose_files.setActive(this._parent._parent.propObj.saveFilePath, this._parent._parent.propObj, [this._parent.thumb.filepath, this._parent.data.nid, "jpg,jpeg,gif,png", force_width, force_height]);
 	}
 	this.buttonHref.onClick = function() {
-		var href_id = "";
-		if (this._parent.hrefBox.value.substring(0, conf.url_page_scheme_intern.length + 2) == conf.url_page_scheme_intern + ":/") {
-			href_id = conf.project.tree.pages.getIdByUri(this._parent.hrefBox.value);
-		}
-		_root.mainInterface.interface.layouts.dlgChoose_page.setActive(this._parent._parent.propObj.saveFileRef, this._parent._parent.propObj, [href_id, this._parent.data.nid]);
+            var href_id = "";
+            if (this._parent.hrefBox.value.substring(0, conf.url_page_scheme_intern.length + 2) == conf.url_page_scheme_intern + ":/") {
+                    href_id = conf.project.tree.pages.getIdByUri(this._parent.hrefBox.value);
+            }
+            _root.mainInterface.interface.layouts.dlgChoose_page.setActive(this._parent._parent.propObj.saveFileRef, this._parent._parent.propObj, [href_id, this._parent.data.nid]);
 	}
 };
 // }}}

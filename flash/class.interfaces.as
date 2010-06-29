@@ -1319,9 +1319,24 @@ class_interfaceLayout_dlgChoose_files.prototype.generate = function(dlgArgs) {
 	}
 	this.dataNodeId = dlgArgs[1];
 	this.movClip.treeBox1.treeObj.treeObj.setFileFilter(dlgArgs[2], dlgArgs[3], dlgArgs[4]);
-		
+
+        this.treeTopOffset = 90;
+        var extraText = conf.lang.msg_choose_file + "\n";
+        if (dlgArgs[2] != "") {
+            extraText += "\n" + conf.lang.msg_choose_file_filter_type + dlgArgs[2];
+            this.treeTopOffset += 22;
+        }
+        if (dlgArgs[3] != "") {
+            extraText += "\n" + conf.lang.msg_choose_file_filter_width + dlgArgs[3] + "px";
+            this.treeTopOffset += 22;
+        }
+        if (dlgArgs[4] != "") {
+            extraText += "\n" + conf.lang.msg_choose_file_filter_height + dlgArgs[4] + "px";
+            this.treeTopOffset += 22;
+        }
+
 	this.movClip.attachMovie("tree_box_dlg", "dlgBox", 50, {
-		text	: conf.lang.msg_choose_file,
+		text	: extraText,
 		type	: "OkCancel"
 	});
 	this.movClip.dlgBox.getX = function() {
