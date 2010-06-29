@@ -1922,6 +1922,28 @@ class_tree_settings.prototype.getVariables = function() {
 	}
 };
 // }}}
+// {{{ getVariable()
+class_tree_settings.prototype.getVariable = function(name) {
+	var tempNode;
+	var tempObj;
+	var variables = [];
+
+	tempNode = this.data.getRootNode().firstChild;
+	while (tempNode != null) {
+		if (tempNode.nodeName == conf.ns.project + ":variables") {
+			for (i = 0; i < tempNode.childNodes.length; i++) {
+                            if (tempNode.childNodes[i].attributes.name == name) {
+                                return tempNode.childNodes[i].attributes.value;
+                            }
+			}
+		}
+			
+		tempNode = tempNode.nextSibling;
+	}
+
+        return false;
+};
+// }}}
 // {{{ getLanguages()
 class_tree_settings.prototype.getLanguages = function() {
 	var tempNode;

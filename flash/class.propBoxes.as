@@ -1488,13 +1488,7 @@ class_propBox_edit_type.prototype.setDataNow = function() {
         options = this.data.attributes['options'];
 
         if (options.substring(0, 5) == "%var_") {
-            variables = conf.project.tree.settings.variables;
-
-            for (j = 0; j < variables.length; j++) {
-                if (variables[j].name == options.substring(5, options.length - 1)) {
-                    options = variables[j].value;
-                }
-            }
+            options = conf.project.tree.settings.getVariable(options.substring(5, options.length - 1));
         }
 
         options = options.split(",");
