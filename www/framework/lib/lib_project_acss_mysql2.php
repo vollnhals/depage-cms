@@ -1771,6 +1771,7 @@ class project_acss_mysql2 extends project {
             new ttRpcFunc('publish_cache_colorschemes', array()),
             new ttRpcFunc('publish_cache_languages', array()),
             new ttRpcFunc('publish_cache_navigation', array()),
+            new ttRpcFunc('publish_cache_projsettings', array()),
             new ttRpcFunc('publish_cache_settings', array()),
         );
         

@@ -626,6 +626,21 @@ class rpc_bgtask_functions extends rpc_functions_class {
         //$tempdoc->free();
     }
     // }}}
+    // {{{ publish_cache_projsettings()
+    /**
+     * ----------------------------------------------
+     * publish_cache_projsettings
+     *        project, publish_id
+     */ 
+    function publish_cache_projsettings($args) {
+        $args['task']->set_description('%task_publish_caching_projsettings%');
+        
+        $tempdoc = $this->xml_proc->get_projsettings($this->project);
+        $tempdoc->dump_file($this->cache_path . 'projsettings.xml', false, false);
+        
+        //$tempdoc->free();
+    }
+    // }}}
     // {{{ publish_cache_settings()
     /**
      * ----------------------------------------------

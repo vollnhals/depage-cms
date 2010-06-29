@@ -385,6 +385,17 @@ class tpl_engine_xslt extends tpl_engine {
                 'depage_path_base' => "'{$conf->path_base}'",
                 'depage_path_server_root' => "'{$conf->path_server_root}'",
             );
+           
+            // add variables
+            $projsettings = $this->get_projsettings($project_name);
+            $xpath_projsettings = project::xpath_new_context($projsettings);
+            $xfetch = xpath_eval($xpath_projsettings, "//{$conf->ns['project']['ns']}:variables/{$conf->ns['project']['ns']}:variable");
+
+            if (count($xfetch->nodeset) > 0) {
+                foreach ($xfetch->nodeset as $tcs) {
+                    $this->variables["tt_var_" . $tcs->get_attribute('name')] = "'" . htmlspecialchars($tcs->get_attribute('value'), ENT_QUOTES) . "'";
+                }
+            }
             
             //get color variables
             $xml_page = $this->get_page($id);
@@ -422,7 +433,7 @@ class tpl_engine_xslt extends tpl_engine {
             for ($i = 0; $i < count($xfetch->nodeset); $i++) {
                 $this->variables['ttc_' . $xfetch->nodeset[$i]->get_attribute('name')] = "'" . $xfetch->nodeset[$i]->get_attribute('value') . "'";
             }
-            
+
             //process data
             if ($this->use == 'sablotron') {
                 // Allocate a new XSLT processor
@@ -854,6 +865,30 @@ class tpl_engine_xslt extends tpl_engine {
             }
         }
         return $this->languages[$project_name];
+    }
+    // }}}
+    // {{{ get_projsettings()
+    /**
+     * gets available project languages from db
+     *
+     * @public
+     *
+     * @param    $project_name (string) project name
+     *
+     * @return    $language (xmlobject) languages
+     */
+    function get_projsettings($project_name) {
+        global $conf, $project;
+        global $log;
+        
+        if (!isset($this->projsettings[$project_name])) {
+            if ($this->isPreview) {
+                $this->projsettings[$project_name] = $project->get_settings($project_name);
+            } else {
+                $this->projsettings[$project_name] = domxml_open_file($project->get_project_path($project_name) . '/publish/projsettings.xml');
+            }
+        }
+        return $this->projsettings[$project_name];
     }
     // }}}
     // {{{ get_settings()
