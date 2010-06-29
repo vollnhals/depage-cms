@@ -2918,14 +2918,26 @@ class_propBox_edit_img.prototype.load_thumb = function() {
 	this._parent.propObj.getImageProp(filedata.path, filedata.name, this.setImageProp, this);
 
 	this.buttonImg.onClick = function() {
-            var force = this._parent.data.attributes.force_size.split("x");
+            var force_width = "";
+            var force_height = "";
+            var force = this._parent.data.attributes.force_size;
+
+            if (force.substring(0, 5) == "%var_") {
+                force = conf.project.tree.settings.getVariable(force.substring(5, force.length - 1));
+            }
+
+            force = force.split("x");
 
             if (force.length == 2) {
-                var force_width = force[0] == "X" ? "" : force[0];
-                var force_height = force[1] == "X" ? "" : force[1];
+                if (int(force[0]) > 0) {
+                    force_width = force[0];
+                }
+                if (int(force[1]) > 0) {
+                    force_height = force[1];
+                }
             } else {
-                var force_width = this._parent.data.attributes.force_width;
-                var force_height =  this._parent.data.attributes.force_height;
+                force_width = this._parent.data.attributes.force_width;
+                force_height =  this._parent.data.attributes.force_height;
             }
 
             _root.mainInterface.interface.layouts.dlgChoose_files.setActive(this._parent._parent.propObj.saveFilePath, this._parent._parent.propObj, [this._parent.thumb.filepath, this._parent.data.nid, "jpg,jpeg,gif,png", force_width, force_height]);
