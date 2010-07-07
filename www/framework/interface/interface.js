@@ -455,7 +455,7 @@ function attach_events() {
             $(this).hide();
 
             if (this.type == "submit") {
-                ionclick = "document.forms." + form.id + ".submit(); return false;";
+                ionclick = "document.forms." + form.id + ".subaction.value = '" + this.name + "'; document.forms." + form.id + ".submit(); return false;";
             } else if (this.type == "reset") {
                 ionclick = "document.forms." + form.id + ".reset(); return false;";
             } else {

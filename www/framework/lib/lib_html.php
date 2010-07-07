@@ -80,7 +80,8 @@ class html {
                     color: <?php echo($settings['color_font']); ?>;
                 }
                 a,
-                h2 a:hover {
+                h2 a:hover,
+                .error span {
                     color: <?php echo($settings['color_active2']); ?>;
                 }
                 body {
@@ -252,7 +253,11 @@ class html {
     /* }}} */
     /* {{{ close_edit */
     function close_edit() {
-        $h = "<script type=\"text/javascript\">top.close_edit();</script>";
+        $h = "<script type=\"text/javascript\">
+                try {
+                    top.close_edit();
+                } catch(e) { }
+            </script>";
 
         return $h;
     }
@@ -299,6 +304,44 @@ class html {
             $h .= "</li>";
         }
         $h .= "</ul>";
+
+        $h .= "<div class=\"toolbar spacing\">";
+            if ($project->user->get_level_by_sid() <= 1) {
+                // add limk to settings
+                $h .= "<a class=\"right\" href=\"settings.php?action=project_add\">" . $this->lang['inhtml_project_add'] . "</a>";
+            }
+        $h .= "</div>";
+
+        return $this->box($h, "projects", "first");
+    }
+    /* }}} */
+    /* {{{ project_add */
+    function project_add($projectname, $error) {
+        global $conf;
+        global $project;
+        global $user;
+        global $log;
+
+        $h = "";
+
+        $h .= "<h1>" . $this->lang["inhtml_project_add"] . "</h1>";
+        $h .= "<form action=\"\" method=\"POST\">";
+            $h .= "<input type=\"hidden\" name=\"action\" value=\"project_add\">";
+            $h .= "<input type=\"hidden\" name=\"subaction\" value=\"add\">";
+
+            $h .= "<label><span>" . $this->lang["inhtml_project_name_short"] . ": </span><input placeholder=\"" . $this->lang["inhtml_project_name_long"] . "\"type=\"text\" name=\"projectname\" value=\"" . htmlentities($projectname) . "\"></label>";
+
+            if ($error != "") {
+                $h .= "<p class=\"error spacing\"><span>!</span>$error</p>";
+            }
+
+            $h .= "<div class=\"toolbar spacing\">";
+                $h .= "<div class=\"right\">";
+                    $h .= "<input type=\"submit\" class=\"textbutton\" name=\"cancel\" value=\"" . $this->lang["inhtml_cancel"] . "\">";
+                    $h .= "<input type=\"submit\" class=\"textbutton\" name=\"add\" value=\"" . $this->lang["inhtml_project_add_submit"] . "\">";
+                $h .= "</div>";
+            $h .= "</div>";
+        $h .= "</form";
 
         return $this->box($h, "projects", "first");
     }
@@ -390,7 +433,31 @@ class html {
             $h .= "</ul>";
         }
 
+        $h .= "<div class=\"toolbar spacing\">";
+            if ($project->user->get_level_by_sid() <= 2) {
+                // add limk to settings
+                $h .= "<a class=\"right\" href=\"settings.php?action=user_administer\">" . $this->lang['inhtml_user_administer'] . "</a>";
+            }
+        $h .= "</div>";
+
         return $h;
+    }
+    /* }}} */
+    /* {{{ user_administer */
+    function user_administer() {
+        global $conf;
+        global $project;
+        global $user;
+        global $log;
+
+        $h = "";
+
+        $h .= "<h1>" . $this->lang["inhtml_user_administer"] . "</h1>";
+        $h .= "<form action=\"\">";
+            $h .= "<input type=\"hidden\" name=\"action\" value=\"user_administer\">";
+        $h .= "</form";
+
+        return $this->box($h, "users", "first");
     }
     /* }}} */
     /* {{{ lastchanged_pages */

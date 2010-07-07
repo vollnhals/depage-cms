@@ -161,6 +161,31 @@ ul.users p {
     display: inline;
 }
 /* }}} */
+/* {{{ forms */
+form {
+    margin-top: 12px;
+}
+form label span {
+    display: inline-block;
+    width: 100px;
+}
+form label input {
+    width: 310px;
+    border: none;
+    padding: 3px;
+}
+form .error {
+    margin-top: 12px;
+}
+form .error span {
+    font-weight: bold;
+    display: block;
+    width: 25px;
+    height: 60px;
+    float: left;
+    font-size: 25px;
+}
+/* }}} */
 /* {{{ projectlisting/toolbar */
 ul.projectlisting {
     text-indent: 0;
@@ -224,6 +249,10 @@ ul.projectlisting {
 }
 .toolbar {
     margin: 2px 12px;
+}
+.toolbar.spacing,
+.centered_box .toolbar.spacing {
+    margin-top: 30px;
 }
 .toolbar:after {
     content: ".";
