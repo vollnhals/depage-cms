@@ -434,7 +434,7 @@ class html {
         }
 
         $h .= "<div class=\"toolbar spacing\">";
-            if ($project->user->get_level_by_sid() <= 2) {
+            if (false && $project->user->get_level_by_sid() <= 2) {
                 // add limk to settings
                 $h .= "<a class=\"right\" href=\"settings.php?action=user_administer\">" . $this->lang['inhtml_user_administer'] . "</a>";
             }
