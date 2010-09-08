@@ -52,9 +52,6 @@ class sitemap {
         if ($node->tagname == "page" && $node->get_attribute("nav_hidden") != "true" && $node->get_attribute("redirect") != "true") {
 
             $url = $node->get_attribute("url");
-            if ($this->mod_rewrite && substr($url, -4) == ".php") {
-                $url = substr($url, 0, -4) . ".html";
-            }
 
             $pathinfo = pathinfo($url);
 
@@ -65,8 +62,13 @@ class sitemap {
                 // pages in top hierarchy are more important
                 $priority = floor((1 / sqrt($depth) * 10)) / 10;
 
+                $fullname = $file->get_fullname();
+                if ($this->mod_rewrite && substr($fullname, -4) == ".php") {
+                    $fullname = substr($fullname, 0, -4) . ".html";
+                }
+
                 $this->xmlstr .= "<url>\n";
-                $this->xmlstr .= "\t<loc>" . htmlentities($this->baseurl . $file->get_fullname()) . "</loc>\n";
+                $this->xmlstr .= "\t<loc>" . htmlentities($this->baseurl . $fullname) . "</loc>\n";
                 $this->xmlstr .= "\t<lastmod>" . htmlentities($lastmod) . "</lastmod>\n";
                 $this->xmlstr .= "\t<priority>" . htmlentities($priority) . "</priority>\n";
                 //@todo add changefreq (based on some statistics?)
@@ -86,4 +88,3 @@ class sitemap {
 }
 
 /* vim:set ft=php sw=4 sts=4 fdm=marker : */
-?>
