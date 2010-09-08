@@ -39,6 +39,7 @@ class tpl_engine_xslt extends tpl_engine {
     var $navigation = array();
     var $languages = array();
     // }}}
+    
     // {{{ constructor
     /**
      * constructor, initializes main variables
@@ -60,6 +61,7 @@ class tpl_engine_xslt extends tpl_engine {
         } else {
             $this->isPreview = true;
         }
+        $this->mod_rewrite = $param['mod_rewrite'] == "true";
         
         $this->use = 'sablotron';
         
@@ -932,7 +934,7 @@ class tpl_engine_xslt extends tpl_engine {
      *
      * @param    $path (string) path to page
      */
-    function get_path_by_id($id, $lang, $project_name) {
+    function get_path_by_id($id, $lang, $project_name, $force_dyn = false) { 
         global $project;
         global $log;
         
@@ -946,6 +948,10 @@ class tpl_engine_xslt extends tpl_engine {
         $path = $project->page_ids[$id];
             
         $path = "/{$lang}{$path}";
+
+        if (($this->mod_rewrite && !$force_dyn) && substr($path, -4) == ".php") {
+            $path = substr($path, 0, -4) . ".html";
+        }
 
         return $path;
     }
@@ -961,12 +967,10 @@ class tpl_engine_xslt extends tpl_engine {
      *
      * @return    $id (int) id of page
      */
-    function get_id_by_path($path, $project_name) {
+    function get_id_by_path($path, &$filetype, $project_name) {
         global $project;
         global $log;
 
-        //@todo fix bug with "()" in folder and page names
-        
         if (!$this->navigations[$project_name]) {
             $this->get_navigation($project_name);
         }
@@ -975,6 +979,18 @@ class tpl_engine_xslt extends tpl_engine {
 
         $path = "/$path";
         $id = array_search($path, $project->page_ids);
+
+        if (!$id && substr($path, -5) == ".html") {
+            if (preg_match("/^(.*)\\.([0-9]+)/", $path, $matches)) {
+                // clean up page numbers
+                $path = $matches[1] . ".php";
+            } else {
+                $path = substr($path, 0, -5) . ".php";
+            }
+
+            $id = array_search($path, $project->page_ids);
+            $filetype = "php";
+        }
         
         return $id;
     }

@@ -477,7 +477,10 @@ class rpc_bgtask_functions extends rpc_functions_class {
 
         $project_name = $args['project'];
 
-        $this->xml_proc = tpl_engine::factory('xslt', array('isPreview' => false));
+        $this->xml_proc = tpl_engine::factory('xslt', array(
+            'isPreview' => false,
+            'mod_rewrite' => $args['mod_rewrite'],
+        ));
         $GLOBALS['xml_proc'] = &$this->xml_proc;
         
         $this->xml_proc->_set_project($project_name);
@@ -706,11 +709,14 @@ class rpc_bgtask_functions extends rpc_functions_class {
     function publish_process_page($args) {
         global $log, $db;
 
-        $this->xml_proc = tpl_engine::factory('xslt', array('isPreview' => false));
+        $this->xml_proc = tpl_engine::factory('xslt', array(
+            'isPreview' => false,
+            'mod_rewrite' => $args['mod_rewrite'],
+        ));
         $GLOBALS['xml_proc'] = &$this->xml_proc;
         $this->xml_proc->_set_project($this->project);
         
-        $file_path = $this->xml_proc->get_path_by_id($args['page_id'], $args['lang'], $this->project);
+        $file_path = $this->xml_proc->get_path_by_id($args['page_id'], $args['lang'], $this->project, true);
         if (substr($file_path, -1) == '/') {
             $file_path .= 'index.html';
         }
@@ -738,10 +744,12 @@ class rpc_bgtask_functions extends rpc_functions_class {
         global $log;
 
         $this->xml_proc->isPreview = true;
-        $file_path = $this->xml_proc->get_path_by_id($args['page_id'], $args['lang'], $this->project);
+
+        $file_path = $this->xml_proc->get_path_by_id($args['page_id'], $args['lang'], $this->project, true);
         if (substr($file_path, -1) == '/') {
             $file_path .= 'index.html';
         }
+
         $this->xml_proc->isPreview = false;
         
         $args['task']->set_description('%task_publish_publishing_pages% [' . substr($file_path, strpos($file_path, '/', 9)) . ']');
@@ -805,6 +813,12 @@ class rpc_bgtask_functions extends rpc_functions_class {
         if ($node == null) {
             return;
         }
+        $baselink = $node->get_attribute("url");
+        if ($args['mod_rewrite'] == "true") {
+            if (substr($baselink, -4) == ".php") {
+                $baselink = substr($baselink, 0, -4) . ".html";
+            }
+        }
 
         $autolang = file_get_contents("php/autolang_tpl.php");
         $autolang .= "<" . "?php\n";
@@ -818,7 +832,7 @@ class rpc_bgtask_functions extends rpc_functions_class {
             $autolang .= "if (substr(\$base_location, -1, 1) != \"/\") {\n";
             $autolang .= "\t\$base_location .= \"/\";\n";
             $autolang .= "}\n";
-            $autolang .= "\$document = \"" . $node->get_attribute("url") . "\";\n";
+            $autolang .= "\$document = \"" . $baselink . "\";\n";
             $autolang .= "\$location = \"{\$base_location}{\$lang_location}{\$document}\";\n\n";
 
             $autolang .= "header(\"Location: \$location\");\n";
@@ -848,23 +862,37 @@ class rpc_bgtask_functions extends rpc_functions_class {
             $htaccess .= "AddCharset UTF-8 .html\n\n";
         }
 
-        // @todo add option to exclude rewrite conditions
-        //$htaccess .= "<IfModule mod_rewrite.c>\n";
-        //$htaccess .= "\tRewriteEngine       on\n\n";
 
-        if ($method == "xhtml") {
-            $htaccess .= "RewriteCond %{HTTP_ACCEPT} application/xhtml\+xml\n";
-            $htaccess .= "RewriteRule \.html$ - [T=application/xhtml+xml]\n\n";
-        }
+        if ($args['mod_rewrite'] == "true") {
+            // @todo add option to exclude rewrite conditions
+            //$htaccess .= "<IfModule mod_rewrite.c>\n";
+            $htaccess .= "RewriteEngine       on\n\n";
+            
+            if ($method == "xhtml") {
+                $htaccess .= "RewriteCond         %{HTTP_ACCEPT}           application/xhtml\+xml\n";
+                $htaccess .= "RewriteRule         \.html$                  - [T=application/xhtml+xml]\n\n";
+            }
 
-        if ($args['lang_num'] > 1) {
-            $htaccess .= "RewriteRule         ^$              index.php [last]\n";
-        } else {
-            $htaccess .= "RewriteRule         ^$              {$args['lang_default']}" . $node->get_attribute("url") . " [last]\n";
-            $htaccess .= "RedirectMatch       ^/$             {$args['baseurl']}/{$args['lang_default']}" . $node->get_attribute("url") . "\n";
-        }
+            if ($args['lang_num'] > 1) {
+                // load autolangchooser
+                $htaccess .= "RewriteRule         ^/?$                     index.php [L]\n\n";
+            } else {
+                // redirect to first page
+                $htaccess .= "RewriteRule         ^/?$                     {$args['baseurl']}/{$args['lang_default']}" . $baselink . " [L,R]\n\n";
+            }
+
+            // redirect non-existing multipage-html to php-page
+            $htaccess .= "RewriteCond         %{REQUEST_FILENAME}      !-s\n";
+            $htaccess .= "RewriteRule         ^(.*)\.([0-9]+)\.html    \$1.php [L]\n\n";
+
+            // redirect non-existing html to php-page
+            $htaccess .= "RewriteCond         %{REQUEST_FILENAME}      !-s\n";
+            $htaccess .= "RewriteRule         ^(.*)\.html              \$1.php [L]\n\n";
         
-        //$htaccess .= "</IfModule>\n";
+            //$htaccess .= "</IfModule>\n";
+        } else {
+            $htaccess .= "RedirectMatch       ^/$                      {$args['baseurl']}/{$args['lang_default']}" . $baselink . "\n";
+        }
 
         @$this->file_access->f_write_string($this->output_path . '/.htaccess', $htaccess);
     }
@@ -971,7 +999,7 @@ class rpc_bgtask_functions extends rpc_functions_class {
         $pb = new publish($this->project, $args['publish_id']);
         $args['task']->set_description('%task_publish_sitemap%');
         
-        $sitemap = new sitemap($this->project);
+        $sitemap = new sitemap($this->project, $args['mod_rewrite'] == "true");
         // @todo add real baseurl instead of the dummy-url
         $xmlstr = $sitemap->generate($args['publish_id'], $args['baseurl']);
 

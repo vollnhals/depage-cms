@@ -129,13 +129,15 @@ if ($param['project'] != "") {
     $project_name = $param['project'];
     $project->user->project = $project_name;
 
+    $param['mod_rewrite'] = "true";
     $xml_proc = tpl_engine::factory('xslt', $param);
+
     // {{{ browse or preview
     if ($param['id_file_path'] == "/") {
         $param['access'] = "redirect";
     }
     if ($param['access'] == 'browse' || $param['access'] == 'preview') { 
-        $id = $xml_proc->get_id_by_path($param['id_file_path'], $project_name);
+        $id = $xml_proc->get_id_by_path($param['id_file_path'], $param['file_type'], $project_name);
         if ($project_name && $id != null) {
             if ($param['lang'] == "") {
                 $languages = $project->get_languages($project_name);
@@ -181,6 +183,11 @@ if ($param['project'] != "") {
                     } else {
                         $cache_path = "";
                     }
+
+                    if (substr($param['file_name'], -5) == ".html" && $param['file_type'] != "html") {
+                        $param['file_name'] = substr($param['file_name'], 0, -4) . $param['file_type'];
+                    }
+
                     $file_path = $project->get_project_path($project_name) . "/cache_{$param['type']}_{$param['lang']}{$cache_path}/{$param['file_name']}";
                     $file_access = fs::factory('local');
                     $file_access->f_write_string($file_path, $transformed['value']);

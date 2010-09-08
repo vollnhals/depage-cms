@@ -689,13 +689,18 @@ class_tree_pages.prototype.getPathById = function(id, lang, type) {
 	var languages = conf.project.tree.settings.getLanguages();
 	var tempNode = this.data.searchForId(id);
 	var multilang = tempNode.attributes.multilang == "true";
+        var url = tempNode.attributes.url;
 
-        if (tempNode.attributes.url == "") {
+        if (url.substr(url.length - 4) == ".php") {
+            url = url.substr(0, url.length - 4) + ".html";
+        }
+
+        if (url == "") {
 		path = "";
         } else if (multilang) {
-		path = "/" + lang + tempNode.attributes.url;
+		path = "/" + lang + url;
 	} else {
-		path = "/int" + tempNode.attributes.url;
+		path = "/int" + url;
 	}
 
 	return path;	
@@ -786,7 +791,12 @@ class_tree_pages.prototype.getIdByURL = function(url, node) {
         node = this.data.getRootNode();
     }
 	
-    if (!this.isFolder(node) && node.attributes.url == url) {
+    testurl1 = url;
+    if (testurl1.substr(testurl1.length - 5) == ".html") {
+        testurl2 = testurl1.substr(0, testurl1.length - 5) + ".php";
+    }
+
+    if (!this.isFolder(node) && (node.attributes.url == testurl1 || node.attributes.url == testurl2)) {
         return node.nid;
     } else {
         for (var i = 0; i < node.childNodes.length; i++) {

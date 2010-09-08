@@ -21,8 +21,9 @@ class sitemap {
     var $languages;
 
     /* {{{ constructor */
-    function sitemap($project_name) {
+    function sitemap($project_name, $mod_rewrite = false) {
         $this->project_name = $project_name;
+        $this->mod_rewrite = $mod_rewrite;
     }
     /* }}} */
     /* {{{ generate */
@@ -49,7 +50,14 @@ class sitemap {
         global $project;
 
         if ($node->tagname == "page" && $node->get_attribute("nav_hidden") != "true" && $node->get_attribute("redirect") != "true") {
-            $pathinfo = pathinfo($node->get_attribute("url"));
+
+            $url = $node->get_attribute("url");
+            if ($this->mod_rewrite && substr($url, -4) == ".php") {
+                $url = substr($url, 0, -4) . ".html";
+            }
+
+            $pathinfo = pathinfo($url);
+
             foreach ($this->languages as $lang) {
                 $file = new publish_file("/{$lang}{$pathinfo['dirname']}", $pathinfo['basename']);
                 $lastmod = date("Y-m-d", $this->pb->get_lastmod($file));

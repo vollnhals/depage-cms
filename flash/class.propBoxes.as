@@ -823,11 +823,6 @@ class_propBox_edit_text_formatted.prototype.formatSelection = function(type) {
 			}
 		} else if (type == "link") {
 			if (tempGetFormat.url == "") {
-                                /*
-				tempSetFormat.url = "asfunction:textlink," + (this.textLinks.length) + "," + targetPath(this);
-				this.textLinks.push(["http://depagecms.net", ""]);
-				tempSetFormat.underline = true;
-                                */
                                 this.textLinkDoubleClick(-1);
 			} else {
 				replaceText = true;
@@ -4599,6 +4594,12 @@ class_propBox_proj_publish_folder.prototype.generateComponents = function() {
 		
 		conf.project.publishProject(this._parent.data.nid);
 	};
+
+        this.attachMovie("component_checkBox", "checkBoxModRewrite", 8);
+        this.checkBoxModRewrite.onChanged = function() {
+		this._parent.onChanged();
+		this._parent.save();
+        }
 	
 	this.attachMovie("component_progress_bar", "progressBar", 10);
 	
@@ -4627,6 +4628,7 @@ class_propBox_proj_publish_folder.prototype.handleTaskProgress = function(taskHa
 		this.inputBoxUser._visible = true;
 		this.inputBoxPass._visible = true;
 		this.comboBoxTemplateSet._visible = true;
+                this.checkBoxModRewrite._visible = true;
 		this.progressBar._visible = false;
 		this.progressField._visible = false;
 	} else {
@@ -4661,6 +4663,7 @@ class_propBox_proj_publish_folder.prototype.handleTaskProgress = function(taskHa
 		this.inputBoxUser._visible = false;
 		this.inputBoxPass._visible = false;
 		this.comboBoxTemplateSet._visible = false;
+                this.checkBoxModRewrite._visible = false;
 		this.progressBar._visible = true;
 		this.progressField._visible = true;
 	}
@@ -4681,21 +4684,27 @@ class_propBox_proj_publish_folder.prototype.setComponents = function() {
     //user
     this.inputBoxUser._x = this.settings.border_left;
     this.inputBoxUser._y = this.settings.border_top + 2 * (int(conf.interface.component_height) + this.settings.border);
-    this.inputBoxUser.width = this.settings.gridSize * 6 - this.settings.border;
+    this.inputBoxUser.width = (this.width - this.settings.border_left - this.settings.border_right) / 2;
     
     //pass
-    this.inputBoxPass._x = this.settings.border_left + this.settings.gridSize * 6;
-    this.inputBoxPass._y = this.settings.border_top + 2 * (int(conf.interface.component_height) + this.settings.border);
-    this.inputBoxPass.width = this.settings.gridSize * 6 - this.settings.border;
+    this.inputBoxPass._x = this.inputBoxUser._x + this.inputBoxUser.width + 6;
+    this.inputBoxPass._y =  this.settings.border_top + 2 * (int(conf.interface.component_height) + this.settings.border);
+    this.inputBoxPass.width = (this.width - this.settings.border_left - this.settings.border_right) / 2 - 6;
     
     //templateset
     this.comboBoxTemplateSet._x = this.settings.border_left;
-    this.comboBoxTemplateSet._y = this.settings.border_top + 3 * (int(conf.interface.component_height) + this.settings.border);
-    this.comboBoxTemplateSet.width = this.settings.gridSize * 6 - this.settings.border;
+    this.comboBoxTemplateSet._y = this.settings.border_top + 4 * (int(conf.interface.component_height) + this.settings.border);
+    this.comboBoxTemplateSet.width = this.inputBoxUser.width;
+
+    //modrewrite
+    this.checkBoxModRewrite._x = this.settings.border_left;
+    this.checkBoxModRewrite._y = this.settings.border_top + 5 * (int(conf.interface.component_height) + this.settings.border);
+    this.checkBoxModRewrite.width = this.settings.gridSize * 6 - this.settings.border;
+    this.checkBoxModRewrite.caption = "mod_rewrite";
 
     //other
     this.buttonStart._x = this.width - this.settings.border_right;
-    this.buttonStart._y = this.settings.border_top + 4 * (int(conf.interface.component_height) + 7);
+    this.buttonStart._y = this.settings.border_top + 7 * (int(conf.interface.component_height) + 7);
     this.buttonStart.caption = conf.lang.prop_tt_publish_folder_button_start;
     this.buttonStart.align = "TR";
     
@@ -4708,7 +4717,7 @@ class_propBox_proj_publish_folder.prototype.setComponents = function() {
     this.progressField._y = this.settings.border_top + int(conf.interface.component_height) + 10;
     this.progressField._width = this.width - this.settings.border_left - this.settings.border_right;
     
-    this.innerHeight = this.settings.border_top + (int(conf.interface.component_height) + this.settings.border) * 5;
+    this.innerHeight = this.settings.border_top + (int(conf.interface.component_height) + this.settings.border) * 8.5;
     this.height = this.innerHeight + this.settings.border_top + this.settings.border_bottom;
 };
 // }}}
@@ -4727,6 +4736,8 @@ class_propBox_proj_publish_folder.prototype.setData = function() {
 		}
 	}
 	this.comboBoxTemplateSet.select(this.comboBoxTemplateSet.selected);
+
+        this.checkBoxModRewrite.value = this.data.attributes.mod_rewrite == "true";
 };
 // }}}
 // {{{ saveData()
@@ -4736,6 +4747,11 @@ class_propBox_proj_publish_folder.prototype.saveData = function(forceSave) {
 	this.data.attributes.output_user = this.inputBoxUser.value;
 	this.data.attributes.output_pass = this.inputBoxPass.value;
 	this.data.attributes.template_set = this.comboBoxTemplateSet.values[this.comboBoxTemplateSet.selected];
+        if (this.checkBoxModRewrite.value) {
+            this.data.attributes.mod_rewrite = "true";
+        } else {
+            this.data.attributes.mod_rewrite = "false";
+        }
 
 	 return super.saveData(forceSave);
 };

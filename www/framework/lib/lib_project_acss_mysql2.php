@@ -1758,10 +1758,12 @@ class project_acss_mysql2 extends project {
             'template_set' => $tempnode->get_attribute('template_set'),
             'output_folder' => $tempnode->get_attribute('output_folder'),
             'baseurl' => $tempnode->get_attribute('baseurl'),
+            'mod_rewrite' => $tempnode->get_attribute('mod_rewrite'),
             'output_user' => $tempnode->get_attribute('output_user'),
             'output_pass' => $tempnode->get_attribute('output_pass'),
         )));
         $baseurl = $tempnode->get_attribute('baseurl');
+        $mod_rewrite = $tempnode->get_attribute('mod_rewrite');
         
         //caching
         $funcs = array(
@@ -1819,7 +1821,8 @@ class project_acss_mysql2 extends project {
                 $funcs[] = new ttRpcFunc('publish_process_page', array(
                     'page_id' => $page_id, 
                     'lang' => $output_language,
-                    'publish_id' => $publish_id
+                    'publish_id' => $publish_id,
+                    'mod_rewrite' => $mod_rewrite,
                 ));
             }
         }
@@ -1878,12 +1881,14 @@ class project_acss_mysql2 extends project {
             'lang_num' => count($output_languages),
             'lang_default' => $output_languages[0],
             'baseurl' => $baseurl,
+            'mod_rewrite' => $mod_rewrite,
         ));
 
         foreach ($output_languages as $lang) {
             $funcs[] = new ttRpcFunc('publish_feeds', array(
                 'publish_id' => $publish_id,
                 'baseurl' => $baseurl,
+                'mod_rewrite' => $mod_rewrite,
                 'title' => $project_name,
                 'lang' => $lang,
             ));
@@ -1891,6 +1896,7 @@ class project_acss_mysql2 extends project {
         $funcs[] = new ttRpcFunc('publish_sitemap', array(
             'publish_id' => $publish_id,
             'baseurl' => $baseurl,
+            'mod_rewrite' => $mod_rewrite,
         ));
         $funcs[] = new ttRpcFunc('publish_end', array(
             'publish_id' => $publish_id
