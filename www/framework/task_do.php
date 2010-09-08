@@ -891,7 +891,11 @@ class rpc_bgtask_functions extends rpc_functions_class {
         
             //$htaccess .= "</IfModule>\n";
         } else {
-            $htaccess .= "RedirectMatch       ^/$                      {$args['baseurl']}/{$args['lang_default']}" . $baselink . "\n";
+            if ($args['lang_num'] > 1) {
+                $htaccess .= "RedirectMatch       ^/$                      {$args['baseurl']}/index.php\n";
+            } else {
+                $htaccess .= "RedirectMatch       ^/$                      {$args['baseurl']}/{$args['lang_default']}" . $baselink . "\n";
+            }
         }
 
         @$this->file_access->f_write_string($this->output_path . '/.htaccess', $htaccess);
