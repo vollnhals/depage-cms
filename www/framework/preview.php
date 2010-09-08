@@ -117,8 +117,10 @@ function getParameterByUrl($url, $project = "", $type = "", $access = "") {
 /**
  * ----------------------------------------------
  */ 
-$user = new ttUser();
-$user->auth_http();
+if ($_SERVER["HTTP_HOST"] != $_SERVER["SERVER_NAME"] && $_SERVER["HTTP_HOST"] != "localhost") {
+    $user = new ttUser();
+    $user->auth_http();
+}
 
 headerNoCache();
 set_time_limit(60);
