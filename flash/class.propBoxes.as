@@ -1470,6 +1470,10 @@ class_propBox_edit_type.prototype.generateComponents = function() {
 class_propBox_edit_type.prototype.setData = function() {
 	super.setData();
 
+	if (this.data.attributes.name != undefined && this.data.attributes.name != "") {
+		this.setTitle(this.data.attributes.name);
+	}
+
         setTimeout(this.setDataNow, this, 10, [tempText]);
 };
 // }}}
