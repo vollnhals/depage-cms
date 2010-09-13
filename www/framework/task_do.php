@@ -841,12 +841,7 @@ class rpc_bgtask_functions extends rpc_functions_class {
         $this->file_access->f_write_string($this->output_path . '/index.php', $autolang);
 
         // generate htaccess file
-        $project_path = $project->get_project_path($this->project);
-        if (file_exists("{$project_path}/lib/htaccess")) {
-            $htaccess = file_get_contents("{$project_path}/lib/htaccess") . "\n\n";
-        } else {
-            $htaccess = "";
-        }
+        $htaccess = "";
 
         // get encoding
         $this->xml_proc = tpl_engine::factory('xslt', array('isPreview' => false));
@@ -866,7 +861,8 @@ class rpc_bgtask_functions extends rpc_functions_class {
         if ($args['mod_rewrite'] == "true") {
             // @todo add option to exclude rewrite conditions
             //$htaccess .= "<IfModule mod_rewrite.c>\n";
-            $htaccess .= "RewriteEngine       on\n\n";
+            $htaccess .= "RewriteEngine       on\n";
+            $htaccess .= "RewriteBase         /\n\n";
             
             if ($method == "xhtml") {
                 $htaccess .= "RewriteCond         %{HTTP_ACCEPT}           application/xhtml\+xml\n";
@@ -896,6 +892,12 @@ class rpc_bgtask_functions extends rpc_functions_class {
             } else {
                 $htaccess .= "RedirectMatch       ^/$                      {$args['baseurl']}/{$args['lang_default']}" . $baselink . "\n";
             }
+        }
+
+        // include project specific htaccess file
+        $project_path = $project->get_project_path($this->project);
+        if (file_exists("{$project_path}/lib/htaccess")) {
+            $htaccess .= file_get_contents("{$project_path}/lib/htaccess") . "\n\n";
         }
 
         @$this->file_access->f_write_string($this->output_path . '/.htaccess', $htaccess);
