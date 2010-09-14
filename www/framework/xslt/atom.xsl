@@ -53,7 +53,7 @@
         <xsl:param name="anchor" />
         <xsl:param name="pageid" />
 
-        <link><xsl:attribute name="href"><xsl:value-of select="$baseurl" /><xsl:value-of select="document(concat('pageref:',$pageid,'/',$tt_lang))" /></xsl:attribute></link>
+        <link><xsl:attribute name="href"><xsl:value-of select="$baseurl" /><xsl:value-of select="document(concat('pageref:',$pageid,'/',$tt_lang))" /><xsl:value-of select="$anchor" /></xsl:attribute></link>
         <id><xsl:value-of select="$baseurl" /><xsl:value-of select="document(concat('pageref:',$pageid,'/',$tt_lang))" /><xsl:value-of select="$anchor" /></id>
         <updated><xsl:value-of select="document(concat('call:formatdate/',edit:date/@value,'/','Y-m-d\TH:i:s\Z'))" /></updated>
         <title><xsl:value-of select="edit:text_headline[@lang = $tt_lang]/*" /></title>
