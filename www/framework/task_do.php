@@ -804,7 +804,7 @@ class rpc_bgtask_functions extends rpc_functions_class {
     function publish_htaccess($args) {
         global $project, $log;
         
-        // generate autolanguage-switch
+        // get base-page
         $page_struct = $project->get_page_struct($this->project);
         $node = $page_struct->document_element();
         while ($node != null && $node->tagname != "page") {
@@ -813,6 +813,8 @@ class rpc_bgtask_functions extends rpc_functions_class {
         if ($node == null) {
             return;
         }
+
+        // get baselink
         $baselink = $node->get_attribute("url");
         if ($args['mod_rewrite'] == "true") {
             if (substr($baselink, -4) == ".php") {
@@ -820,6 +822,16 @@ class rpc_bgtask_functions extends rpc_functions_class {
             }
         }
 
+        // get base-url
+        $baseurl = parse_url(rtrim($args['baseurl'], "/"));
+        $rewritebase = $baseurl['path'];
+        if ($rewritebase == "") {
+            $rewritebase = "/";
+        }
+        $baseurl = $baseurl['scheme'] . "://" . $baseurl['host'] . $baseurl['path'];
+
+
+        // generate autolang
         $autolang = file_get_contents("php/autolang_tpl.php");
         $autolang .= "<" . "?php\n";
             $autolang .= "\$languages = array(\n";
@@ -828,11 +840,8 @@ class rpc_bgtask_functions extends rpc_functions_class {
 
             $autolang .= "\$lang_location = get_language_by_browser(\$languages);\n";
 
-            $autolang .= "\$base_location = \"http://{\$_SERVER['HTTP_HOST']}{\$_SERVER['REQUEST_URI']}\";\n";
-            $autolang .= "if (substr(\$base_location, -1, 1) != \"/\") {\n";
-            $autolang .= "\t\$base_location .= \"/\";\n";
-            $autolang .= "}\n";
-            $autolang .= "\$document = \"" . $baselink . "\";\n";
+            $autolang .= "\$base_location = \"$baseurl/\";\n";
+            $autolang .= "\$document = \"$baselink\";\n";
             $autolang .= "\$location = \"{\$base_location}{\$lang_location}{\$document}\";\n\n";
 
             $autolang .= "header(\"Location: \$location\");\n";
@@ -852,13 +861,6 @@ class rpc_bgtask_functions extends rpc_functions_class {
         
         $method = $tempNode->get_attribute('method');
         $content_encoding = $tempNode->get_attribute('encoding');
-
-        $baseurl = parse_url(rtrim($args['baseurl'], "/"));
-        $rewritebase = $baseurl['path'];
-        if ($rewritebase == "") {
-            $rewritebase = "/";
-        }
-        $baseurl = $baseurl['scheme'] . "://" . $baseurl['host'] . $baseurl['path'];
 
         if ($content_encoding == "UTF-8") {
             $htaccess .= "AddCharset UTF-8 .html\n\n";
