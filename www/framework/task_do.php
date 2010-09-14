@@ -853,16 +853,21 @@ class rpc_bgtask_functions extends rpc_functions_class {
         $method = $tempNode->get_attribute('method');
         $content_encoding = $tempNode->get_attribute('encoding');
 
+        $baseurl = parse_url(rtrim($args['baseurl'], "/"));
+        $rewritebase = $baseurl['path'];
+        if ($rewritebase == "") {
+            $rewritebase = "/";
+        }
+        $baseurl = $baseurl['scheme'] . "://" . $baseurl['host'] . $baseurl['path'];
+
         if ($content_encoding == "UTF-8") {
             $htaccess .= "AddCharset UTF-8 .html\n\n";
         }
 
 
         if ($args['mod_rewrite'] == "true") {
-            // @todo add option to exclude rewrite conditions
-            //$htaccess .= "<IfModule mod_rewrite.c>\n";
             $htaccess .= "RewriteEngine       on\n";
-            $htaccess .= "RewriteBase         /\n\n";
+            $htaccess .= "RewriteBase         $rewritebase\n\n";
             
             if ($method == "xhtml") {
                 $htaccess .= "RewriteCond         %{HTTP_ACCEPT}           application/xhtml\+xml\n";
@@ -874,7 +879,7 @@ class rpc_bgtask_functions extends rpc_functions_class {
                 $htaccess .= "RewriteRule         ^/?$                     index.php [L]\n\n";
             } else {
                 // redirect to first page
-                $htaccess .= "RewriteRule         ^/?$                     {$args['baseurl']}/{$args['lang_default']}" . $baselink . " [L,R]\n\n";
+                $htaccess .= "RewriteRule         ^/?$                     {$baseurl}/{$args['lang_default']}" . $baselink . " [L,R]\n\n";
             }
 
             // redirect non-existing multipage-html to php-page
@@ -884,20 +889,18 @@ class rpc_bgtask_functions extends rpc_functions_class {
             // redirect non-existing html to php-page
             $htaccess .= "RewriteCond         %{REQUEST_FILENAME}      !-s\n";
             $htaccess .= "RewriteRule         ^(.*)\.html              \$1.php [L]\n\n";
-        
-            //$htaccess .= "</IfModule>\n";
         } else {
             if ($args['lang_num'] > 1) {
-                $htaccess .= "RedirectMatch       ^/$                      {$args['baseurl']}/index.php\n";
+                $htaccess .= "RedirectMatch       ^/$                      {$baseurl}/index.php\n";
             } else {
-                $htaccess .= "RedirectMatch       ^/$                      {$args['baseurl']}/{$args['lang_default']}" . $baselink . "\n";
+                $htaccess .= "RedirectMatch       ^/$                      {$baseurl}/{$args['lang_default']}" . $baselink . "\n\n";
             }
         }
 
         // include project specific htaccess file
         $project_path = $project->get_project_path($this->project);
         if (file_exists("{$project_path}/lib/htaccess")) {
-            $htaccess .= file_get_contents("{$project_path}/lib/htaccess") . "\n\n";
+            $htaccess .= file_get_contents("{$project_path}/lib/htaccess");
         }
 
         @$this->file_access->f_write_string($this->output_path . '/.htaccess', $htaccess);
