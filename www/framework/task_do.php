@@ -984,6 +984,7 @@ class rpc_bgtask_functions extends rpc_functions_class {
         $pb = new publish($this->project, $args['publish_id']);
         $args['task']->set_description('%task_publish_feeds%');
         
+        $this->xml_proc->mod_rewrite = $args['mod_rewrite'] == "true";
         $transformed = $this->xml_proc->generate_page_atom($this->project, "atom", $args['lang'], $args["baseurl"], true);
         if ($this->file_access->f_write_string($this->output_path . "/" . $args['lang'] . "/atom.xml", $transformed['value'])) {
             $pb = new publish($this->project, $args['publish_id']);

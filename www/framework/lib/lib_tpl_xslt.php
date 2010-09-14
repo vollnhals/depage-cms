@@ -288,6 +288,7 @@ class tpl_engine_xslt extends tpl_engine {
         $this->use_cached_template = $use_cached_template;
         $this->ids_used = array();
         $this->colorscheme = $colorscheme;
+        $this->actual_path = "/atom.xml";
         $this->baseurl = $baseurl;
         if (substr($baseurl, -1) != "/") {
             $this->baseurl .= "/";
