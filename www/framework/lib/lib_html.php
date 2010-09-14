@@ -504,19 +504,27 @@ class html {
                 $published_class = "class=\"published\"";
             }
 
-            if (strlen($page['url']) > 43) {
-                $url = substr($page['url'], 0, 10) . "..." . substr($page['url'], -30);
-            } else {
-                $url = $page['url'];
+            $url = $page['url'];
+
+            if (substr($url, -4) == ".php") {
+                $url = substr($url, 0, -4) . ".html";
             }
+
+            if (strlen($url) > 43) {
+                // shorten urlname
+                $urlname = substr($url, 0, 10) . "..." . substr($url, -30);
+            } else {
+                $urlname = $url;
+            }
+
             $h .= "<tr>";
                 $h .= "<td $published_class>";
-                    $h .= "<a href=\"{$conf->path_base}projects/{$project_name}/preview/html/cached/{$lang}{$page['url']}\">";
-                        $h .= "{$url}";
+                    $h .= "<a href=\"{$conf->path_base}projects/{$project_name}/preview/html/cached/{$lang}{$url}\">";
+                        $h .= "{$urlname}";
                     $h .= "</a>";
                 $h .= "</td>";
                 $h .= "<td class=\"date\">";
-                    $h .= "<a href=\"{$conf->path_base}projects/{$project_name}/preview/html/cached/{$lang}{$page['url']}\">";
+                    $h .= "<a href=\"{$conf->path_base}projects/{$project_name}/preview/html/cached/{$lang}{$url}\">";
                         $h .= "<span class=\"date\">$date</span>";
                     $h .= "</a>";
                 $h .= "</td>";
