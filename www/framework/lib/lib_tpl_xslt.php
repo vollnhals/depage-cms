@@ -358,7 +358,7 @@ class tpl_engine_xslt extends tpl_engine {
      *
      * @return    $transformed (string) transformed data
      */
-    function transform($project_name, $type, $id, $lang, $use_cached_template = true) {
+    function transform($project_name, $type, $id, $lang, $use_cached_template = true, $is_live = false) {
         global $conf, $log;
         
         $this->project = $project_name;
@@ -387,6 +387,7 @@ class tpl_engine_xslt extends tpl_engine {
                 'content_encoding' => "'{$this->content_encoding}'",
                 'depage_path_base' => "'{$conf->path_base}'",
                 'depage_path_server_root' => "'{$conf->path_server_root}'",
+                'depage_is_live' => $is_live ? "'true'" : "'false'",
             );
            
             // add variables

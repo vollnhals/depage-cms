@@ -727,7 +727,7 @@ class rpc_bgtask_functions extends rpc_functions_class {
 
         $this->xml_proc->actual_path = $file_path['dirname'] . '/' . $file_path['basename'];
         $this->xml_proc->isPreview = true;
-        $transformed = $this->xml_proc->transform($this->project, $this->template_set, $args['page_id'], $args['lang'], true);
+        $transformed = $this->xml_proc->transform($this->project, $this->template_set, $args['page_id'], $args['lang'], true, true);
         $this->xml_proc->isPreview = false;
         
         $fs = fs::factory("local");

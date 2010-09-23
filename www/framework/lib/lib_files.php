@@ -394,6 +394,7 @@ class fs_local extends fs {
  * Implements file system functions on remote ftp filesystem
  */
 class fs_ftp extends fs {
+    var $chmod = 0644;
     var $num_errors_max = 3; 
     var $login_errors = 0;
     var $connected = false;
