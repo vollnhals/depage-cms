@@ -30,59 +30,36 @@ class sitemap {
     function generate($publish_id, $baseurl) {
         global $project;
 
-        $this->baseurl = $baseurl;
+        if (substr($baseurl, -1) == "/") {
+            $this->baseurl = substr($baseurl, 0, -1);
+        } else {
+            $this->baseurl = $baseurl;
+        }
+
         $this->pb = new publish($this->project_name, $publish_id);
         $this->languages = array_keys($project->get_languages($this->project_name));
+        
+        // get available pages
+        $this->pages = $project->get_visible_urls($this->project_name);
 
         $this->xmlstr = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
         $this->xmlstr .= "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n";
 
-        $page_struct = $project->get_page_struct($this->project_name);
-        $this->add_page_data($page_struct->document_element());
+        foreach ($this->pages as $page) {
+            $pathinfo = pathinfo($page);
+
+            $file = new publish_file("{$pathinfo['dirname']}", $pathinfo['basename']);
+            $lastmod = date("Y-m-d", $this->pb->get_lastmod($file));
+
+            $this->xmlstr .= "<url>";
+                $this->xmlstr .= "<loc>" . htmlentities($this->baseurl . $page) . "</loc>";
+                $this->xmlstr .= "<lastmod>" . htmlentities($lastmod) . "</lastmod>";
+            $this->xmlstr .= "</url>\n";
+        }
 
         $this->xmlstr .= "</urlset>";
 
         return $this->xmlstr;
-    }
-    /* }}} */
-    /* {{{ add_page_data */
-    function add_page_data($node, $depth = 0) {
-        global $project;
-
-        if ($node->tagname == "page" && $node->get_attribute("nav_hidden") != "true" && $node->get_attribute("redirect") != "true") {
-
-            $url = $node->get_attribute("url");
-
-            $pathinfo = pathinfo($url);
-
-            foreach ($this->languages as $lang) {
-                $file = new publish_file("/{$lang}{$pathinfo['dirname']}", $pathinfo['basename']);
-                $lastmod = date("Y-m-d", $this->pb->get_lastmod($file));
-                
-                // pages in top hierarchy are more important
-                $priority = floor((1 / sqrt($depth) * 10)) / 10;
-
-                $fullname = $file->get_fullname();
-                if ($this->mod_rewrite && substr($fullname, -4) == ".php") {
-                    $fullname = substr($fullname, 0, -4) . ".html";
-                }
-
-                $this->xmlstr .= "<url>\n";
-                $this->xmlstr .= "\t<loc>" . htmlentities($this->baseurl . $fullname) . "</loc>\n";
-                $this->xmlstr .= "\t<lastmod>" . htmlentities($lastmod) . "</lastmod>\n";
-                $this->xmlstr .= "\t<priority>" . htmlentities($priority) . "</priority>\n";
-                //@todo add changefreq (based on some statistics?)
-
-                $this->xmlstr .= "</url>\n";
-            }
-        }
-
-        $children = $node->child_nodes();
-        foreach ($children as $child) {
-            if ($child->get_attribute("nav_hidden") != "true") {
-                $this->add_page_data($child, $depth + 1);
-            }
-        }
     }
     /* }}} */
 }
