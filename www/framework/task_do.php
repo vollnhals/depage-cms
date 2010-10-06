@@ -903,11 +903,6 @@ class rpc_bgtask_functions extends rpc_functions_class {
             // redirect non-existing html to php-page
             $htaccess .= "RewriteCond         %{REQUEST_FILENAME}      !-s\n";
             $htaccess .= "RewriteRule         ^(.*)\.html              \$1.php [L]\n\n";
-
-            // redirect all pages that are not found to index-page
-            $htaccess .= "RewriteCond         %{REQUEST_FILENAME}      !-s\n";
-            $htaccess .= "RewriteRule         ^(.*)$                   index.php?notfound=true [L]\n\n";
-            
         } else {
             if ($args['lang_num'] > 1) {
                 $htaccess .= "RedirectMatch       ^/$                      {$baseurl}/index.php\n";
@@ -920,6 +915,13 @@ class rpc_bgtask_functions extends rpc_functions_class {
         $project_path = $project->get_project_path($this->project);
         if (file_exists("{$project_path}/lib/htaccess")) {
             $htaccess .= file_get_contents("{$project_path}/lib/htaccess");
+        }
+
+        if ($args['mod_rewrite'] == "true") {
+            // redirect all pages that are not found to index-page
+            // this has to be the last rules for custom rewrite-rules to work
+            $htaccess .= "RewriteCond         %{REQUEST_FILENAME}      !-s\n";
+            $htaccess .= "RewriteRule         ^(.*)$                   index.php?notfound=true [L]\n\n";
         }
 
         @$this->file_access->f_write_string($this->output_path . '/.htaccess', $htaccess);
