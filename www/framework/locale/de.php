@@ -262,6 +262,7 @@ $texts = array(
 	'task_publish_processing_pages' => "bereite Seiten vor",
 	'task_publish_publishing_pages' => "aktualisiere Seiten",
 	'task_publish_sitemap' => "aktualisiere Sitemap",
+	'task_publish_testing_connection' => "Teste Verbindung zum Veröffentlichungsserver",
 	'time_calculating' => "(wird berechnet)",
 	'time_min' => "Minuten",
 	'time_sec' => "Sekunden",
