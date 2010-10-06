@@ -830,20 +830,32 @@ class rpc_bgtask_functions extends rpc_functions_class {
         }
         $baseurl = $baseurl['scheme'] . "://" . $baseurl['host'] . $baseurl['path'];
 
+        // get available pages
+        $pages = $project->get_visible_urls($this->project, $args['mod_rewrite'] == "true");
 
         // generate autolang
         $autolang = file_get_contents("php/autolang_tpl.php");
         $autolang .= "<" . "?php\n";
             $autolang .= "\$languages = array(\n";
-            $autolang .= $args['languages'];
+                $autolang .= $args['languages'];
+            $autolang .= ");\n";
+            $autolang .= "\$pages = array(\n";
+                foreach ($pages as $page) {
+                    $autolang .= "    \"$page\",\n";
+                }
             $autolang .= ");\n";
 
-            $autolang .= "\$lang_location = get_language_by_browser(\$languages);\n";
-
             $autolang .= "\$base_location = \"$baseurl/\";\n";
-            $autolang .= "\$document = \"$baselink\";\n";
-            $autolang .= "\$location = \"{\$base_location}{\$lang_location}{\$document}\";\n\n";
 
+            $autolang .= "if (\$_GET['notfound'] != 'true') {\n";
+                $autolang .= "    \$lang_location = get_language_by_browser(\$languages);\n";
+
+                $autolang .= "    \$document = \"{\$lang_location}$baselink\";\n";
+            $autolang .= "} else {\n";
+                $autolang .= "    \$document = get_alternate_page(\$pages, \$base_location, \$_SERVER['REQUEST_URI']);\n";
+            $autolang .= "}\n\n";
+
+            $autolang .= "\$location = \"{\$base_location}{\$document}\";\n\n";
             $autolang .= "header(\"Location: \$location\");\n";
         $autolang .= "?" . ">";
 
@@ -891,6 +903,11 @@ class rpc_bgtask_functions extends rpc_functions_class {
             // redirect non-existing html to php-page
             $htaccess .= "RewriteCond         %{REQUEST_FILENAME}      !-s\n";
             $htaccess .= "RewriteRule         ^(.*)\.html              \$1.php [L]\n\n";
+
+            // redirect all pages that are not found to index-page
+            $htaccess .= "RewriteCond         %{REQUEST_FILENAME}      !-s\n";
+            $htaccess .= "RewriteRule         ^(.*)$                   index.php?notfound=true [L]\n\n";
+            
         } else {
             if ($args['lang_num'] > 1) {
                 $htaccess .= "RedirectMatch       ^/$                      {$baseurl}/index.php\n";
@@ -1012,7 +1029,6 @@ class rpc_bgtask_functions extends rpc_functions_class {
         $args['task']->set_description('%task_publish_sitemap%');
         
         $sitemap = new sitemap($this->project, $args['mod_rewrite'] == "true");
-        // @todo add real baseurl instead of the dummy-url
         $xmlstr = $sitemap->generate($args['publish_id'], $args['baseurl']);
 
         if ($this->file_access->f_write_string($this->output_path . "/sitemap.xml", $xmlstr)) {

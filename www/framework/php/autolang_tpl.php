@@ -16,6 +16,45 @@
         return $language;
     }
     // }}}
+    // {{{ get_alternate_page()
+    function get_alternate_page($available_pages, $base_location, $request) {
+        $page = "";
+
+        $base_location = parse_url($base_location);
+        $base_location = $base_location['path'];
+
+        $request = substr($request, strlen($base_location) - 1);
+        if (strpos($request, "?") > 0) {
+            $request = substr($request, 0, strpos($request, "?"));
+        }
+
+        $request = explode("/", $request);
+        
+        // remove last element from path
+        array_pop($request);
+
+        //search for pages>>
+        while ($page == "" && count($request) > 1) {
+            $tempurl = implode("/", $request) . "/";
+            foreach ($available_pages as $apage) {
+                if (substr($apage, 0, strlen($tempurl)) == $tempurl) {
+                    $page = $apage;
+
+                    break;
+                }
+            }
+            array_pop($request);
+        }
+
+        if ($page == "") {
+            $page = $available_pages[0];
+        }
+
+        $page = substr($page, 1);
+
+        return $page;
+    }
+    // }}}
 
     /* vim:set ft=php sw=4 sts=4 fdm=marker : */
 ?>
