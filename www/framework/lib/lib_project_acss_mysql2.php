@@ -554,18 +554,18 @@ class project_acss_mysql2 extends project {
      *
      * @param    $project_name (string) name of project
      */
-    function get_visible_urls($project_name) {
+    function get_visible_urls($project_name, $mod_rewrite) {
         $pages = array();
 
         $languages = array_keys($this->get_languages($project_name));
         $page_struct = $this->get_page_struct($project_name);
 
-        $this->_get_visible_urls_add_page($pages, $languages, $page_struct->document_element());
+        $this->_get_visible_urls_add_page($pages, $languages, $page_struct->document_element(), $mod_rewrite);
         
         return $pages;
     }
 
-    function _get_visible_urls_add_page(&$pages, &$languages, $node) {
+    function _get_visible_urls_add_page(&$pages, &$languages, $node, $mod_rewrite) {
         if ($node->tagname == "page" && $node->get_attribute("nav_hidden") != "true" && $node->get_attribute("redirect") != "true") {
             $url = $node->get_attribute("url");
 
@@ -575,7 +575,7 @@ class project_acss_mysql2 extends project {
                 $file = new publish_file("/{$lang}{$pathinfo['dirname']}", $pathinfo['basename']);
                 $fullname = $file->get_fullname();
 
-                if ($this->mod_rewrite && substr($fullname, -4) == ".php") {
+                if ($mod_rewrite && substr($fullname, -4) == ".php") {
                     $fullname = substr($fullname, 0, -4) . ".html";
                 }
                 $pages[] = $fullname;
@@ -585,7 +585,7 @@ class project_acss_mysql2 extends project {
         $children = $node->child_nodes();
         foreach ($children as $child) {
             if ($child->get_attribute("nav_hidden") != "true") {
-                $this->_get_visible_urls_add_page($pages, $languages, $child);
+                $this->_get_visible_urls_add_page($pages, $languages, $child, $mod_rewrite);
             }
         }
     }

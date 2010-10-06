@@ -40,7 +40,7 @@ class sitemap {
         $this->languages = array_keys($project->get_languages($this->project_name));
         
         // get available pages
-        $this->pages = $project->get_visible_urls($this->project_name);
+        $this->pages = $project->get_visible_urls($this->project_name, $this->mod_rewrite);
 
         $this->xmlstr = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
         $this->xmlstr .= "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n";
