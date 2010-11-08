@@ -241,6 +241,10 @@ class config {
                 'dynamic' => true, 
                 'extension' => 'php'
                 ),
+            'php5' => Array(
+                'dynamic' => true, 
+                'extension' => 'php5'
+                ),
             );
         
         // available output-encodings
