@@ -331,7 +331,7 @@
     <xsl:template match="edit:date" name="edit:date">
         <xsl:param name="format" select=" 'short' "/>
 
-        <time><xsl:attribute name="datetime"><xsl:value-of select="translate(edit:date/@value,'/','-')"/></xsl:attribute>
+        <time><xsl:attribute name="datetime"><xsl:value-of select="translate(@value,'/','-')"/></xsl:attribute>
             <xsl:choose>
                 <xsl:when test="$format = 'long' ">
                     <xsl:call-template name="formatdatelong">
