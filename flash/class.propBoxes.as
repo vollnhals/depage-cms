@@ -121,8 +121,10 @@ class_propBox.prototype.setMultilangProp = function() {
 // }}}
 // {{{ setTitle()
 class_propBox.prototype.setTitle = function(newTitle) {
-	this.propName[0] = newTitle;
-	this.back.setTitle();
+	if (this.data.attributes.lang != undefined && this.data.attributes.lang != "" && this.data.attributes.lang == conf.project.tree.settings.languages[0].shortname) {
+            this.propName[0] = newTitle;
+            this.back.setTitle();
+        }
 };
 // }}}
 // {{{ setData()
