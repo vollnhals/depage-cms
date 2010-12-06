@@ -9,11 +9,8 @@
         <script type="text/javascript">
             var _gaq = _gaq || [];
             _gaq.push(['_setAccount', '<xsl:value-of select="$tt_var_ga-Account" />']);
-            <xsl:if test="$tt_var_ga-Domain != ''">
-                _gaq.push(['_setDomainName', '<xsl:value-of select="$tt_var_ga-Domain" />']);
-            </xsl:if>
+            <xsl:if test="$tt_var_ga-Domain != ''">_gaq.push(['_setDomainName', '<xsl:value-of select="$tt_var_ga-Domain" />']);</xsl:if>
             _gaq.push(['_trackPageview']);
-
             <xsl:if test="$depage_is_live = 'true'">
                 (function() {
                     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
