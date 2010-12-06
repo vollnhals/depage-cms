@@ -293,6 +293,66 @@ class project {
         return $changed;
     }
     // }}}
+    // {{{ _test_settings_variables
+    /**
+     * checks settings object, if variables are available
+     *
+     * @private
+     *
+     * @param    $xml_def (xmlobject) page object
+     *
+     * @return    $changed (bool) true if page has changed, false otherwise
+     */
+    function _test_settings_variables(&$xml_def) {
+        global $log;
+        global $conf;
+
+        $changed = false;
+
+        $defaults = array(
+            "Title" => "Titel",
+            "Keywords" => "",
+            "ga-Account" => "",
+            "ga-Domain" => "",
+        );
+
+        $xpath_xml_def = project::xpath_new_context($xml_def);
+        $xfetch = xpath_eval($xpath_xml_def, "//proj:variables");
+        if (count($xfetch->nodeset) == 0) {
+            // add variable-folder
+            $xfetch = xpath_eval($xpath_xml_def, "//proj:template_sets");
+            if (count($xfetch->nodeset) == 1) {
+                $vars_node = $xml_def->create_element_ns($conf->ns['project']['uri'], "variables", $conf->ns['project']['ns']);
+                $vars_node = $vars_node->insert_before($vars_node, $xfetch->nodeset[0]);
+                $this->xmldb->set_attribute_ns($vars_node, $conf->ns['database']['uri'], $conf->ns['database']['ns'], 'invalid', "del,move,name,dupl");
+                $this->xmldb->set_attribute_ns($vars_node, $conf->ns['database']['uri'], $conf->ns['database']['ns'], 'name', "tree_name_settings_variables");
+
+                $changed = true;
+            }
+        } else {
+            $vars_node = $xfetch->nodeset[0];
+        }
+
+        foreach ($defaults as $key => $value) {
+            $xfetch = xpath_eval($xpath_xml_def, "//proj:variable[@name = '$key']");
+            if (count($xfetch->nodeset) == 0) {
+                $var_node = $xml_def->create_element_ns($conf->ns['project']['uri'], "variable", $conf->ns['project']['ns']);
+                $var_node = $vars_node->append_child($var_node);
+                $var_node->set_attribute("name", $key);
+                $var_node->set_attribute("value", $value);
+                $this->xmldb->set_attribute_ns($var_node, $conf->ns['database']['uri'], $conf->ns['database']['ns'], 'invalid', "moveparnt");
+
+                $changed = true;
+            }
+        }
+
+        if ($changed) {
+            $log->add_entry($xml_def->dump_mem(true));
+        }
+            
+        return $changed;
+    }
+    // }}}
     // }}}
 }
 

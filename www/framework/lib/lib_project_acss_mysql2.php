@@ -290,6 +290,11 @@ class project_acss_mysql2 extends project {
         $doc_id = $this->get_projectId($project_name);
         $settings = $this->xmldb->get_doc_by_xpath($doc_id, "//{$conf->ns['project']['ns']}:settings");
 
+        // add basic variables if not available
+        if ($this->_test_settings_variables($settings)) {
+            $this->xmldb->save_node($settings);
+        }
+
         return $settings;
     }
     // }}}
