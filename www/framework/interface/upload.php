@@ -89,31 +89,31 @@
                     <td height="200">&nbsp;</td>
                     <td valign="top">
                         <div id="chooser1" style="visibility:visible;">
-                            <p style="margin-bottom:3 px"><input type="file" name="file[]" id="file1"></p>
+                            <p style="margin-bottom:3 px"><input type="file" name="file[]" id="file1" multiple="multiple"></p>
                         </div>
                         <div id="chooser2" style="visibility:hidden;">
-                            <p style="margin-bottom:3 px"><input type="file" name="file[]" id="file2"></p>
+                            <p style="margin-bottom:3 px"><input type="file" name="file[]" id="file2" multiple="multiple"></p>
                         </div>
                         <div id="chooser3" style="visibility:hidden;">
-                            <p style="margin-bottom:3 px"><input type="file" name="file[]" id="file3" onBlur="add_file_chooser()" onClick="add_file_chooser"></p>
+                            <p style="margin-bottom:3 px"><input type="file" name="file[]" id="file3" onBlur="add_file_chooser()" onClick="add_file_chooser" multiple="multiple"></p>
                         </div>
                         <div id="chooser4" style="visibility:hidden;">
-                            <p style="margin-bottom:3 px"><input type="file" name="file[]" id="file4" onBlur="add_file_chooser()" onClick="add_file_chooser"></p>
+                            <p style="margin-bottom:3 px"><input type="file" name="file[]" id="file4" onBlur="add_file_chooser()" onClick="add_file_chooser" multiple="multiple"></p>
                         </div>
                         <div id="chooser5" style="visibility:hidden;">
-                            <p style="margin-bottom:3 px"><input type="file" name="file[]" id="file5" onBlur="add_file_chooser()" onClick="add_file_chooser"></p>
+                            <p style="margin-bottom:3 px"><input type="file" name="file[]" id="file5" onBlur="add_file_chooser()" onClick="add_file_chooser" multiple="multiple"></p>
                         </div>
                         <div id="chooser6" style="visibility:hidden;">
-                            <p style="margin-bottom:3 px"><input type="file" name="file[]" id="file6" onBlur="add_file_chooser()" onClick="add_file_chooser"></p>
+                            <p style="margin-bottom:3 px"><input type="file" name="file[]" id="file6" onBlur="add_file_chooser()" onClick="add_file_chooser" multiple="multiple"></p>
                         </div>
                         <div id="chooser7" style="visibility:hidden;">
-                            <p style="margin-bottom:3 px"><input type="file" name="file[]" id="file7" onBlur="add_file_chooser()" onClick="add_file_chooser"></p>
+                            <p style="margin-bottom:3 px"><input type="file" name="file[]" id="file7" onBlur="add_file_chooser()" onClick="add_file_chooser" multiple="multiple"></p>
                         </div>
                         <div id="chooser8" style="visibility:hidden;">
-                            <p style="margin-bottom:3 px"><input type="file" name="file[]" id="file8" onBlur="add_file_chooser()" onClick="add_file_chooser"></p>
+                            <p style="margin-bottom:3 px"><input type="file" name="file[]" id="file8" onBlur="add_file_chooser()" onClick="add_file_chooser" multiple="multiple"></p>
                         </div>
                         <div id="chooser9" style="visibility:hidden;">
-                            <p style="margin-bottom:3 px"><input type="file" name="file[]" id="file9" onBlur="add_file_chooser()" onClick="add_file_chooser"></p>
+                            <p style="margin-bottom:3 px"><input type="file" name="file[]" id="file9" onBlur="add_file_chooser()" onClick="add_file_chooser" multiple="multiple"></p>
                         </div>
                     </td>
                 </tr>
