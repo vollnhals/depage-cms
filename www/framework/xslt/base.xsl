@@ -23,8 +23,8 @@
         <xsl:param name="lang" select="$tt_lang"/>
 
         <!-- get name from meta-information if link is ref to page_id -->
-        <xsl:variable name="linkdesc"><xsl:if test="$href_id"><xsl:value-of select="document(concat('get:page/', $href_id))//*/pg:meta/pg:linkdesc[@lang = $tt_lang]/@value"/></xsl:if></xsl:variable>
-        <xsl:variable name="title"><xsl:if test="$href_id"><xsl:value-of select="document(concat('get:page/', $href_id))//*/pg:meta/pg:title[@lang = $tt_lang]/@value"/></xsl:if></xsl:variable>
+        <xsl:variable name="linkdesc"><xsl:if test="$href_id"><xsl:value-of select="document(concat('get:page/', $href_id))//*/pg:meta/pg:linkdesc[@lang = $lang]/@value"/></xsl:if></xsl:variable>
+        <xsl:variable name="title"><xsl:if test="$href_id"><xsl:value-of select="document(concat('get:page/', $href_id))//*/pg:meta/pg:title[@lang = $lang]/@value"/></xsl:if></xsl:variable>
 
         <xsl:if test="name(../..) = 'sec:unordered_list' ">
             <xsl:text disable-output-escaping="yes">&lt;li&gt;</xsl:text>
