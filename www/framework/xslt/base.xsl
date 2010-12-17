@@ -189,6 +189,10 @@
         <!-- }}} -->
         <!-- {{{ image with link -->
         <xsl:if test="$href != '' or $href_id">
+            <!-- get name from meta-information if link is ref to page_id -->
+            <xsl:variable name="linkdesc"><xsl:if test="$href_id"><xsl:value-of select="document(concat('get:page/', $href_id))//*/pg:meta/pg:linkdesc[@lang = $lang]/@value"/></xsl:if></xsl:variable>
+            <xsl:variable name="title"><xsl:if test="$href_id"><xsl:value-of select="document(concat('get:page/', $href_id))//*/pg:meta/pg:title[@lang = $lang]/@value"/></xsl:if></xsl:variable>
+
             <a>
                 <!-- {{{ href -->
                 <xsl:choose>
@@ -231,6 +235,9 @@
                 </xsl:if>
                 <xsl:if test="$rel != ''">
                     <xsl:attribute name="rel"><xsl:value-of select="$rel"/></xsl:attribute>
+                </xsl:if>
+                <xsl:if test="$title != ''">
+                    <xsl:attribute name="title"><xsl:value-of select="$title"/></xsl:attribute>
                 </xsl:if>
                 <xsl:if test="$class != ''">
                     <xsl:attribute name="class"><xsl:value-of select="$class"/></xsl:attribute>
