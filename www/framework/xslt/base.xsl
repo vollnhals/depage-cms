@@ -12,6 +12,7 @@
         <xsl:param name="pretext" select="@pretext"/>
         <xsl:param name="aptext" select="@aptext"/>
         <xsl:param name="content"/>
+        <xsl:param name="justapply" select="false()"/>
         <xsl:param name="redirect"/>
         <xsl:param name="altcontent"/>
         <xsl:param name="class" select="@class"/>
@@ -100,13 +101,13 @@
             <!-- {{{ content -->
             <xsl:value-of select="$pretext" disable-output-escaping="yes" />
             <xsl:choose>
-                <xsl:when test="$content != '' ">
+                <xsl:when test="$content != '' and not($justapply)">
                     <xsl:value-of select="$content"/>
                 </xsl:when>
-                <xsl:when test="$href_id and not($linkdesc = '')">
+                <xsl:when test="$href_id and not($linkdesc = '') and not($justapply)">
                     <xsl:value-of select="$linkdesc"/>
                 </xsl:when>
-                <xsl:when test="$altcontent != '' ">
+                <xsl:when test="$altcontent != '' and not($justapply)">
                     <xsl:value-of select="$altcontent"/>
                 </xsl:when>
                 <xsl:otherwise>
@@ -336,12 +337,14 @@
         <xsl:choose>
             <xsl:when test="substring(@href,1,8) = 'pageref:'">
                 <xsl:call-template name="edit:a">
+                    <xsl:with-param name="justapply" select="true()" />
                     <xsl:with-param name="href_id" select="substring(@href,9)" />
                     <xsl:with-param name="target" select="@target" />
                 </xsl:call-template>
             </xsl:when>
             <xsl:otherwise>
                 <xsl:call-template name="edit:a">
+                    <xsl:with-param name="justapply" select="true()" />
                     <xsl:with-param name="href" select="@href" />
                     <xsl:with-param name="target" select="@target" />
                 </xsl:call-template>
