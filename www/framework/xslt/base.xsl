@@ -7,6 +7,8 @@
     <xsl:template match="edit:a" name="edit:a">
         <xsl:param name="href" select="@href"/>
         <xsl:param name="href_id" select="@href_id"/>
+        <xsl:param name="type" select="@type"/>
+        <xsl:param name="rel" select="@rel"/>
         <xsl:param name="pretext" select="@pretext"/>
         <xsl:param name="aptext" select="@aptext"/>
         <xsl:param name="content"/>
@@ -19,6 +21,10 @@
         <xsl:param name="onMouseOver" select="@onMouseOver"/>
         <xsl:param name="onMouseOut" select="@onMouseOut"/>
         <xsl:param name="lang" select="$tt_lang"/>
+
+        <!-- get name from meta-information if link is ref to page_id -->
+        <xsl:variable name="linkdesc"><xsl:if test="$href_id"><xsl:value-of select="document(concat('get:page/', $href_id))//*/pg:meta/pg:linkdesc[@lang = $tt_lang]/@value"/></xsl:if></xsl:variable>
+        <xsl:variable name="title"><xsl:if test="$href_id"><xsl:value-of select="document(concat('get:page/', $href_id))//*/pg:meta/pg:title[@lang = $tt_lang]/@value"/></xsl:if></xsl:variable>
 
         <xsl:if test="name(../..) = 'sec:unordered_list' ">
             <xsl:text disable-output-escaping="yes">&lt;li&gt;</xsl:text>
@@ -72,6 +78,15 @@
             <xsl:if test="$id != ''">
                 <xsl:attribute name="id"><xsl:value-of select="$id"/></xsl:attribute>
             </xsl:if>
+            <xsl:if test="$type != ''">
+                <xsl:attribute name="type"><xsl:value-of select="$type"/></xsl:attribute>
+            </xsl:if>
+            <xsl:if test="$rel != ''">
+                <xsl:attribute name="rel"><xsl:value-of select="$rel"/></xsl:attribute>
+            </xsl:if>
+            <xsl:if test="$title != ''">
+                <xsl:attribute name="title"><xsl:value-of select="$title"/></xsl:attribute>
+            </xsl:if>
             <xsl:if test="$onFocus != ''">
                 <xsl:attribute name="onFocus"><xsl:value-of select="$onFocus"/></xsl:attribute>
             </xsl:if>
@@ -83,13 +98,6 @@
             </xsl:if>
             <!-- }}} -->
             <!-- {{{ content -->
-            <!-- get name from meta-information if link is ref to page_id -->
-            <xsl:variable name="linkdesc">
-                <xsl:if test="$href_id">
-                    <xsl:value-of select="document(concat('get:page/', $href_id))//*/pg:meta/pg:linkdesc[@lang = $tt_lang]/@value"/>
-                </xsl:if>
-            </xsl:variable>
-
             <xsl:value-of select="$pretext" disable-output-escaping="yes" />
             <xsl:choose>
                 <xsl:when test="$content != '' ">
@@ -117,6 +125,8 @@
     <xsl:template match="edit:img" name="edit:img">
         <xsl:param name="href" select="@href"/>
         <xsl:param name="href_id" select="@href_id"/>
+        <xsl:param name="type" select="@type"/>
+        <xsl:param name="rel" select="@rel"/>
         <xsl:param name="target" select="@target"/>
         <xsl:param name="onMouseOver" select="@onMouseOver"/>
         <xsl:param name="onMouseOut" select="@onMouseOut"/>
@@ -216,6 +226,12 @@
                         <xsl:attribute name="target">_blank</xsl:attribute>
                     </xsl:when>
                 </xsl:choose>
+                <xsl:if test="$type != ''">
+                    <xsl:attribute name="type"><xsl:value-of select="$type"/></xsl:attribute>
+                </xsl:if>
+                <xsl:if test="$rel != ''">
+                    <xsl:attribute name="rel"><xsl:value-of select="$rel"/></xsl:attribute>
+                </xsl:if>
                 <xsl:if test="$class != ''">
                     <xsl:attribute name="class"><xsl:value-of select="$class"/></xsl:attribute>
                 </xsl:if>
@@ -433,6 +449,36 @@
     </xsl:if>
 </xsl:template>
 <!-- }}} -->
+
+<!-- {{{ alternate languages -->
+<xsl:template name="header_alternate_lang">
+    <xsl:variable name="href_id"><xsl:value-of select="$tt_actual_id" /></xsl:variable>
+
+    <xsl:for-each select="document('get:languages')/proj:languages/proj:language">
+        <xsl:variable name="lang"><xsl:value-of select="@shortname" /></xsl:variable>
+        <xsl:variable name="linkdesc">
+            <xsl:value-of select="document(concat('get:page/', $href_id))//*/pg:meta/pg:linkdesc[@lang = $lang]/@value"/>
+        </xsl:variable>
+        <xsl:variable name="title">
+            <xsl:value-of select="document(concat('get:page/', $href_id))//*/pg:meta/pg:title[@lang = $lang]/@value"/>
+        </xsl:variable>
+
+        <link rel="alternate">
+            <xsl:attribute name="href">
+                <xsl:value-of select="document(concat('pageref:/', $href_id, '/', $lang))/." disable-output-escaping="yes"/>
+            </xsl:attribute>
+            <xsl:attribute name="hreflang"><xsl:value-of select="$lang" /></xsl:attribute>
+            <xsl:attribute name="title">
+                <xsl:value-of select="@name" />
+                <xsl:if test="$title != ''"> // <xsl:value-of select="$title" /></xsl:if>
+                <xsl:if test="$linkdesc != ''">: <xsl:value-of select="$linkdesc" /></xsl:if>
+            </xsl:attribute>
+        </link>
+    </xsl:for-each>
+</xsl:template>
+<!-- }}} -->
+
+
     
 
     <!-- vim:set ft=xml sw=4 sts=4 fdm=marker : -->
