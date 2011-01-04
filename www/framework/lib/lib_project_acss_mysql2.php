@@ -164,7 +164,7 @@ class project_acss_mysql2 extends project {
                     $conf->db_table_project_groups AS project_groups
                 WHERE
                     projects.groupid = project_groups.id
-                ORDER BY project_groups.pos, projects.name"
+                ORDER BY project_groups.pos, project_groups.name, projects.name"
             );
         } else {
             // get only allowed projects for normal users
@@ -180,7 +180,7 @@ class project_acss_mysql2 extends project {
                     sessions.userid = user_projects.uid AND
                     user_projects.pid = projects.id AND
                     projects.groupid = project_groups.id
-                ORDER BY project_groups.pos, projects.name"
+                ORDER BY project_groups.pos, project_groups.name, projects.name"
             );
         }
         if ($result) {
