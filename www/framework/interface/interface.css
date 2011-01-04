@@ -187,9 +187,14 @@ form .error span {
 }
 /* }}} */
 /* {{{ projectlisting/toolbar */
+h1.projectgroup {
+    letter-spacing: 2px;
+    color: #ffffff;
+}
 ul.projectlisting {
     text-indent: 0;
     margin: 0;
+    margin-bottom: 11px;
 }
 .projectlisting li {
     clear: both;

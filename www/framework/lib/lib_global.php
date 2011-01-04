@@ -71,6 +71,7 @@ class config {
             'db_table_sessions_win' => (string) '%db_prefix%_auth_sessions_win',
             'db_table_updates' => (string) '%db_prefix%_auth_updates',
             'db_table_projects' => (string) '%db_prefix%_projects',
+            'db_table_project_groups' => (string) '%db_prefix%_project_groups',
                 
             'db_table_env' => (string) '%db_prefix%_env',
                 

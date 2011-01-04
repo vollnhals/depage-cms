@@ -272,38 +272,43 @@ class html {
 
         $h = "";
 
-        $projects = $project->get_projects();
+        $projectgroups = $project->get_project_groups();
 
-        $h .= "<ul class=\"projectlisting\">";
-        foreach ($projects as $name => $id) {
-            $h .= "<li data-project=\"$name\">";
-            // add main controls
-                $h .= "<a class=\"details_control arrow\"></a>";
-            $h .= "
-                <h2><a href=\"#edit('$name','')\" class=\"details_control\">$name</a></h2>
-                <p>
-                    <a href=\"#edit('$name')\" class=\"edit\"><span>" . $this->icon("edit") . "&nbsp;</span>" . $this->lang['inhtml_projects_edit'] . "</a>
-                    <a href=\"{$conf->path_base}projects/$name/preview/html/cached/\"><span>" . $this->icon("preview") . "&nbsp;</span>" . $this->lang['inhtml_projects_preview'] . "</a> ";
-                    if ($project->user->get_level_by_sid() <= 3) {
-                        $h .= "<a href=\"#publish('$name')\" class=\"publish\">" . $this->lang['inhtml_projects_publish'] . "</a>";
+        foreach ($projectgroups as $groupname => $projects) {
+            if (count($projectgroups) > 1) {
+                $h .= "<h1 class=\"projectgroup\">&mdash; " . htmlentities($groupname) .  " &mdash;</h1>";
+            }
+            $h .= "<ul class=\"projectlisting\">";
+            foreach ($projects as $name => $id) {
+                $h .= "<li data-project=\"$name\">";
+                // add main controls
+                    $h .= "<a class=\"details_control arrow\"></a>";
+                $h .= "
+                    <h2><a href=\"#edit('$name','')\" class=\"details_control\">$name</a></h2>
+                    <p>
+                        <a href=\"#edit('$name')\" class=\"edit\"><span>" . $this->icon("edit") . "&nbsp;</span>" . $this->lang['inhtml_projects_edit'] . "</a>
+                        <a href=\"{$conf->path_base}projects/$name/preview/html/cached/\"><span>" . $this->icon("preview") . "&nbsp;</span>" . $this->lang['inhtml_projects_preview'] . "</a> ";
+                        if ($project->user->get_level_by_sid() <= 3) {
+                            $h .= "<a href=\"#publish('$name')\" class=\"publish\">" . $this->lang['inhtml_projects_publish'] . "</a>";
+                        }
+                $h .= "</p>";
+                // add details
+                $h .= "<div class=\"details\">";
+                    $h .= "<h3>" . $this->lang['inhtml_lastchanged_pages'] . "</h3>";
+                    $h .= "<table class=\"lastchanged_pages\">";
+                    $h .= "</table>";
+                    if ($project->user->get_level_by_sid() <= 2) {
+                        $h .= "<h3>" . $this->lang['inhtml_extra_functions'] . "</h3>";
+                        $h .= "<ul>";
+                                $h .= "<li><a href=\"#backup_save('$name')\" class=\"backup_save\">" . $this->lang['inhtml_projects_backup_save'] . "</a>";
+                                $h .= "<a href=\"#backup_restore('$name')\" class=\"backup_restore\">" . $this->lang['inhtml_projects_backup_restore'] . "</a></li>";
+                        $h .= "</ul>";
                     }
-            $h .= "</p>";
-            // add details
-            $h .= "<div class=\"details\">";
-                $h .= "<h3>" . $this->lang['inhtml_lastchanged_pages'] . "</h3>";
-                $h .= "<table class=\"lastchanged_pages\">";
-                $h .= "</table>";
-                if ($project->user->get_level_by_sid() <= 2) {
-                    $h .= "<h3>" . $this->lang['inhtml_extra_functions'] . "</h3>";
-                    $h .= "<ul>";
-                            $h .= "<li><a href=\"#backup_save('$name')\" class=\"backup_save\">" . $this->lang['inhtml_projects_backup_save'] . "</a>";
-                            $h .= "<a href=\"#backup_restore('$name')\" class=\"backup_restore\">" . $this->lang['inhtml_projects_backup_restore'] . "</a></li>";
-                    $h .= "</ul>";
-                }
-            $h .= "</div>";
-            $h .= "</li>";
+                $h .= "</div>";
+                $h .= "</li>";
+            }
+            $h .= "</ul>";
         }
-        $h .= "</ul>";
 
         $h .= "<div class=\"toolbar spacing\">";
             if ($project->user->get_level_by_sid() <= 1) {

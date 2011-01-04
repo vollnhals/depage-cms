@@ -139,6 +139,62 @@ class project_acss_mysql2 extends project {
         return $projects;
     }
     // }}}
+    // {{{ get_project_groups()
+    /**
+     * gets available projects from database.
+     *
+     * @public
+     *
+     * @return    $projects (array) available projects
+     */
+    function get_project_groups($all = false) {
+        global $conf;
+        global $log;
+                
+        $projectgroups = array();
+        //$docs = $this->xmldb->get_docs();
+
+        $sid = $this->user->sid;
+        if ($all || $this->user->get_level_by_sid() == 1) {
+            // get all projects for admins
+            $result = db_query(
+                "SELECT projects.id, projects.name AS name, projects.id_doc, projects.groupid, project_groups.name AS groupname
+                FROM 
+                    $conf->db_table_projects AS projects,
+                    $conf->db_table_project_groups AS project_groups
+                WHERE
+                    projects.groupid = project_groups.id
+                ORDER BY project_groups.pos, projects.name"
+            );
+        } else {
+            // get only allowed projects for normal users
+            $result = db_query(
+                "SELECT projects.id, projects.name AS name, projects.id_doc, projects.groupid, project_groups.name AS groupname
+                FROM 
+                    $conf->db_table_projects AS projects,
+                    $conf->db_table_project_groups AS project_groups,
+                    $conf->db_table_sessions AS sessions,
+                    $conf->db_table_user_projects AS user_projects
+                WHERE
+                    sessions.sid = '$sid' AND
+                    sessions.userid = user_projects.uid AND
+                    user_projects.pid = projects.id AND
+                    projects.groupid = project_groups.id
+                ORDER BY project_groups.pos, projects.name"
+            );
+        }
+        if ($result) {
+            while ($row = mysql_fetch_assoc($result)) {
+                if (!isset($projectgroups[$row['groupname']])) {
+                    $projectgroups[$row['groupname']] = array();
+                }
+                $projectgroups[$row['groupname']][$row['name']] = $row['id_doc'];
+            }
+        }
+
+        return $projectgroups;
+    }
+    // }}}
     // {{{ add_new_project()
     /**
      * gets available projects from database.
