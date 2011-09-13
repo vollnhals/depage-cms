@@ -113,7 +113,7 @@ class task {
         if (empty($result))
             throw new \Exception("no such task");
         if (!empty($result->status))
-            throw new \Exception("task was already run.");
+            throw new \Exception("task was already run, status is: {$result->status}");
 
         $this->task_name = $result->name;
     }
