@@ -48,6 +48,9 @@ class task {
     }
 
     public function lock() {
+        if (!empty($this->task_status))
+            throw new \Exception("task was already run, status is: {$result->status}");
+
         $this->lock_file = fopen($this->lock_name, 'w');
         return flock($this->lock_file, LOCK_EX | LOCK_NB);
     }
@@ -112,10 +115,9 @@ class task {
         $result = $query->fetchObject();
         if (empty($result))
             throw new \Exception("no such task");
-        if (!empty($result->status))
-            throw new \Exception("task was already run, status is: {$result->status}");
 
         $this->task_name = $result->name;
+        $this->task_status = $result->status;
     }
 
     private function load_subtasks() {
