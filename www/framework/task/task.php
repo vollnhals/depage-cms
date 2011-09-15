@@ -31,7 +31,7 @@ class task {
      * This may be a dependent subtasks when resuming a task.
      */
     public function get_status_info() {
-        $status = new stdClass();
+        $status = new \stdClass();
         $status->task_status = $this->task_status;
         $status->nr_subtasks_completed = $this->completed_subtask_count;
         $status->nr_subtasks_total = $this->total_subtask_count;
