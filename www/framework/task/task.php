@@ -6,6 +6,7 @@ class task {
     const STATUS_DONE = "done";
     const STATUS_FAILED = "failed";
 
+    /* loads an existing task by id or creates a new one with specified name */
     public function __construct($task_id_or_name, $table_prefix, $pdo) {
         $this->task_table = $table_prefix . "_tasks";
         $this->subtask_table = $table_prefix . "_subtasks";
