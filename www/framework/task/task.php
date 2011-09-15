@@ -27,7 +27,7 @@ class task {
      * then $last_executed_subtask will only be set if the task failed,
      * $last_executed_subtask then contains the failed subtask.
      * $next_subtask will be set to the subtask that will be returned next by get_next_subtask().
-     * This includes any dependent subtasks when resuming a task.
+     * This may be a dependent subtasks when resuming a task.
      */
 
     public function get_status_info(&$task_status, &$nr_subtasks_completed, &$nr_subtasks_total, &$last_executed_subtask, &$next_subtask) {
