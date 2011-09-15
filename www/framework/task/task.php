@@ -1,7 +1,7 @@
 <?php
 
 namespace depage\task;
-// TODO: constify STATUS codes
+
 class task {
     const STATUS_DONE = "done";
     const STATUS_FAILED = "failed";
