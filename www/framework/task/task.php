@@ -30,13 +30,15 @@ class task {
      * $next_subtask will be set to the subtask that will be returned next by get_next_subtask().
      * This may be a dependent subtasks when resuming a task.
      */
+    public function get_status_info() {
+        $status = new stdClass();
+        $status->task_status = $this->task_status;
+        $status->nr_subtasks_completed = $this->completed_subtask_count;
+        $status->nr_subtasks_total = $this->total_subtask_count;
+        $status->last_executed_subtask = $this->last_executed_subtask;
+        $status->next_subtask = current($this->subtasks);
 
-    public function get_status_info(&$task_status, &$nr_subtasks_completed, &$nr_subtasks_total, &$last_executed_subtask, &$next_subtask) {
-        $task_status = $this->task_status;
-        $nr_subtasks_completed = $this->completed_subtask_count;
-        $nr_subtasks_total = $this->total_subtask_count;
-        $last_executed_subtask = $this->last_executed_subtask;
-        $next_subtask = current($this->subtasks);
+        return $status;
     }
 
     public function set_task_status($status) {
