@@ -1,8 +1,11 @@
 <?php
 
 namespace depage\task;
-
+// TODO: constify STATUS codes
 class task {
+    const STATUS_DONE = "done";
+    const STATUS_FAILED = "failed";
+
     public function __construct($task_id_or_name, $table_prefix, $pdo) {
         $this->task_table = $table_prefix . "_tasks";
         $this->subtask_table = $table_prefix . "_subtasks";
@@ -17,6 +20,22 @@ class task {
 
         $this->load_task();
         $this->load_subtasks();
+    }
+
+    /* get_status_info returns the current task status.
+     * If this task instance has not run any subtasks by executing run_subtask(),
+     * then $last_executed_subtask will only be set if the task failed,
+     * $last_executed_subtask then contains the failed subtask.
+     * $next_subtask will be set to the subtask that will be returned next by get_next_subtask().
+     * This includes any dependent subtasks when resuming a task.
+     */
+
+    public function get_status_info(&$task_status, &$nr_subtasks_completed, &$nr_subtasks_total, &$last_executed_subtask, &$next_subtask) {
+        $task_status = $this->task_status;
+        $nr_subtasks_completed = $this->completed_subtask_count;
+        $nr_subtasks_total = $this->total_subtask_count;
+        $last_executed_subtask = $this->last_executed_subtask;
+        $next_subtask = current($this->subtasks);
     }
 
     public function set_task_status($status) {
@@ -44,6 +63,7 @@ class task {
 
     /* @return NULL|false returns NULL for no error, false for a parse error */
     public function run_subtask($subtask) {
+        $this->last_executed_subtask = $subtask;
         return eval($subtask->php);
     }
 
@@ -132,8 +152,10 @@ class task {
         ));
 
         $subtasks = $query->fetchAll(\PDO::FETCH_OBJ);
-        $id_to_subtask = array();
+        $this->total_subtask_count = count($subtasks);
+        $this->completed_subtask_count = 0;
         $this->subtasks = array();
+        $id_to_subtask = array();
 
         foreach ($subtasks as $subtask) {
             $id_to_subtask[$subtask->id] = $subtask;
@@ -141,7 +163,13 @@ class task {
             if (empty($subtask->status)) {
                 $this->subtasks[$subtask->id] = $subtask;
                 $this->include_dependent_subtasks($subtask, $id_to_subtask);
+            } else if ($subtask->status == self::STATUS_DONE) {
+                $this->completed_subtask_count += 1;
+            } else if (substr($subtask->status, 0, strlen(self::STATUS_FAILED)) == self::STATUS_FAILED) {
+                // this task failed, therefore set last executed subtask to failed one
+                $this->last_executed_subtask = $subtask;
             }
+
         }
 
         ksort($this->subtasks);
