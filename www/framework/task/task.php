@@ -1,5 +1,24 @@
 <?php
 
+// task class needs tables in the following format:
+//
+// CREATE TABLE `$PREFIX_tasks` (
+//   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+//   `status` varchar(31) DEFAULT NULL,
+//   `name` varchar(255) DEFAULT NULL,
+//   PRIMARY KEY (`id`)
+// ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+//
+// CREATE TABLE `$PREFIX_subtasks` (
+//   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+//   `task_id` int(11) NOT NULL,
+//   `status` varchar(255) DEFAULT NULL,
+//   `name` varchar(255) DEFAULT NULL,
+//   `php` text NOT NULL,
+//   `depends_on` int(11) DEFAULT NULL,
+//   PRIMARY KEY (`id`)
+// ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
 namespace depage\task;
 
 class task {
