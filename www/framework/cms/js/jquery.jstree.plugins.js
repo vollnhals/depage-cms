@@ -138,7 +138,7 @@ var placeholder;
 				ch : false,
 				i1 : false,
 				i2 : false,
-                target: null,
+                target: null
 			};
 			this.get_container()
                 // ignore placeholder in rollback
@@ -700,7 +700,7 @@ var placeholder;
                 // call without any argument, so that original arguments are used
                 return this.__call_old();
             }
-        },
+        }
     });
 })(jQuery);
 //*/
@@ -717,7 +717,7 @@ var placeholder;
                 // do not call generic double click handler, which disables text selections 
                 e.stopImmediatePropagation();
             });
-        },
+        }
     });
 })(jQuery);
 //*/
@@ -736,7 +736,7 @@ var placeholder;
                     tooltip += "  -  " + hint;
                 data.rslt.obj.children("a").attr("title", tooltip);
             });
-        },
+        }
     });
 })(jQuery);
 //*/
@@ -752,7 +752,7 @@ var placeholder;
                 c.jstree("deselect_all");
                 c.jstree("select_node", data.rslt.obj, true);
             });
-        },
+        }
     });
 })(jQuery);
 //*/
@@ -1018,7 +1018,7 @@ var placeholder;
                             _this._rollback_in_order(this.seq, data.rlbk);
                         }
                     },
-                    rollback : data.rlbk,
+                    rollback : data.rlbk
                 });
             })
             .bind("rename.jstree", function (e, data) {
@@ -1035,7 +1035,7 @@ var placeholder;
                             _this._rollback_in_order(this.seq, data.rlbk);
                         }
                     },
-                    rollback : data.rlbk,
+                    rollback : data.rlbk
                 });
             })
             .bind("move_node.jstree", function (e, data) {
@@ -1058,7 +1058,7 @@ var placeholder;
                                 _this._rollback_in_order(this.seq, data.rlbk);
                             }
                         },
-                        rollback : data.rlbk,
+                        rollback : data.rlbk
                     });
                 });
             })
@@ -1076,7 +1076,7 @@ var placeholder;
                                 _this._rollback_in_order(this.seq, data.rlbk);
                             }
                         },
-                        rollback : data.rlbk,
+                        rollback : data.rlbk
                     });
                 });
             });
@@ -1183,8 +1183,8 @@ var placeholder;
                         }
                     }
                 });
-            },
-        },
+            }
+        }
     });
 })(jQuery);
 
@@ -1349,8 +1349,8 @@ var placeholder;
                     this.data.add_marker.marker.addClass("jstree-add-marker-disabled");
                 }
                 this.data.add_marker.marker.css({ "left" : x_pos + "px", "top" : top + "px" }).show();  
-            },
-        },
+            }
+        }
     });
 })(jQuery);
 //*/
