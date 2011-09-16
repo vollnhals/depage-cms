@@ -9,7 +9,7 @@ $(function () {
             "delta_updates" : {
                 "webSocketURL" : $(this).attr("data-delta-updates-websocket-url"),
                 "fallbackPollURL" : $(this).attr("data-delta-updates-fallback-poll-url"),
-                "postURL" : $(this).attr("data-delta-updates-post-url"),
+                "postURL" : $(this).attr("data-delta-updates-post-url")
             },
             "contextmenu" : {
                 items : function (obj) {
@@ -65,7 +65,7 @@ $(function () {
                                 "separator_after"	: true,
                                 "label"				: "Create",
                                 "action"			: function (obj) { this.create(obj); }
-                            },
+                            }
                         }, default_items);
                     }
 
