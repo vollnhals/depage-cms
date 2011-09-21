@@ -1186,8 +1186,11 @@ class xmldb {
      * @param    $add_id_attribute (bool) true, if you want to add the db-id attributes
      *            to xml-definition, false to remove them.
      * @param    $level (int) number of recursive get_childnodes_by_parentid calls. how deep to traverse the tree.
+     * @param    $filter (string) custom SQL query filter. use with care. be sure to escape
+     *              user supplied parameters correctly. the filter may be used to only
+     *              include a subset of nodes in the resulting xml. see get_childnodes_by_parentid for usage in code.
      */
-    public function get_subdoc_by_elementId($doc_id, $id, $add_id_attribute = true, $level = PHP_INT_MAX) {
+    public function get_subdoc_by_elementId($doc_id, $id, $add_id_attribute = true, $level = PHP_INT_MAX, $filter = null) {
         global $conf;
 
         $identifier = "{$this->table_docs}/d{$doc_id}/{$id}.xml";
@@ -1239,7 +1242,7 @@ class xmldb {
                 $xml_str .= $node_data;
                 
                 //add child_nodes
-                $xml_str .= $this->get_childnodes_by_parentid($doc_id, $row->id, $level);
+                $xml_str .= $this->get_childnodes_by_parentid($doc_id, $row->id, $level, $filter);
 
                 $xml_str .= "</{$row->name}>";
 
@@ -1274,19 +1277,34 @@ class xmldb {
      * @param   $doc_id (int) document id
      * @param   $parent_id (int) id of parent-node
      * @param   $level (int) number of recursive calls. how deep to traverse the tree.
+     * @param   $filter (string) custom SQL query filter. use with care. be sure to escape
+     *              user supplied parameters correctly. the filter may be used to only
+     *              include a subset of nodes in the resulting xml.
      * @return  $xml_doc (string) xml node definition of node
      */
-    protected function get_childnodes_by_parentid($doc_id, $parent_id, $level = PHP_INT_MAX) {
-        static $query = null;
+    protected function get_childnodes_by_parentid($doc_id, $parent_id, $level = PHP_INT_MAX, $filter = null) {
+        static $query_cache = null;
 
-        // prepare query
+        // prepare query, only use cached query if no filter is present
+        if (isset($filter)) {
+            $query_filter = " AND ({$filter}) ";
+        } else {
+            $query_filter = "";
+            $query = $query_cache;
+        }
+
         if (is_null($query)) {
             $query = $this->pdo->prepare(
                 "SELECT xml.id AS id, xml.name AS name, xml.type AS type, xml.value AS value
                 FROM {$this->table_xml} AS xml
                 WHERE xml.id_parent = :parent_id AND xml.id_doc = :doc_id
+                {$query_filter}
                 ORDER BY xml.pos"
             );
+
+            // only cache query if no filter was used
+            if (is_null($filter))
+                $query_cache = $query;
         }
 
         $xml_doc = "";
@@ -1312,7 +1330,7 @@ class xmldb {
                 
                 //add child_nodes
                 if ($level > 0) {
-                    $xml_doc .= $this->get_childnodes_by_parentid($doc_id, $row->id, $level - 1);
+                    $xml_doc .= $this->get_childnodes_by_parentid($doc_id, $row->id, $level - 1, $filter);
                 }
 
                 $xml_doc .= "</{$row->name}>";
