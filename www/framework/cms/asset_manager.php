@@ -100,6 +100,21 @@ class asset_manager {
         self::move_file($original_file, $created_at, $asset_id, $processed_filename);
     }
 
+    // {{{ create
+    // dir is of form "foo/bar"
+    // split dir on "/"
+    // each part is automatically a tag
+    // additional tags may be supplied
+    // find matching
+    //
+    public function create($original_file, $original_filename, $processed_filename, $xml_path, $filetype = null, $size = null, $created_at = null, $page_id = null, $additional_tags = array()) {
+        $parent_id = $this->create_xml_dirs($xml_path);
+        $path_tags = array_filter(explode("/", $xml_path));
+
+        return $this->basic_create($original_file, $original_filename, $processed_filename, $parent_id, -1, $filetype, $size, $created_at, $page_id, array_merge($additional_tags, $path_tags));
+    }
+    // }}}
+
     // {{{ basic_search
     /*
      * search for $needle in filename and tags.
@@ -184,10 +199,27 @@ class asset_manager {
         return search(null);
     }
 
-    }
-}
+    private function create_xml_dirs($xml_path) {
+        $doc_info = $this->xmldb->get_doc_info($this->doc_id);
+        $parent_id = $doc_info->rootid;
+        $dirs = array_filter(explode("/", $xml_path));
+        $xpath = "/dir";
 
-/* vim:set ft=php fenc=UTF-8 sw=4 sts=4 fdm=marker et : */
+        foreach ($dirs as $dir) {
+            $xpath .= "/dir[@name='{$dir}']";
+            $element_ids = $this->xmldb->get_elementIds_by_xpath($this->doc_id, $xpath);
+
+            if (empty($element_ids)) {
+                $node = $this->xmldb->build_node($this->doc_id, "dir", array("name" => $dir));
+                $parent_id = $this->xmldb->add_node($this->doc_id, $node, $parent_id, -1);
+            } else {
+                $parent_id = $element_ids[0];
+            }
+        }
+
+        return $parent_id;
+    }
+
     static private function move_file($original_file, $created_at, $asset_id, $processed_filename) {
         mkdir(self::full_asset_path($created_at), 0777, true);
         // TODO: use move_uploaded_file instead?
@@ -200,3 +232,7 @@ class asset_manager {
 
     static private function full_asset_path($timestamp) {
         return DEPAGE_PATH . "/" . self::PARTIAL_ASSET_PATH . "/" . date("Y/m", $timestamp);
+    }
+}
+
+/* vim:set ft=php fenc=UTF-8 sw=4 sts=4 fdm=marker et : */
