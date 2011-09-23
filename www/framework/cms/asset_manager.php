@@ -36,7 +36,7 @@
 //
 
 class asset_manager {
-    const ASSET_PATH = "lib/assets";
+    const PARTIAL_ASSET_PATH = "lib/assets";
     
     /* {{{ constructor */
     /**
@@ -97,9 +97,7 @@ class asset_manager {
             ));
         }
 
-        // move file to destination
-        // TODO: use move_uploaded_file instead?
-        //rename($original_file, self::get_filepath($node_id, $processed_filename));
+        self::move_file($original_file, $created_at, $asset_id, $processed_filename);
     }
 
     // {{{ basic_search
@@ -186,9 +184,19 @@ class asset_manager {
         return search(null);
     }
 
-    static private function get_filepath($id, $processed_filename) {
-        return DEPAGE_PATH . "/" . ASSET_PATH . "/" . $id . "." . $processed_filename;
     }
 }
 
 /* vim:set ft=php fenc=UTF-8 sw=4 sts=4 fdm=marker et : */
+    static private function move_file($original_file, $created_at, $asset_id, $processed_filename) {
+        mkdir(self::full_asset_path($created_at), 0777, true);
+        // TODO: use move_uploaded_file instead?
+        rename($original_file, self::get_filepath($created_at, $asset_id, $processed_filename));
+    }
+
+    static private function get_filepath($created_at, $id, $processed_filename) {
+        return self::full_asset_path($created_at) . "/" . $id . "." . $processed_filename;
+    }
+
+    static private function full_asset_path($timestamp) {
+        return DEPAGE_PATH . "/" . self::PARTIAL_ASSET_PATH . "/" . date("Y/m", $timestamp);
