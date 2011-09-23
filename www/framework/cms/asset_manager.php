@@ -40,13 +40,10 @@ class asset_manager {
     
     /* {{{ constructor */
     /**
-     * constructor
-     *
-     * @public
-     *
+     * @param       $prefix database table prefix
      * @param       $pdo (PDO) pdo object for database access
-     *
-     * @return      void
+     * @param       $xmldb (xmldb) xmldb object for xml database access
+     * @param       $doc_id (int) xml document id
      */
     public function __construct($prefix, $pdo, $xmldb, $doc_id) {
         $this->prefix = $prefix;
