@@ -37,6 +37,9 @@
 
 class asset_manager {
     const PARTIAL_ASSET_PATH = "lib/assets";
+    const ROOT_TAG = "dir";
+    const DIR_TAG = "dir";
+    const ASSET_TAG = "asset";
     
     /* {{{ constructor */
     /**
@@ -58,7 +61,7 @@ class asset_manager {
 
     public function basic_create($original_file, $original_filename, $processed_filename, $parent_id, $position = -1, $filetype = null, $size = null, $created_at = null, $page_id = null, $tags = array()) {
         // insert into xml doc
-        $node = $this->xmldb->build_node($this->doc_id, "asset", array("name" => $original_filename));
+        $node = $this->xmldb->build_node($this->doc_id, self::ASSET_TAG, array("name" => $original_filename));
         $node_id = $this->xmldb->add_node($this->doc_id, $node, $parent_id, $position);
 
         // store additional data
@@ -203,14 +206,14 @@ class asset_manager {
         $doc_info = $this->xmldb->get_doc_info($this->doc_id);
         $parent_id = $doc_info->rootid;
         $dirs = array_filter(explode("/", $xml_path));
-        $xpath = "/dir";
+        $xpath = "/" . self::ROOT_TAG;
 
         foreach ($dirs as $dir) {
-            $xpath .= "/dir[@name='{$dir}']";
+            $xpath .= "/" . self::DIR_TAG . "[@name='{$dir}']";
             $element_ids = $this->xmldb->get_elementIds_by_xpath($this->doc_id, $xpath);
 
             if (empty($element_ids)) {
-                $node = $this->xmldb->build_node($this->doc_id, "dir", array("name" => $dir));
+                $node = $this->xmldb->build_node($this->doc_id, self::DIR_TAG, array("name" => $dir));
                 $parent_id = $this->xmldb->add_node($this->doc_id, $node, $parent_id, -1);
             } else {
                 $parent_id = $element_ids[0];
