@@ -173,7 +173,7 @@ class asset_manager {
 
             $xpath = new DOMXPath($doc);
             $remove_nodes = $xpath->query("//tag[not(descendant::asset)]");
-            // TODO: maybe cat notFound Exceptions ??
+            // TODO: maybe catch notFound Exceptions ??
             foreach ($remove_nodes as $node) {
                 $node->parentNode->removeChild($node);
             }
