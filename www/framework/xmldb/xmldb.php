@@ -1015,7 +1015,7 @@ class xmldb {
      *
      * @todo    implement full xpath specifications
      */
-    private function get_elementIds_by_xpath($doc_id, $xpath) {
+    public function get_elementIds_by_xpath($doc_id, $xpath) {
         $identifier = "{$this->table_docs}/d{$doc_id}/xpath_" . sha1($xpath);
 
         $fetched_ids = $this->cache->get($identifier);
