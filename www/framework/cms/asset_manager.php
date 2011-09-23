@@ -57,7 +57,6 @@ class asset_manager {
     /* }}} */
 
     public function basic_create($original_file, $original_filename, $processed_filename, $parent_id, $position = -1, $filetype = null, $size = null, $created_at = null, $page_id = null, $tags = array()) {
-        // TODO: does not work!
         // insert into xml doc
         $node = $this->xmldb->build_node($this->doc_id, "asset", array("name" => $original_filename));
         $node_id = $this->xmldb->add_node($this->doc_id, $node, $parent_id, $position);
@@ -103,25 +102,33 @@ class asset_manager {
         //rename($original_file, self::get_filepath($node_id, $processed_filename));
     }
 
+    // {{{ basic_search
     /*
-     * filter:
-     *  page_id
-     *  filetype
-     *  ...
+     * search for $needle in filename and tags.
+     * filter results by defined $filters.
+     *
+     * either $needle or $filters needs to be present.
      */
     public function basic_search($needle, $filters = array(), $select = "node_id", $fetch_style = \PDO::FETCH_COLUMN) {
-        // search for $needle in filename and tags
+
         $query_str =
             "SELECT DISTINCT {$this->assets_tbl}.$select " .
-            "FROM {$this->assets_tbl} " .
-            "LEFT JOIN {$this->assets_tags_tbl} ON {$this->assets_tbl}.id = {$this->assets_tags_tbl}.asset_id " .
-            "LEFT JOIN {$this->tags_tbl} ON {$this->assets_tags_tbl}.tag_id = {$this->tags_tbl}.id " .
-            "WHERE " .
-                "(MATCH(processed_filename) AGAINST(:needle) " .
-                "OR {$this->tags_tbl}.name = :needle) ";
+            "FROM {$this->assets_tbl} ";
 
-        foreach ($filters as $filter => $value) {
-            $query_str .= "AND {$filter} = :{$filter}";
+        if ($needle) {
+            $query_str .=
+                "LEFT JOIN {$this->assets_tags_tbl} ON {$this->assets_tbl}.id = {$this->assets_tags_tbl}.asset_id " .
+                "LEFT JOIN {$this->tags_tbl} ON {$this->assets_tags_tbl}.tag_id = {$this->tags_tbl}.id " .
+                "WHERE " .
+                    "(MATCH(processed_filename) AGAINST(:needle) " .
+                    "OR {$this->tags_tbl}.name = :needle) ";
+        } else if ($filters) {
+            $query_filters = array();
+            foreach ($filters as $filter => $value) {
+                $query_filters[] = "{$filter} = :{$filter}";
+            }
+
+            $query_str .= "WHERE " . implode(" AND ", $query_filters);
         }
 
         $query = $this->pdo->prepare($query_str);
@@ -131,31 +138,52 @@ class asset_manager {
 
         return $query->fetchAll($fetch_style);
     }
+    // }}}
 
+    // {{{
+    /*
+     * search for $needle in filename and tags.
+     * filter results by defined $filters.
+     *
+     * if neither $needle nor $filters is present then all assets are returned.
+     */
     public function search($needle, $filters = array()) {
-        $ids = array_filter($this->basic_search($needle, $filters));
-        if (empty($ids))
-            return false;
+        if ($needle || $filters) {
+            $ids = array_filter($this->basic_search($needle, $filters));
+            if (empty($ids))
+                return false;
 
-        /* try to minimize db queries,
-         * only retrieve found assets from xml tree.
-         * all tags are retrieved as there is currently no way to restrict that.
-         * uneccesary tags without assets are filtered later.
-         */
+            /*
+             * try to minimize db queries,
+             * only retrieve found assets from xml tree.
+             * all tags are retrieved as there is currently no way to restrict that.
+             * unneccesary tags without assets are filtered later.
+             */
 
-        $xml_filter = "id in (" . implode(",", $ids) . ") OR name != 'asset'";
+            $xml_filter = "id in (" . implode(",", $ids) . ") OR name != 'asset'";
+        }
+
         $doc_info = $this->xmldb->get_doc_info($this->doc_id);
-        
         $doc = $this->xmldb->get_subdoc_by_elementId($this->doc_id, $doc_info->rootid, true, PHP_INT_MAX, $xml_filter);
 
-        // remove all tags that have no assets as descendants
-        $xpath = new DOMXPath($doc);
-        $remove_nodes = $xpath->query("//tag[not(descendant::asset)]");
-        foreach ($remove_nodes as $node) {
-            $node->parentNode->removeChild($node);
+        if ($needle || $filters) {
+            /*
+             * remove all tags that have no assets as descendants
+             */
+
+            $xpath = new DOMXPath($doc);
+            $remove_nodes = $xpath->query("//tag[not(descendant::asset)]");
+            // TODO: maybe cat notFound Exceptions ??
+            foreach ($remove_nodes as $node) {
+                $node->parentNode->removeChild($node);
+            }
         }
 
         return $doc;
+    }
+
+    public function all() {
+        return search(null);
     }
 
     static private function get_filepath($id, $processed_filename) {
