@@ -164,9 +164,9 @@ class asset_manager {
         }
 
         $query = $this->pdo->prepare($query_str);
-        $query->execute(array_merge(array(
+        $query->execute(array_merge(array_filter(array(
             "needle" => $needle,
-        ), $filters));
+        )), $filters));
 
         return $query->fetchAll($fetch_style);
     }
