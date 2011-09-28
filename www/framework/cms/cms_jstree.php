@@ -214,7 +214,7 @@ class cms_jstree extends depage_ui {
 
     // {{{ get_html_nodes
     protected function get_html_nodes($doc_id, $root_id) {
-        $doc = $this->get_subdoc_by_elementId($doc_id, $root_id);
+        $doc = $this->xmldb->get_subdoc_by_elementId($doc_id, $root_id);
         $html = \depage\cms\jstree_xml_to_html::toHTML(array($doc));
 
         return current($html);
