@@ -26,6 +26,12 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 <body>
 <div id="container">
 
+    <form method="get">
+        <input type="text" name="query" size="40" value="<?php echo $_GET["query"]; ?>"/><br />
+        <input type="radio" name="filters[filetype]" value="jpg">jpg</input>
+        <input type="radio" name="filters[filetype]" value="png">png</input>
+        <input type="submit" value="Suchen" />
+    </form>
 
     <!-- the tree container (notice NOT an UL node) -->
     <div
