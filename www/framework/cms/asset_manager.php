@@ -147,6 +147,7 @@ class asset_manager {
         $query_str =
             "SELECT DISTINCT {$this->assets_tbl}.$select " .
             "FROM {$this->assets_tbl} ";
+        $params = array();
 
         if ($needle) {
             $query_str .=
@@ -155,6 +156,7 @@ class asset_manager {
                 "WHERE " .
                     "(MATCH(processed_filename) AGAINST(:needle) " .
                     "OR {$this->tags_tbl}.name = :needle) ";
+            $params = array("needle" => $needle);
         }
 
         if ($filters) {
@@ -169,12 +171,11 @@ class asset_manager {
                 $query_str .= "WHERE ";
 
             $query_str .= implode(" AND ", $query_filters);
+            $params = array_merge($params, $filters);
         }
 
         $query = $this->pdo->prepare($query_str);
-        $query->execute(array_merge(array_filter(array(
-            "needle" => $needle,
-        )), $filters));
+        $query->execute($params);
 
         return $query->fetchAll($fetch_style);
     }
