@@ -70,9 +70,8 @@ class asset_manager {
             "processed_filename = :processed_filename," .
             "filetype = :filetype," .
             "width = :width," .
-            "height = :height" .
-            "created_at = :created_at," .
             "height = :height," .
+            "created_at = FROM_UNIXTIME(:created_at)," .
             "page_id = :page_id"
         );
         $query->execute(array(
