@@ -69,7 +69,7 @@ class cms_jstree extends depage_ui {
             'doc_id' => $doc_id,
             'root_id' => $doc_info->rootid, 
             'seq_nr' => $this->get_current_seq_nr($doc_id),
-            'nodes' => $this->get_html_nodes($doc_name),
+            'nodes' => $this->get_html_nodes($doc_id, $doc_info->rootid),
         ), $this->html_options); 
 
         return $h;
@@ -231,8 +231,8 @@ class cms_jstree extends depage_ui {
     // }}}
 
     // {{{ get_html_nodes
-    protected function get_html_nodes($doc_name) {
-        $doc = $this->xmldb->get_doc($doc_name);
+    protected function get_html_nodes($doc_id, $root_id) {
+        $doc = $this->get_subdoc_by_elementId($doc_id, $root_id);
         $html = \depage\cms\jstree_xml_to_html::toHTML(array($doc));
 
         return current($html);
