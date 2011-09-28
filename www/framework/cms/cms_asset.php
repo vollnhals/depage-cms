@@ -18,6 +18,7 @@ class cms_asset extends cms_jstree {
         parent::__construct($options);
 
         $this->doc_id = $this->get_doc_id("assets");
+        $this->asset_manager = new depage\cms\asset_manager($this->prefix, $this->pdo, $this->xmldb, $this->doc_id);
     }
     // }}}
 
@@ -28,13 +29,16 @@ class cms_asset extends cms_jstree {
     public function index() {
         $this->auth->enforce();
 
+        $query = $_GET["query"];
+        $filters = $_GET["filters"];
+
         $doc_info = $this->xmldb->get_doc_info($this->doc_id);
 
-        $h = new html("jstree.tpl", array(
+        $h = new html("assets.tpl", array(
             'doc_id' => $this->doc_id,
             'root_id' => $doc_info->rootid, 
             'seq_nr' => $this->get_current_seq_nr($this->doc_id),
-            'nodes' => $this->get_html_nodes($this->doc_id, $doc_info->rootid),
+            'nodes' => $this->get_html_nodes_by_search($query, $filters),
         ), $this->html_options); 
 
         return $h;
@@ -102,6 +106,14 @@ class cms_asset extends cms_jstree {
     }
     // }}}
 
+    // {{{ get_html_nodes
+    protected function get_html_nodes_by_search($query, $filters) {
+        $doc = $this->asset_manager->search($query, $filters);
+        $html = \depage\cms\jstree_xml_to_html::toHTML(array($doc));
+
+        return current($html);
+    }
+    // }}}
 }
 
 /* vim:set ft=php fenc=UTF-8 sw=4 sts=4 fdm=marker et : */
