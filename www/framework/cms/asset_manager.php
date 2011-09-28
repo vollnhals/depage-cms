@@ -142,7 +142,6 @@ class asset_manager {
      * either $needle or $filters needs to be present.
      */
     public function basic_search($needle, $filters = array(), $select = "node_id", $fetch_style = \PDO::FETCH_COLUMN) {
-
         $query_str =
             "SELECT DISTINCT {$this->assets_tbl}.$select " .
             "FROM {$this->assets_tbl} ";
@@ -154,13 +153,20 @@ class asset_manager {
                 "WHERE " .
                     "(MATCH(processed_filename) AGAINST(:needle) " .
                     "OR {$this->tags_tbl}.name = :needle) ";
-        } else if ($filters) {
+        }
+
+        if ($filters) {
             $query_filters = array();
             foreach ($filters as $filter => $value) {
                 $query_filters[] = "{$filter} = :{$filter}";
             }
 
-            $query_str .= "WHERE " . implode(" AND ", $query_filters);
+            if ($needle)
+                $query_str .= "AND ";
+            else
+                $query_str .= "WHERE ";
+
+            $query_str .= implode(" AND ", $query_filters);
         }
 
         $query = $this->pdo->prepare($query_str);
