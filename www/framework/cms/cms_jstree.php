@@ -235,7 +235,7 @@ class cms_jstree extends depage_ui {
     // }}}
 
     // {{{ valid_children_or_none
-    static private function valid_children_or_none(&$valid_children, $element) {
+    static protected function valid_children_or_none(&$valid_children, $element) {
         if (empty($valid_children[$element])) {
             return "none";
         } else {
