@@ -17,7 +17,7 @@
 //        size VARCHAR(31),
 //        filetype VARCHAR(31),
 //        date DATETIME,
-//        original_filename VARCHAR(255),    TODO: is 255 enough? cutoff on upload?
+//        original_filename VARCHAR(255),
 //        processed_filename VARCHAR(255),
 //
 //    tags:
