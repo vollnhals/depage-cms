@@ -120,11 +120,11 @@ class asset_manager {
 
         $path_parts = pathinfo($original_file);
         $original_filename = $path_parts["basename"];
-        $filetype = $path_parts["extension"];
-        $processed_filename = self::process_filename($path_parts["filename"]);
-        list($width, $height) = getimagesize($original_file);
-        $created_at = time();
+        list($width, $height, $type) = getimagesize($original_file);
+        $filetype = image_type_to_extension($type, false);
+        $processed_filename = self::process_filename($path_parts["filename"]) . "." . $filetype;
 
+        $created_at = time();
         $parent_id = $this->create_xml_dirs($xml_path);
         $path_tags = array_filter(explode("/", $xml_path));
 
