@@ -122,6 +122,8 @@ class asset_manager {
         $original_filename = $path_parts["basename"];
         list($width, $height, $type) = getimagesize($original_file);
         $filetype = image_type_to_extension($type, false);
+        if (empty($filetype))
+            $filetype = $path_parts["extension"];
         $processed_filename = self::process_filename($path_parts["filename"]) . "." . $filetype;
 
         $created_at = time();
