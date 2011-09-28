@@ -59,7 +59,7 @@ class asset_manager {
     }
     /* }}} */
 
-    public function basic_create($original_file, $original_filename, $processed_filename, $parent_id, $position = -1, $filetype = null, $size = null, $created_at = null, $page_id = null, $tags = array()) {
+    public function basic_create($original_file, $original_filename, $processed_filename, $parent_id, $position = -1, $filetype = null, $width = null, $height = null, $created_at = null, $page_id = null, $tags = array()) {
         // insert into xml doc
         $node = $this->xmldb->build_node($this->doc_id, self::ASSET_TAG, array("name" => $original_filename));
         $node_id = $this->xmldb->add_node($this->doc_id, $node, $parent_id, $position);
@@ -69,7 +69,8 @@ class asset_manager {
             "node_id = :node_id," .
             "processed_filename = :processed_filename," .
             "filetype = :filetype," .
-            "size = :size," .
+            "width = :width," .
+            "height = :height" .
             "created_at = :created_at," .
             "page_id = :page_id"
         );
@@ -77,7 +78,8 @@ class asset_manager {
             "node_id" => $node_id,
             "processed_filename" => $processed_filename,
             "filetype" => $filetype,
-            "size" => $size,
+            "width" => $width,
+            "height" => $height,
             "created_at" => $created_at,
             "page_id" => $page_id,
         ));
