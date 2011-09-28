@@ -72,6 +72,7 @@ class asset_manager {
             "width = :width," .
             "height = :height" .
             "created_at = :created_at," .
+            "height = :height," .
             "page_id = :page_id"
         );
         $query->execute(array(
