@@ -83,5 +83,9 @@ $(function () {
                 "url" : $(this).attr("data-theme")
             }
 		});
+
+        if ($(this).attr("data-open-nodes") == "all") {
+            $(this).jstree("open_all");
+        }
     });
 });
