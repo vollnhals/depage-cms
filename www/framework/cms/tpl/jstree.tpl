@@ -6,7 +6,7 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<title>jsTree v.1.0 - full featured demo</title>
 
-    <base href="<?php html::base(); ?>">
+    <base href="<?php html::base(); ?>" />
 
     <?php // TODO: use jquery 1.4.4
         $this->include_js("jquery", array(
