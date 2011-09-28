@@ -10,6 +10,8 @@
  * @author    Lion Vollnhals [lion.vollnhals@googlemail.com]
  */
 
+namespace depage\cms;
+
 //schema:
 //    assets:
 //        id INT(11),
@@ -209,7 +211,7 @@ class asset_manager {
              * remove all tags that have no assets as descendants
              */
 
-            $xpath = new DOMXPath($doc);
+            $xpath = new \DOMXPath($doc);
             $remove_nodes = $xpath->query("//" . self::DIR_TAG . "[not(descendant::asset)]");
             // TODO: maybe catch notFound Exceptions ??
             foreach ($remove_nodes as $node) {
