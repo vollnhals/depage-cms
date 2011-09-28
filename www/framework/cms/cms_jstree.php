@@ -159,29 +159,27 @@ class cms_jstree extends depage_ui {
         $known_elements = $permissions->known_elements();
         $types = &$settings["types_from_url"]["types"];
         foreach ($known_elements as $element) {
-            if ($element != $root_element_name) {
-                $setting = array();
+            $setting = array();
 
-                /* TODO: disallow drags? is it better if every element is draggable even if it is not movable?
-                if (!$permissions->is_element_allowed_in_any($element)) {
-                    $setting["start_drag"] = false;
-                    $setting["move_node"] = false;
-                }
-                */
-
-                if (!$permissions->is_unlink_allowed_of($element)) {
-                    $setting["delete_node"] = false;
-                    $setting["remove"] = false;
-                }
-
-                if (isset($valid_children[$element])) {
-                    $setting["valid_children"] = $valid_children[$element];
-                } else if (isset($valid_children[\depage\xmldb\permissions::default_element])) {
-                    $setting["valid_children"] = self::valid_children_or_none($valid_children, \depage\xmldb\permissions::default_element);
-                }
-
-                $types[$element] = $setting;
+            /* TODO: disallow drags? is it better if every element is draggable even if it is not movable?
+            if (!$permissions->is_element_allowed_in_any($element)) {
+                $setting["start_drag"] = false;
+                $setting["move_node"] = false;
             }
+            */
+
+            if (!$permissions->is_unlink_allowed_of($element)) {
+                $setting["delete_node"] = false;
+                $setting["remove"] = false;
+            }
+
+            if (isset($valid_children[$element])) {
+                $setting["valid_children"] = $valid_children[$element];
+            } else if (isset($valid_children[\depage\xmldb\permissions::default_element])) {
+                $setting["valid_children"] = self::valid_children_or_none($valid_children, \depage\xmldb\permissions::default_element);
+            }
+
+            $types[$element] = $setting;
         }
 
         if (!isset($types[\depage\xmldb\permissions::default_element])) {
