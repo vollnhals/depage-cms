@@ -115,6 +115,9 @@ class asset_manager {
      * @param       $additional tags            additional tags for this asset
      */
     public function create($original_file, $xml_path, $page_id = null, $additional_tags = array()) {
+        if (!file_exists($original_file))
+            return false;
+
         $path_parts = pathinfo($original_file);
         $original_filename = $path_parts["basename"];
         $filetype = $path_parts["extension"];
