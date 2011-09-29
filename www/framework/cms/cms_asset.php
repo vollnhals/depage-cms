@@ -73,6 +73,9 @@ class cms_asset extends cms_jstree {
         $parent_id = $this->xmldb->get_parentId_by_elementId($this->doc_id, $_REQUEST["id"]);
         $this->recordChange($this->doc_id, array($parent_id));
 
+        $asset_id = $this->asset_manager->get_asset_id_for_node_id($_REQUEST["id"]);
+        $this->asset_manager->rename_asset($asset_id, $_REQUEST["name"]);
+
         return new json(array("status" => 1));
     }
     // }}}
