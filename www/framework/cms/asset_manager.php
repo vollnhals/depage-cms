@@ -39,10 +39,15 @@ namespace depage\cms;
 
 class asset_manager {
     const PARTIAL_ASSET_PATH = "lib/assets";
+
     const ROOT_TAG = "dir";
     const DIR_TAG = "dir";
     const ASSET_TAG = "asset";
-    
+
+    const TAG_TYPE_FROM_XML = 1;
+    const TAG_TYPE_ADDITIONAL = 2;
+    const TAG_TYPE_ALL = 3;
+
     /* {{{ constructor */
     /**
      * @param       $prefix database table prefix
@@ -61,6 +66,12 @@ class asset_manager {
     }
     /* }}} */
 
+    // {{{ basic_create
+    /*
+     * create a new asset. this is a primitive function. better use create.
+     *
+     * @param   $tags (array)   array of arrays consisting of tag names (string) and tag types (int).
+     */
     public function basic_create($original_file, $original_filename, $processed_filename, $parent_id, $position = -1, $filetype = null, $width = null, $height = null, $created_at = null, $page_id = null, $tags = array()) {
         // insert into xml doc
         $node = $this->xmldb->build_node($this->doc_id, self::ASSET_TAG, array("name" => $original_filename));
@@ -87,24 +98,9 @@ class asset_manager {
         ));
         $asset_id = $this->pdo->lastInsertId();
 
-        // store new tags
-        $query = $this->pdo->prepare("INSERT IGNORE INTO {$this->tags_tbl} SET name = :name");
-        foreach ($tags as $tag) {
-            $query->execute(array(
-                "name" => $tag,
-            ));
-        }
+        $this->set_tags($asset_id, $tags);
 
-        // associate tags and asset
-        $query = $this->pdo->prepare("INSERT INTO {$this->assets_tags_tbl} (asset_id, tag_id) SELECT :asset_id, id FROM {$this->tags_tbl} WHERE name = :name");
-        foreach ($tags as $tag) {
-            $query->execute(array(
-                "asset_id" => $asset_id,
-                "name" => $tag,
-            ));
-        }
-
-        self::move_file($original_file, $created_at, $asset_id, $processed_filename);
+        //self::move_file($original_file, $created_at, $asset_id, $processed_filename);
     }
 
     // {{{ create
@@ -114,7 +110,8 @@ class asset_manager {
      * @param       $original_file (string)     path to file on disk
      * @param       $xml_path (string)          path in xml tree to structure assets. for example "/photos/new/good".
      *                                          path is split on "/". each part will automatically become a tag.
-     * @param       $additional tags            additional tags for this asset
+     * @param       $additional_tags (array)    additional tags for this asset. each entry may be a tag name (string)
+     *                                          or an array consisting of a tag name (string) and a type (int).
      */
     public function create($original_file, $xml_path, $page_id = null, $additional_tags = array()) {
         if (!file_exists($original_file))
@@ -126,13 +123,14 @@ class asset_manager {
         $filetype = image_type_to_extension($type, false);
         if (empty($filetype))
             $filetype = $path_parts["extension"];
-        $processed_filename = self::process_filename($path_parts["filename"]) . "." . $filetype;
 
+        $processed_filename = self::process_filename($path_parts["filename"]) . "." . $filetype;
         $created_at = time();
         $parent_id = $this->create_xml_dirs($xml_path);
-        $path_tags = array_filter(explode("/", $xml_path));
+        $path_tags = $this->normalize_tags(array_filter(explode("/", $xml_path)), self::TAG_TYPE_FROM_XML);
+        $tags = array_merge($this->normalize_tags($additional_tags), $path_tags);
 
-        return $this->basic_create($original_file, $original_filename, $processed_filename, $parent_id, -1, $filetype, $width, $height, $created_at, $page_id, array_merge($additional_tags, $path_tags));
+        return $this->basic_create($original_file, $original_filename, $processed_filename, $parent_id, -1, $filetype, $width, $height, $created_at, $page_id, $tags);
     }
     // }}}
 
@@ -226,6 +224,65 @@ class asset_manager {
     public function all() {
         return search(null);
     }
+
+    private function reset_tags($asset_id, $tags, $type = self::TAG_TYPE_ALL) {
+        $this->unbind_tags($asset_id, $type);
+        $this->set_tags($asset_id, $tags);
+    }
+
+    private function unbind_tags($asset_id, $type = self::TAG_TYPE_ALL) {
+        $query = $this->pdo->prepare("DELETE FROM {$this->assets_tags_tbl} WHERE asset_id = :asset_id AND type & :type");
+        $query->execute(array(
+            "asset_id" => $asset_id,
+            "type" => $type,
+        ));
+    }
+
+    /*
+     * @param       $asset_id (int) asset database id.
+     * @param       $tags (array)   array of tags. each entry may be a tag name (string)
+     *                              or an array consisting of a tag name (string) and a type (int).
+     */
+    private function set_tags($asset_id, $tags) {
+        $tags = $this->normalize_tags($tags);
+
+        // store new tags
+        $query = $this->pdo->prepare("INSERT IGNORE INTO {$this->tags_tbl} SET name = :name");
+        foreach ($tags as $tag) {
+            list($name) = $tag;
+            $query->execute(array(
+                "name" => $name,
+            ));
+        }
+
+        // associate tags and asset
+        $query = $this->pdo->prepare("INSERT INTO {$this->assets_tags_tbl} (asset_id, tag_id, type) SELECT :asset_id, id, :type FROM {$this->tags_tbl} WHERE name = :name");
+        foreach ($tags as $tag) {
+            list($name, $type) = $tag;
+            $query->execute(array(
+                "asset_id" => $asset_id,
+                "name" => $name,
+                "type" => $type,
+            ));
+        }
+    }
+
+    // {{{ normalize_tags
+    /*
+     * @param       $tags (array)   array of tags. each entry may be a tag name (string)
+     *                              or an array consisting of a tag name (string) and a type (int).
+     * @return      (array)         returns an array of arrays containing tag names and types.
+     *                              type is set to TAG_TYPE_ADDITIONAL by default.
+     */
+    private function normalize_tags($tags) {
+        foreach($tags as &$tag) {
+            if (!is_array($tag))
+                $tag = array($tag, self::TAG_TYPE_ADDITIONAL);
+        }
+
+        return $tags;
+    }
+    // }}}
 
     private function create_xml_dirs($xml_path) {
         $doc_info = $this->xmldb->get_doc_info($this->doc_id);
