@@ -226,6 +226,14 @@ class asset_manager {
         return search(null);
     }
 
+    public function remove_asset($asset_id) {
+        $this->unbind_tags($asset_id);
+        $query = $this->pdo->prepare("DELETE FROM {$this->assets_tbl} WHERE id = :asset_id");
+        $query->execute(array(
+            "asset_id" => $asset_id,
+        ));
+    }
+
     public function rename_asset($asset_id, $original_filename) {
         $path_parts = pathinfo($original_filename);
         $processed_filename = self::process_filename($path_parts["filename"]);

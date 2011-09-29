@@ -104,6 +104,9 @@ class cms_asset extends cms_jstree {
         $status = $ids !== false;
         if ($status) {
             $this->recordChange($this->doc_id, array($parent_id));
+
+            $asset_id = $this->asset_manager->get_asset_id_for_node_id($_REQUEST["id"]);
+            $this->asset_manager->remove_asset($asset_id);
         }
 
         return new json(array("status" => $status));
