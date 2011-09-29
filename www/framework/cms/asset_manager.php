@@ -238,12 +238,12 @@ class asset_manager {
             return false;
     }
 
-    private function reset_tags($asset_id, $tags, $type = self::TAG_TYPE_ALL) {
+    public function reset_tags($asset_id, $tags, $type = self::TAG_TYPE_ALL) {
         $this->unbind_tags($asset_id, $type);
         $this->set_tags($asset_id, $tags, $type);
     }
 
-    private function unbind_tags($asset_id, $type = self::TAG_TYPE_ALL) {
+    public function unbind_tags($asset_id, $type = self::TAG_TYPE_ALL) {
         $query = $this->pdo->prepare("DELETE FROM {$this->assets_tags_tbl} WHERE asset_id = :asset_id AND type & :type");
         $query->execute(array(
             "asset_id" => $asset_id,
@@ -257,7 +257,7 @@ class asset_manager {
      *                              or an array consisting of a tag name (string) and a type (int).
      * @param       $type (int)     default tag type.
      */
-    private function set_tags($asset_id, $tags, $type = self::TAG_TYPE_ADDITIONAL) {
+    public function set_tags($asset_id, $tags, $type = self::TAG_TYPE_ADDITIONAL) {
         $tags = $this->normalize_tags($tags, $type);
 
         // store new tags
