@@ -240,7 +240,7 @@ class asset_manager {
 
     private function reset_tags($asset_id, $tags, $type = self::TAG_TYPE_ALL) {
         $this->unbind_tags($asset_id, $type);
-        $this->set_tags($asset_id, $tags);
+        $this->set_tags($asset_id, $tags, $type);
     }
 
     private function unbind_tags($asset_id, $type = self::TAG_TYPE_ALL) {
@@ -251,13 +251,14 @@ class asset_manager {
         ));
     }
 
-    /*
+    /**
      * @param       $asset_id (int) asset database id.
      * @param       $tags (array)   array of tags. each entry may be a tag name (string)
      *                              or an array consisting of a tag name (string) and a type (int).
+     * @param       $type (int)     default tag type.
      */
-    private function set_tags($asset_id, $tags) {
-        $tags = $this->normalize_tags($tags);
+    private function set_tags($asset_id, $tags, $type = self::TAG_TYPE_ADDITIONAL) {
+        $tags = $this->normalize_tags($tags, $type);
 
         // store new tags
         $query = $this->pdo->prepare("INSERT IGNORE INTO {$this->tags_tbl} SET name = :name");
