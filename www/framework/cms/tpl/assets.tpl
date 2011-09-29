@@ -26,12 +26,29 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 <body>
 <div id="container">
 
-    <form method="get">
+    <form action="index/" method="get" id="search_form">
         <input type="text" name="query" size="40" value="<?php echo $_GET["query"]; ?>"/><br />
-        <input type="radio" name="filters[filetype]" value="jpg">jpg</input>
-        <input type="radio" name="filters[filetype]" value="png">png</input>
+        <?php foreach(array("jpg", "png") as $filetype): ?>
+            <input type="checkbox" name="filters[filetype]" value="<?php echo $filetype; ?>" <?php echo ($filetype == $_GET["filters"]["filetype"] ? "checked" : "") ?> ><?php echo $filetype; ?></input>
+        <?php endforeach; ?>
         <input type="submit" value="Suchen" />
     </form>
+
+    <script type="text/javascript">
+        // only allow one active filetype filter
+        $(function() {
+            $("#search_form input[type='checkbox']").click(function() {
+                // test if this click checked the box
+                if (this.checked) {
+                    var current = this;
+                    $("#search_form input[type='checkbox']").each(function() {
+                        if (current != this)
+                            this.checked = false;
+                    });
+                }
+            })
+        });
+    </script>
 
     <!-- the tree container (notice NOT an UL node) -->
     <div
