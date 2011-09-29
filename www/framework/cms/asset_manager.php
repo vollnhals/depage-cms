@@ -37,6 +37,8 @@ namespace depage\cms;
 //    index for page, size, filetype, date
 //
 
+// TODO: tags are never removed from the tag table. think about that.
+
 class asset_manager {
     const PARTIAL_ASSET_PATH = "lib/assets";
 
