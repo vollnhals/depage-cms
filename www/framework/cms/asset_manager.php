@@ -284,13 +284,14 @@ class asset_manager {
     /*
      * @param       $tags (array)   array of tags. each entry may be a tag name (string)
      *                              or an array consisting of a tag name (string) and a type (int).
+     * @param       $type (int)     default tag type.
      * @return      (array)         returns an array of arrays containing tag names and types.
      *                              type is set to TAG_TYPE_ADDITIONAL by default.
      */
-    private function normalize_tags($tags) {
+    private function normalize_tags($tags, $type = self::TAG_TYPE_ADDITIONAL) {
         foreach($tags as &$tag) {
             if (!is_array($tag))
-                $tag = array($tag, self::TAG_TYPE_ADDITIONAL);
+                $tag = array($tag, $type);
         }
 
         return $tags;
