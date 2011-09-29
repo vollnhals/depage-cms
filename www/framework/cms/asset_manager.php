@@ -44,7 +44,7 @@ class asset_manager {
     const DIR_TAG = "dir";
     const ASSET_TAG = "asset";
 
-    const TAG_TYPE_FROM_XML = 1;
+    const TAG_TYPE_XML = 1;
     const TAG_TYPE_ADDITIONAL = 2;
     const TAG_TYPE_ALL = 3;
 
@@ -127,7 +127,7 @@ class asset_manager {
         $processed_filename = self::process_filename($path_parts["filename"]) . "." . $filetype;
         $created_at = time();
         $parent_id = $this->create_xml_dirs($xml_path);
-        $path_tags = $this->normalize_tags(array_filter(explode("/", $xml_path)), self::TAG_TYPE_FROM_XML);
+        $path_tags = $this->normalize_tags(array_filter(explode("/", $xml_path)), self::TAG_TYPE_XML);
         $tags = array_merge($this->normalize_tags($additional_tags), $path_tags);
 
         return $this->basic_create($original_file, $original_filename, $processed_filename, $parent_id, -1, $filetype, $width, $height, $created_at, $page_id, $tags);

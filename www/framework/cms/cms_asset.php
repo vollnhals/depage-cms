@@ -85,7 +85,6 @@ class cms_asset extends cms_jstree {
         $status = $this->xmldb->move_node($this->doc_id, $_REQUEST["id"], $_REQUEST["target_id"], $_REQUEST["position"]);
         if ($status) {
             $this->recordChange($this->doc_id, array($old_parent_id, $_REQUEST["target_id"]));
-
             $this->reset_xml_tags($_REQUEST["id"], $_REQUEST["target_id"]);
         }
 
@@ -122,7 +121,7 @@ class cms_asset extends cms_jstree {
         $asset_id = $this->asset_manager->get_asset_id_for_node_id($node_id);
         $new_xml_path = $this->xmldb->get_ambiguous_xpath_by_elementId($this->doc_id, $parent_id);
         $path_tags = array_filter(explode("/", $new_xml_path));
-        $this->asset_manager->reset_tags($asset_id, $path_tags, \depage\cms\asset_manager::TAG_TYPE_FROM_XML);
+        $this->asset_manager->reset_tags($asset_id, $path_tags, \depage\cms\asset_manager::TAG_TYPE_XML);
     }
 }
 
