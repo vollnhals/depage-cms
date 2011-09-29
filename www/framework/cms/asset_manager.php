@@ -225,6 +225,19 @@ class asset_manager {
         return search(null);
     }
 
+    public function get_asset_id_for_node_id($node_id) {
+        $query = $this->pdo->prepare("SELECT id FROM {$this->assets_tbl} WHERE node_id = :node_id LIMIT 1");
+        $query->execute(array(
+            "node_id" => $node_id,
+        ));
+
+        $result = $query->fetchOne();
+        if ($result)
+            return $result->id;
+        else
+            return false;
+    }
+
     private function reset_tags($asset_id, $tags, $type = self::TAG_TYPE_ALL) {
         $this->unbind_tags($asset_id, $type);
         $this->set_tags($asset_id, $tags);
