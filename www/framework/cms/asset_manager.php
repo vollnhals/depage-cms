@@ -100,7 +100,7 @@ class asset_manager {
 
         $this->set_tags($asset_id, $tags);
 
-        //self::move_file($original_file, $created_at, $asset_id, $processed_filename);
+        self::move_file($original_file, $created_at, $asset_id, $processed_filename, $filetype);
     }
 
     // {{{ create
@@ -119,12 +119,13 @@ class asset_manager {
 
         $path_parts = pathinfo($original_file);
         $original_filename = $path_parts["basename"];
+        $processed_filename = self::process_filename($path_parts["filename"]);
+
         list($width, $height, $type) = getimagesize($original_file);
         $filetype = image_type_to_extension($type, false);
         if (empty($filetype))
             $filetype = $path_parts["extension"];
 
-        $processed_filename = self::process_filename($path_parts["filename"]) . "." . $filetype;
         $created_at = time();
         $parent_id = $this->create_xml_dirs($xml_path);
         $path_tags = $this->normalize_tags(array_filter(explode("/", $xml_path)), self::TAG_TYPE_XML);
@@ -320,14 +321,14 @@ class asset_manager {
         return $parent_id;
     }
 
-    static private function move_file($original_file, $created_at, $asset_id, $processed_filename) {
+    static private function move_file($original_file, $created_at, $asset_id, $processed_filename, $filetype) {
         mkdir(self::full_asset_path($created_at), 0777, true);
         // TODO: use move_uploaded_file instead?
-        rename($original_file, self::get_filepath($created_at, $asset_id, $processed_filename));
+        rename($original_file, self::get_filepath($created_at, $asset_id, $processed_filename, $filetype));
     }
 
-    static private function get_filepath($created_at, $id, $processed_filename) {
-        return self::full_asset_path($created_at) . "/" . $id . "." . $processed_filename;
+    static private function get_filepath($created_at, $id, $processed_filename, $filetype) {
+        return self::full_asset_path($created_at) . "/{$id}.{$processed_filename}.{$filetype}";
     }
 
     static private function full_asset_path($timestamp) {
