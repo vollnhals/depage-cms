@@ -226,6 +226,24 @@ class asset_manager {
         return search(null);
     }
 
+    public function rename_asset($asset_id, $original_filename) {
+        $path_parts = pathinfo($original_filename);
+        $processed_filename = self::process_filename($path_parts["filename"]);
+
+        $query = $this->pdo->prepare("UPDATE {$this->assets_tbl}
+            SET
+                original_filename = :original_filename,
+                processed_filename = :processed_filename
+            WHERE
+                id = :asset_id
+        ");
+        $query->execute(array(
+            "asset_id" => $asset_id,
+            "original_filename" => $original_filename,
+            "processed_filename" => $processed_filename,
+        ));
+    }
+
     public function get_asset_id_for_node_id($node_id) {
         $query = $this->pdo->prepare("SELECT id FROM {$this->assets_tbl} WHERE node_id = :node_id LIMIT 1");
         $query->execute(array(
