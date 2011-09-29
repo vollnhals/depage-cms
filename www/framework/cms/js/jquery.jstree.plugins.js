@@ -695,7 +695,7 @@ var placeholder;
         // hide span before rename
         _fn : {
             rename : function (obj) {
-				node = this._get_node(obj);
+				var node = this._get_node(obj);
                 node.children("span").hide();
                 // call without any argument, so that original arguments are used
                 return this.__call_old();
