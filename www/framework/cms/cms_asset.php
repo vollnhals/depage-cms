@@ -123,11 +123,28 @@ class cms_asset extends cms_jstree {
     // }}}
 
     protected function reset_xml_tags($node_id, $parent_id) {
-        // change dir tags
         $asset_id = $this->asset_manager->get_asset_id_for_node_id($node_id);
-        $new_xml_path = $this->xmldb->get_ambiguous_xpath_by_elementId($this->doc_id, $parent_id);
-        $path_tags = array_filter(explode("/", $new_xml_path));
-        $this->asset_manager->reset_tags($asset_id, $path_tags, \depage\cms\asset_manager::TAG_TYPE_XML);
+        if ($asset_id) {
+            $path_tags = $this->get_name_attributes($parent_id);
+            $this->asset_manager->reset_tags($asset_id, $path_tags, \depage\cms\asset_manager::TAG_TYPE_XML);
+        } else {
+            // this node is probably a dir node, reset tags for children
+            $children_ids = $this->xmldb->get_childIds_by_name($this->doc_id, $node_id);
+            foreach ($children_ids as $child_id) {
+                $this->reset_xml_tags($child_id, $node_id);
+            }
+        }
+    }
+
+    protected function get_name_attributes($node_id) {
+        $names = array();
+
+        while ($node_id) {
+            $names[] = $this->xmldb->get_attribute($this->doc_id, $node_id, "name");
+            $node_id = $this->xmldb->get_parentId_by_elementId($this->doc_id, $node_id);
+        }
+
+        return array_filter($names);
     }
 }
 
