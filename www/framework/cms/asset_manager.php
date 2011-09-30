@@ -374,16 +374,12 @@ class asset_manager {
 
         $processed_filename = strtolower(trim($processed_filename));
 
-        // adding - for spaces and union characters
-        $find = array(' ', '&', '\r\n', '\n', '+', ',');
-        $processed_filename = str_replace ($find, '-', $processed_filename);
-
-        // delete and replace rest of special chars
-        $find = array('/[^a-z0-9\-<>]/', '/[\-]+/', '/<[^>]*>/');
-        $repl = array('', '-', '');
+        // delete and replace anything but a-z and 0-9
+        $find = array('/[^a-z0-9]/', '/[\_]+/');
+        $repl = array('_', '_');
         $processed_filename = preg_replace ($find, $repl, $processed_filename);
 
-        return $processed_filename;
+        return trim($processed_filename, "_");
     }
 }
 
