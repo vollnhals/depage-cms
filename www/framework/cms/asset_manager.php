@@ -241,15 +241,11 @@ class asset_manager {
         $processed_filename = self::process_filename($path_parts["filename"]);
 
         $query = $this->pdo->prepare("UPDATE {$this->assets_tbl}
-            SET
-                original_filename = :original_filename,
-                processed_filename = :processed_filename
-            WHERE
-                id = :asset_id
+            SET processed_filename = :processed_filename
+            WHERE id = :asset_id
         ");
         $query->execute(array(
             "asset_id" => $asset_id,
-            "original_filename" => $original_filename,
             "processed_filename" => $processed_filename,
         ));
     }
