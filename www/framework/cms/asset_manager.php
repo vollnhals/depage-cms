@@ -260,7 +260,7 @@ class asset_manager {
             "node_id" => $node_id,
         ));
 
-        $result = $query->fetchOne();
+        $result = $query->fetchObject();
         if ($result)
             return $result->id;
         else
