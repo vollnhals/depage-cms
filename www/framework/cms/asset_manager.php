@@ -273,10 +273,15 @@ class asset_manager {
     }
 
     public function unbind_tags($asset_id, $type = self::TAG_TYPE_ALL) {
-        $query = $this->pdo->prepare("DELETE FROM {$this->assets_tags_tbl} WHERE asset_id = :asset_id AND type & :type");
+        $query = $this->pdo->prepare("UPDATE {$this->assets_tags_tbl} SET type = type & ~:type WHERE asset_id = :asset_id");
         $query->execute(array(
             "asset_id" => $asset_id,
             "type" => $type,
+        ));
+
+        $query = $this->pdo->prepare("DELETE FROM {$this->assets_tags_tbl} WHERE asset_id = :asset_id AND type = 0");
+        $query->execute(array(
+            "asset_id" => $asset_id,
         ));
     }
 
@@ -299,7 +304,9 @@ class asset_manager {
         }
 
         // associate tags and asset
-        $query = $this->pdo->prepare("INSERT INTO {$this->assets_tags_tbl} (asset_id, tag_id, type) SELECT :asset_id, id, :type FROM {$this->tags_tbl} WHERE name = :name");
+        $query = $this->pdo->prepare("INSERT INTO {$this->assets_tags_tbl} (asset_id, tag_id, type)
+            SELECT :asset_id, id, :type FROM {$this->tags_tbl} WHERE name = :name
+            ON DUPLICATE KEY UPDATE type = type | :type");
         foreach ($tags as $tag) {
             list($name, $type) = $tag;
             $query->execute(array(
