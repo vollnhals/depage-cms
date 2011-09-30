@@ -879,7 +879,7 @@ class xmldb {
      *
      * @return    $node_ids (array) list of node db-ids
      */
-    private function get_childIds_by_name($doc_id, $parent_id, $node_ns = '', $node_name = '', $attr_cond = null, $only_element_nodes = false) {
+    public function get_childIds_by_name($doc_id, $parent_id, $node_ns = '', $node_name = '', $attr_cond = null, $only_element_nodes = false) {
         $node_ids = array();
         
         list($name_query, $name_param) = $this->get_name_query($node_ns, $node_name);
