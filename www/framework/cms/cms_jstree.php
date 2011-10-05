@@ -4,6 +4,10 @@
  *
  * depage cms jstree module
  *
+ * subclass cms_jstree to implement more specific behaviour
+ *
+ * TODO: xml document rights / access management. which user can edit which document?
+ *
  *
  * copyright (c) 2011 Lion Vollnhals [lion.vollnhals@googlemail.com]
  *
@@ -81,6 +85,10 @@ class cms_jstree extends depage_ui {
      * @param $doc_id document id
      * @param $node child node data
      * @param $position position for new child in parent
+     * @param $_REQUEST["doc_id"] (int)     document id
+     * @param $_REQUEST["node"] (array)     child node data. key "_type" indicates node type.
+     * @param $_REQUEST["target_id"] (int)  id of parent node
+     * @param $_REQUEST["position"] (int)   position for new child in parent
      */
     public function create_node() {
         $this->auth->enforce();
@@ -97,6 +105,11 @@ class cms_jstree extends depage_ui {
     // }}}
 
     // {{{ rename_node
+    /**
+     * @param $_REQUEST["doc_id"] (int)     document id
+     * @param $_REQUEST["id"] (int)         node id
+     * @param $_REQUEST["name"] (string)    new name attribute
+     */
     public function rename_node() {
         $this->auth->enforce();
 
@@ -109,6 +122,12 @@ class cms_jstree extends depage_ui {
     // }}}
 
     // {{{ move_node
+    /**
+     * @param $_REQUEST["doc_id"] (int)     document id
+     * @param $_REQUEST["id"] (int)         node id
+     * @param $_REQUEST["target_id"] (int)  id of new parent node
+     * @param $_REQUEST["position"] (int)   position for node in new parent
+     */
     public function move_node() {
         $this->auth->enforce();
 
@@ -123,6 +142,10 @@ class cms_jstree extends depage_ui {
     // }}}
 
     // {{{ remove_node
+    /**
+     * @param $_REQUEST["doc_id"] (int)     document id
+     * @param $_REQUEST["id"] (int)         node id
+     */
     public function remove_node() {
         $this->auth->enforce();
 
