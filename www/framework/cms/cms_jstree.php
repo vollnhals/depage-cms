@@ -90,11 +90,20 @@ class cms_jstree extends depage_ui {
     public function create_node() {
         $this->auth->enforce();
 
-        $node = $this->xmldb->build_node($_REQUEST["doc_id"], $_REQUEST["node"]["_type"], $_REQUEST["node"]);
-        $id = $this->xmldb->add_node($_REQUEST["doc_id"], $node, $_REQUEST["target_id"], $_REQUEST["position"]);   
+        return $this->do_create_node($_REQUEST["doc_id"], $_REQUEST["node"], $_REQUEST["target_id"], $_REQUEST["position"]);
+    }
+    // }}}
+
+    // {{{ do_create_node
+    protected function do_create_node($doc_id, $node_data, $target_id, $position) {
+        $node = $this->xmldb->build_node($doc_id, $node_data["_type"], $node_data);
+        $id = $this->xmldb->add_node($doc_id, $node, $target_id, $position);
         $status = $id !== false;
         if ($status) {
-            $this->recordChange($_REQUEST["doc_id"], array($_REQUEST["target_id"]));
+            $this->recordChange($doc_id, array($target_id));
+
+            if (method_exists($this, "after_create_node"))
+                $this->after_create_node($id);
         }
 
         return new json(array("status" => $status, "id" => $id));
@@ -110,9 +119,18 @@ class cms_jstree extends depage_ui {
     public function rename_node() {
         $this->auth->enforce();
 
-        $this->xmldb->set_attribute($_REQUEST["doc_id"], $_REQUEST["id"], "name", $_REQUEST["name"]);
-        $parent_id = $this->xmldb->get_parentId_by_elementId($_REQUEST["doc_id"], $_REQUEST["id"]);
-        $this->recordChange($_REQUEST["doc_id"], array($parent_id));
+        return $this->do_rename_node($_REQUEST["doc_id"], $_REQUEST["id"], $_REQUEST["name"]);
+    }
+    // }}}
+
+    // {{{ do_rename_node
+    protected function do_rename_node($doc_id, $node_id, $name) {
+        $this->xmldb->set_attribute($doc_id, $node_id, "name", $name);
+        $parent_id = $this->xmldb->get_parentId_by_elementId($doc_id, $node_id);
+        $this->recordChange($doc_id, array($parent_id));
+
+        if (method_exists($this, "after_rename_node"))
+            $this->after_rename_node();
 
         return new json(array("status" => 1));
     }
@@ -128,10 +146,18 @@ class cms_jstree extends depage_ui {
     public function move_node() {
         $this->auth->enforce();
 
-        $old_parent_id = $this->xmldb->get_parentId_by_elementId($_REQUEST["doc_id"], $_REQUEST["id"]);
-        $status = $this->xmldb->move_node($_REQUEST["doc_id"], $_REQUEST["id"], $_REQUEST["target_id"], $_REQUEST["position"]);
+        return $this->do_move_node($_REQUEST["doc_id"], $_REQUEST["id"], $_REQUEST["target_id"], $_REQUEST["position"]);
+    }
+    // }}}
+
+    protected function do_move_node($doc_id, $node_id, $target_id, $position) {
+        $old_parent_id = $this->xmldb->get_parentId_by_elementId($doc_id, $node_id);
+        $status = $this->xmldb->move_node($doc_id, $node_id, $target_id, $position);
         if ($status) {
-            $this->recordChange($_REQUEST["doc_id"], array($old_parent_id, $_REQUEST["target_id"]));
+            $this->recordChange($doc_id, array($old_parent_id, $target_id));
+
+            if (method_exists($this, "after_move_node"))
+                $this->after_move_node();
         }
 
         return new json(array("status" => $status));
@@ -146,11 +172,19 @@ class cms_jstree extends depage_ui {
     public function remove_node() {
         $this->auth->enforce();
 
-        $parent_id = $this->xmldb->get_parentId_by_elementId($_REQUEST["doc_id"], $_REQUEST["id"]);
-        $ids = $this->xmldb->unlink_node($_REQUEST["doc_id"], $_REQUEST["id"]);
+        return $this->do_remove_node($_REQUEST["doc_id"], $_REQUEST["id"]);
+    }
+    // }}}
+
+    protected function do_remove_node($doc_id, $node_id) {
+        $parent_id = $this->xmldb->get_parentId_by_elementId($doc_id, $node_id);
+        $ids = $this->xmldb->unlink_node($doc_id, $node_id);
         $status = $ids !== false;
         if ($status) {
-            $this->recordChange($_REQUEST["doc_id"], array($parent_id));
+            $this->recordChange($doc_id, array($parent_id));
+
+            if (method_exists($this, "after_remove_node"))
+                $this->after_remove_node();
         }
 
         return new json(array("status" => $status));
