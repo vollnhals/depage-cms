@@ -1246,7 +1246,7 @@ var placeholder;
                 return valid_children;
             },
             _has_valid_children : function () {
-                return this._get_valid_children() != "none";
+                return $.isArray(this._get_valid_children());
             },
             _get_add_context_menu_item : function (name, separator) {
                 return {
