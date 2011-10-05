@@ -13,11 +13,14 @@
 class cms_asset extends cms_jstree {
     protected $html_options = array();
 
-    // {{{ use constructor from cms_jstree
+    // {{{ __construct
     public function __construct($options = NULL) {
         parent::__construct($options);
 
         $this->doc_id = $this->get_doc_id("assets");
+        // force accesses to be for assets doc
+        $_REQUEST["doc_id"] = $this->doc_id;
+
         $this->asset_manager = new depage\cms\asset_manager($this->prefix, $this->pdo, $this->xmldb, $this->doc_id);
     }
     // }}}
