@@ -45,71 +45,30 @@ class cms_asset extends cms_jstree {
     }
     // }}}
 
-    // {{{ create_node
-    /**
-     * @param $doc_id document id
-     * @param $node child node data
-     * @param $position position for new child in parent
-     */
-    public function create_node() {
-        $this->auth->enforce();
-
-        $node = $this->xmldb->build_node($this->doc_id, $_REQUEST["node"]["_type"], $_REQUEST["node"]);
-        $id = $this->xmldb->add_node($this->doc_id, $node, $_REQUEST["target_id"], $_REQUEST["position"]);
-        $status = $id !== false;
-        if ($status) {
-            $this->recordChange($this->doc_id, array($_REQUEST["target_id"]));
-        }
-
-        return new json(array("status" => $status, "id" => $id));
+    // {{{ after_create_node
+    public function after_create_node($id) {
+        // TODO: do something like that. maybe rework create to accept a parent id (optimization). handle file upload
+        // $this->asset_manager->create($original_file, $xml_path, $page_id, $additional_tags);
     }
     // }}}
 
-    // {{{ rename_node
-    public function rename_node() {
-        $this->auth->enforce();
-
-        $this->xmldb->set_attribute($this->doc_id, $_REQUEST["id"], "name", $_REQUEST["name"]);
-        $parent_id = $this->xmldb->get_parentId_by_elementId($this->doc_id, $_REQUEST["id"]);
-        $this->recordChange($this->doc_id, array($parent_id));
-
+    // {{{ after_rename_node
+    public function after_rename_node() {
         $asset_id = $this->asset_manager->get_asset_id_for_node_id($_REQUEST["id"]);
         $this->asset_manager->rename_asset($asset_id, $_REQUEST["name"]);
-
-        return new json(array("status" => 1));
     }
     // }}}
 
-    // {{{ move_node
-    public function move_node() {
-        $this->auth->enforce();
-
-        $old_parent_id = $this->xmldb->get_parentId_by_elementId($this->doc_id, $_REQUEST["id"]);
-        $status = $this->xmldb->move_node($this->doc_id, $_REQUEST["id"], $_REQUEST["target_id"], $_REQUEST["position"]);
-        if ($status) {
-            $this->recordChange($this->doc_id, array($old_parent_id, $_REQUEST["target_id"]));
-            $this->reset_xml_tags($_REQUEST["id"], $_REQUEST["target_id"]);
-        }
-
-        return new json(array("status" => $status));
+    // {{{ after_move_node
+    public function after_move_node() {
+        $this->reset_xml_tags($_REQUEST["id"], $_REQUEST["target_id"]);
     }
     // }}}
 
-    // {{{ remove_node
-    public function remove_node() {
-        $this->auth->enforce();
-
-        $parent_id = $this->xmldb->get_parentId_by_elementId($this->doc_id, $_REQUEST["id"]);
-        $ids = $this->xmldb->unlink_node($this->doc_id, $_REQUEST["id"]);
-        $status = $ids !== false;
-        if ($status) {
-            $this->recordChange($this->doc_id, array($parent_id));
-
-            $asset_id = $this->asset_manager->get_asset_id_for_node_id($_REQUEST["id"]);
-            $this->asset_manager->remove_asset($asset_id);
-        }
-
-        return new json(array("status" => $status));
+    // {{{ after_remove_node
+    public function after_remove_node() {
+        $asset_id = $this->asset_manager->get_asset_id_for_node_id($_REQUEST["id"]);
+        $this->asset_manager->remove_asset($asset_id);
     }
     // }}}
 
