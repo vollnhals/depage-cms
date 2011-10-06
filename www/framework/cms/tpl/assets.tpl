@@ -15,6 +15,7 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
         "../framework/shared/jquery.hotkeys.js",
     )); ?>
     <?php $this->include_js("jstree", array(
+        "../framework/cms/js/fileuploader.js",
         "../framework/cms/js/jstree.js",
         "../framework/cms/js/jquery.jstree.js",
         "../framework/cms/js/jquery.jstree.plugins.js",
@@ -58,12 +59,14 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
         data-seq-nr = "<?php echo $this->seq_nr; ?>"
         data-selected-nodes = ""
         data-open-nodes = "all"
+        data-plugins = "themes pedantic_html_data ui crrm dnd_placeholder types_from_url hotkeys contextmenu span dblclick_rename tooltips select_created_nodes delta_updates add_marker create_with_upload"
         data-theme = "../framework/cms/css/assets.css"
         data-delta-updates-websocket-url = "ws://127.0.0.1:8000/jstree/"
         data-delta-updates-fallback-poll-url = "./fallback/updates/"
         data-delta-updates-post-url = "./"
         data-types-settings-url = "./types_settings/"
         data-add-marker-special-children = "folder separator"
+        data-create-with-upload-action = "./upload/"
     >
         <?php echo $this->nodes; ?>
     </div>
