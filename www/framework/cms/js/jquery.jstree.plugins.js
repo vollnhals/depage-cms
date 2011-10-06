@@ -1354,3 +1354,85 @@ var placeholder;
     });
 })(jQuery);
 //*/
+
+/*
+ * show a file selection dialog and upload that file on node creation.
+ * this plugin needs to be included after crrm so that it can overwrite create.
+ * actual file upload is trigger after the node is successfully saved by a delta updates ajax call.
+ *
+ * the upload functionality depends on fileuploader.js
+ */
+(function ($) {
+    $.jstree.plugin("create_with_upload", {
+        // show span again after rename
+		__init : function () {
+        },
+        // hide span before rename
+        _fn : {
+            // based on crrm _show_input
+			_show_file_selection : function (obj, callback) {
+                var _this = this;
+
+				obj = this._get_node(obj);
+                obj.css("position","relative");
+
+                var original_text = this.get_text(obj);
+
+                var uploader_div = $("<div></div>", {
+                    "class" : "jstree-uploader"
+                }).append("<div class=\"jstree-uploader-button\">Upload a file</div>").appendTo(obj);
+                var button = uploader_div.children(":first");
+
+                // TODO: uploader lifetime
+                var uploader = new qq.FileUploaderBasic({
+                    element : uploader_div[0],
+                    button : button[0],
+                    action : this.get_container().attr("data-create-with-upload-action"),
+                    onSubmit : function(id, filename) {
+                        uploader_div.remove(); // rollback purposes
+                        _this.set_text(obj, original_text); // rollback purposes
+
+                        // trigger upload when node is saved by ajax call
+                        _this.get_container().bind("delta_updates_create.jstree", function (event, data) {
+                            uploader._onSubmit(id, filename);
+                            // transmit node id as additional parameter
+                            uploader._handler.upload(id, {"id" : $(data.rslt.obj).attr("id").replace("node_","")});
+
+                            _this.get_container().unbind(event);
+                        })
+
+                        // rename and save node
+                        _this.rename_node(obj, filename);
+                        callback.call(this, obj, filename);
+                        obj.css("position", "");
+
+                        // do not upload yet, see bind on create.du.jstree above
+                        return false;
+                    }
+                });
+
+				this.set_text(obj, "");
+                setTimeout(function() { button.children("input").click() }, 100);
+			},
+            // based on crrm create; skip_rename is not supported
+			create : function (obj, position, js, callback, skip_rename) {
+				var t, _this = this;
+				obj = this._get_node(obj);
+				if(!obj) {obj = -1;}
+				this.__rollback();
+				t = this.create_node(obj, position, js, function (t) {
+					var p = this._get_parent(t),
+						pos = $(t).index();
+					if(callback) {callback.call(this, t);}
+					if(p.length && p.hasClass("jstree-closed")) {this.open_node(p, false, true);}
+
+                    this._show_file_selection(t, function (obj, new_name) {
+                        _this.__callback({"obj" : obj, "name" : new_name, "parent" : p, "position" : pos});
+                    });
+				});
+				return t;
+			}
+        }
+    });
+})(jQuery);
+//*/
