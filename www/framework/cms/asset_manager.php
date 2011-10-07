@@ -77,7 +77,7 @@ class asset_manager {
      *
      * @param   $tags (array)   array of arrays consisting of tag names (string) and tag types (int).
      */
-    public function basic_create($original_file, $original_filename, $processed_filename, $parent_id, $position = -1, $filetype = null, $width = null, $height = null, $created_at = null, $page_id = null, $tags = array()) {
+    public function basic_create($tmpfile, $original_filename, $processed_filename, $parent_id, $position = -1, $filetype = null, $width = null, $height = null, $created_at = null, $page_id = null, $tags = array()) {
         // insert into xml doc
         $node = $this->xmldb->build_node($this->doc_id, self::ASSET_TAG, array("name" => $original_filename));
         $node_id = $this->xmldb->add_node($this->doc_id, $node, $parent_id, $position);
@@ -105,28 +105,29 @@ class asset_manager {
 
         $this->set_tags($asset_id, $tags);
 
-        self::move_file($original_file, $created_at, $asset_id, $processed_filename, $filetype);
+        self::move_file($tmpfile, $created_at, $asset_id, $processed_filename, $filetype);
     }
 
     // {{{ create
     /*
      * creates a new asset
      *
-     * @param       $original_file (string)     path to file on disk
-     * @param       $xml_path (string)          path in xml tree to structure assets. for example "/photos/new/good".
-     *                                          path is split on "/". each part will automatically become a tag.
-     * @param       $additional_tags (array)    additional tags for this asset. each entry may be a tag name (string)
-     *                                          or an array consisting of a tag name (string) and a type (int).
+     * @param $tmpfile (string)             path to file on disk
+     * @param $original_filename (string)   filename
+     * @param $xml_path (string)            path in xml tree to structure assets. for example "/photos/new/good".
+     *                                      path is split on "/". each part will automatically become a tag.
+     * @param $additional_tags (array)      additional tags for this asset. each entry may be a tag name (string)
+     *                                      or an array consisting of a tag name (string) and a type (int).
      */
-    public function create($original_file, $xml_path, $page_id = null, $additional_tags = array()) {
-        if (!file_exists($original_file))
+    public function create($tmpfile, $original_filename, $xml_path, $page_id = null, $additional_tags = array()) {
+        if (!file_exists($tmpfile))
             return false;
 
-        $path_parts = pathinfo($original_file);
+        $path_parts = pathinfo($original_filename);
         $original_filename = $path_parts["basename"];
         $processed_filename = self::process_filename($path_parts["filename"]);
 
-        list($width, $height, $type) = getimagesize($original_file);
+        list($width, $height, $type) = getimagesize($tmpfile);
         $filetype = image_type_to_extension($type, false);
         if (empty($filetype))
             $filetype = $path_parts["extension"];
@@ -136,7 +137,7 @@ class asset_manager {
         $path_tags = $this->normalize_tags(array_filter(explode("/", $xml_path)), self::TAG_TYPE_XML);
         $tags = array_merge($this->normalize_tags($additional_tags), $path_tags);
 
-        return $this->basic_create($original_file, $original_filename, $processed_filename, $parent_id, -1, $filetype, $width, $height, $created_at, $page_id, $tags);
+        return $this->basic_create($tmpfile, $original_filename, $processed_filename, $parent_id, -1, $filetype, $width, $height, $created_at, $page_id, $tags);
     }
     // }}}
 
