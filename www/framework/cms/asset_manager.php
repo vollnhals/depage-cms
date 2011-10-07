@@ -398,7 +398,6 @@ class asset_manager {
 
     static private function move_file($original_file, $created_at, $asset_id, $processed_filename, $filetype) {
         mkdir(self::full_asset_path($created_at), 0777, true);
-        // TODO: use move_uploaded_file instead?
         rename($original_file, self::get_filepath($created_at, $asset_id, $processed_filename, $filetype));
     }
 
