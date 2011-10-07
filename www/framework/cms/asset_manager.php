@@ -38,6 +38,9 @@ namespace depage\cms;
 //
 
 // TODO: tags are never removed from the tag table. think about that.
+// TODO: think about necessary indices again.
+// TODO: testsuite
+// TODO: document type bitmask
 
 class asset_manager {
     const PARTIAL_ASSET_PATH = "lib/assets";
