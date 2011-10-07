@@ -48,6 +48,38 @@ class cms_asset extends cms_jstree {
     }
     // }}}
 
+    // {{{ upload
+    /**
+     * upload a file and associate with an existing asset
+     *
+     * @param $_REQUEST["id"] (int)                 node id
+     *
+     * if uploaded via regular form post:
+     *   @param $_FILES["qqfile"] (array)           file info
+     *
+     * else if uploaded via XMLHttpRequest:
+     *   @param $_REQUEST["qqfile"] (string)        user defined name of file
+     *   @param $_SERVER["CONTENT_LENGTH"] (int)    size of file
+     *   @param php://input (octet-stream)          file data
+     */
+    public function upload() {
+        if (isset($_REQUEST["qqfile"])) {
+            // open tmpfile here, so that it exists while running upload()
+            $tmpfile = tmpfile();
+            $file = $this->handle_xhr_upload($tmpfile);
+        } else {
+            $file = $this->handle_form_upload();
+        }
+
+        // TODO: $page_id and $additional_tags
+        if ($this->asset_manager->create($file->tmpfile, $file->filename, $_REQUEST["id"], null, null)) {
+            return new json(array("success" => true));
+        } else {
+            return new json(array("error" => "could not create asset"));
+        }
+    }
+    // }}}
+
     // {{{ after_create_node
     public function after_create_node($id) {
         // TODO: do something like that. maybe rework create to accept a parent id (optimization). handle file upload
@@ -72,6 +104,28 @@ class cms_asset extends cms_jstree {
     public function after_remove_node() {
         $asset_id = $this->asset_manager->get_asset_id_for_node_id($_REQUEST["id"]);
         $this->asset_manager->remove_asset($asset_id);
+    }
+    // }}}
+
+    // {{{ handle_xhr_upload
+    protected function handle_xhr_upload($tmpfile) {
+        $input = fopen("php://input", "r");
+        $real_size = stream_copy_to_stream($input, $tmpfile);
+        fclose($input);
+
+        if ($real_size != $_SERVER["CONTENT_LENGTH"])
+            throw new Exception("size of uploaded file does not match header");
+
+        $meta_data = stream_get_meta_data($tmpfile);
+        $path = $meta_data["uri"];
+
+        return (object)array("tmpfile" => $path, "filename" => $_REQUEST["qqfile"]);
+    }
+    // }}}
+
+    // {{{ handle_form_upload
+    protected function handle_form_upload() {
+        return (object)array("tmpfile" => $_FILES["qqfile"]["tmp_name"], "filename" => $_FILES["qqfile"]["name"]);
     }
     // }}}
 
