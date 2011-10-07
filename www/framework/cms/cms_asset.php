@@ -80,13 +80,6 @@ class cms_asset extends cms_jstree {
     }
     // }}}
 
-    // {{{ after_create_node
-    public function after_create_node($id) {
-        // TODO: do something like that. maybe rework create to accept a parent id (optimization). handle file upload
-        // $this->asset_manager->create($original_file, $xml_path, $page_id, $additional_tags);
-    }
-    // }}}
-
     // {{{ after_rename_node
     public function after_rename_node() {
         $asset_id = $this->asset_manager->get_asset_id_for_node_id($_REQUEST["id"]);
