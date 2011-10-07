@@ -63,6 +63,8 @@ class cms_asset extends cms_jstree {
      *   @param php://input (octet-stream)          file data
      */
     public function upload() {
+        $this->auth->enforce();
+
         if (isset($_REQUEST["qqfile"])) {
             // open tmpfile here, so that it exists while running upload()
             $tmpfile = tmpfile();
