@@ -77,11 +77,7 @@ class asset_manager {
      *
      * @param   $tags (array)   array of arrays consisting of tag names (string) and tag types (int).
      */
-    public function basic_create($tmpfile, $original_filename, $processed_filename, $parent_id, $position = -1, $filetype = null, $width = null, $height = null, $created_at = null, $page_id = null, $tags = array()) {
-        // insert into xml doc
-        $node = $this->xmldb->build_node($this->doc_id, self::ASSET_TAG, array("name" => $original_filename));
-        $node_id = $this->xmldb->add_node($this->doc_id, $node, $parent_id, $position);
-
+    protected function basic_create($tmpfile, $processed_filename, $node_id, $filetype = null, $width = null, $height = null, $created_at = null, $page_id = null, $tags = array()) {
         // store additional data
         $query = $this->pdo->prepare("INSERT INTO {$this->assets_tbl} SET " .
             "node_id = :node_id," .
@@ -106,25 +102,26 @@ class asset_manager {
         $this->set_tags($asset_id, $tags);
 
         self::move_file($tmpfile, $created_at, $asset_id, $processed_filename, $filetype);
+
+        return true;
     }
 
     // {{{ create
-    /*
-     * creates a new asset
+    /**
+     * creates a new asset and associates this asset with an existing node
      *
      * @param $tmpfile (string)             path to file on disk
-     * @param $original_filename (string)   filename
-     * @param $xml_path (string)            path in xml tree to structure assets. for example "/photos/new/good".
-     *                                      path is split on "/". each part will automatically become a tag.
+     * @param $original_filename (string)   basename of file as specified by user, for example "beautiful_flower.jpg"
+     * @param $node_id (int)                node id in xml tree
+     * @param $page_id (int)                page id in xml tree to associate this asset with a specific page,
      * @param $additional_tags (array)      additional tags for this asset. each entry may be a tag name (string)
      *                                      or an array consisting of a tag name (string) and a type (int).
      */
-    public function create($tmpfile, $original_filename, $xml_path, $page_id = null, $additional_tags = array()) {
+    public function create($tmpfile, $original_filename, $node_id, $page_id = null, $additional_tags = array()) {
         if (!file_exists($tmpfile))
             return false;
 
         $path_parts = pathinfo($original_filename);
-        $original_filename = $path_parts["basename"];
         $processed_filename = self::process_filename($path_parts["filename"]);
 
         list($width, $height, $type) = getimagesize($tmpfile);
@@ -133,16 +130,47 @@ class asset_manager {
             $filetype = $path_parts["extension"];
 
         $created_at = time();
-        $parent_id = $this->create_xml_dirs($xml_path);
-        $path_tags = $this->normalize_tags(array_filter(explode("/", $xml_path)), self::TAG_TYPE_XML);
+
+        $path_tags = $this->normalize_tags($this->get_parent_name_attributes($node_id), self::TAG_TYPE_XML);
         $tags = array_merge($this->normalize_tags($additional_tags), $path_tags);
 
-        return $this->basic_create($tmpfile, $original_filename, $processed_filename, $parent_id, -1, $filetype, $width, $height, $created_at, $page_id, $tags);
+        return $this->basic_create($tmpfile, $processed_filename, $node_id, $filetype, $width, $height, $created_at, $page_id, $tags);
+    }
+    // }}}
+
+    // {{{ create_with_new_node
+    /**
+     * creates a new asset and a corresponding new node. for options also see create
+     *
+     * @param $parent_id (int)      node id of parent in xml tree
+     * @param $position (int)       position of new node. -1 for default
+     */
+    public function create_with_new_node($tmpfile, $original_filename, $parent_id, $position = -1, $page_id = null, $additional_tags = array()) {
+        $node = $this->xmldb->build_node($this->doc_id, self::ASSET_TAG, array("name" => $original_filename));
+        $node_id = $this->xmldb->add_node($this->doc_id, $node, $parent_id, $position);
+
+        return $this->create($tmpfile, $original_filename, $node_id, $page_id, $additional_tags);
+    }
+    // }}}
+
+    // {{{ create_legacy
+    /*
+     * creates a new asset, a new node and if necessary new parent nodes
+     *
+     * @param $file (string)                path to file on disk
+     * @param $original_filename (string)   filename
+     * @param $xml_path (string)            path in xml tree to structure assets. for example "/photos/new/good".
+     *                                      path is split on "/". each part will automatically become a tag.
+     */
+    public function create_legacy($file, $original_filename, $xml_path, $page_id = null, $additional_tags = array()) {
+        $parent_id = $this->create_parent_nodes($xml_path);
+
+        return $this->create_with_new_node($file, $original_filename, $parent_id, -1, $page_id, $additional_tags);
     }
     // }}}
 
     // {{{ basic_search
-    /*
+    /**
      * search for $needle in filename and tags.
      * filter results by defined $filters.
      *
@@ -187,7 +215,7 @@ class asset_manager {
     // }}}
 
     // {{{
-    /*
+    /**
      * search for $needle in filename and tags.
      * filter results by defined $filters.
      *
@@ -318,7 +346,7 @@ class asset_manager {
     }
 
     // {{{ normalize_tags
-    /*
+    /**
      * @param       $tags (array)   array of tags. each entry may be a tag name (string)
      *                              or an array consisting of a tag name (string) and a type (int).
      * @param       $type (int)     default tag type.
@@ -335,7 +363,7 @@ class asset_manager {
     }
     // }}}
 
-    private function create_xml_dirs($xml_path) {
+    private function create_parent_nodes($xml_path) {
         $doc_info = $this->xmldb->get_doc_info($this->doc_id);
         $parent_id = $doc_info->rootid;
         $dirs = array_filter(explode("/", $xml_path));
@@ -354,6 +382,18 @@ class asset_manager {
         }
 
         return $parent_id;
+    }
+
+    public function get_parent_name_attributes($node_id) {
+        $names = array();
+        $node_id = $this->xmldb->get_parentId_by_elementId($this->doc_id, $node_id);
+
+        while ($node_id) {
+            $names[] = $this->xmldb->get_attribute($this->doc_id, $node_id, "name");
+            $node_id = $this->xmldb->get_parentId_by_elementId($this->doc_id, $node_id);
+        }
+
+        return array_filter($names);
     }
 
     static private function move_file($original_file, $created_at, $asset_id, $processed_filename, $filetype) {
