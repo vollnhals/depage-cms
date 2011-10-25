@@ -106,10 +106,11 @@ class asset_manager {
      *
      * @param   $tags (array)   array of arrays consisting of tag names (string) and tag types (int).
      */
-    protected function basic_create($tmpfile, $processed_filename, $node_id, $filetype = null, $width = null, $height = null, $created_at = null, $page_id = null, $tags = array()) {
+    protected function basic_create($tmpfile, $original_filename, $processed_filename, $node_id, $filetype = null, $width = null, $height = null, $created_at = null, $page_id = null, $tags = array()) {
         // store additional data
         $query = $this->pdo->prepare("INSERT INTO {$this->assets_tbl} SET " .
             "node_id = :node_id," .
+            "original_filename = :original_filename," .
             "processed_filename = :processed_filename," .
             "filetype = :filetype," .
             "width = :width," .
@@ -119,6 +120,7 @@ class asset_manager {
         );
         $query->execute(array(
             "node_id" => $node_id,
+            "original_filename" => $original_filename,
             "processed_filename" => $processed_filename,
             "filetype" => $filetype,
             "width" => $width,
@@ -163,7 +165,7 @@ class asset_manager {
         $path_tags = $this->normalize_tags($this->get_parent_name_attributes($node_id), self::TAG_TYPE_XML);
         $tags = array_merge($this->normalize_tags($additional_tags), $path_tags);
 
-        return $this->basic_create($tmpfile, $processed_filename, $node_id, $filetype, $width, $height, $created_at, $page_id, $tags);
+        return $this->basic_create($tmpfile, $original_filename, $processed_filename, $node_id, $filetype, $width, $height, $created_at, $page_id, $tags);
     }
     // }}}
 
