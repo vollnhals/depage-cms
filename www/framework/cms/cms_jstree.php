@@ -177,6 +177,9 @@ class cms_jstree extends depage_ui {
     // }}}
 
     protected function do_remove_node($doc_id, $node_id) {
+        if (method_exists($this, "before_remove_node"))
+            $this->before_remove_node();
+
         $parent_id = $this->xmldb->get_parentId_by_elementId($doc_id, $node_id);
         $ids = $this->xmldb->unlink_node($doc_id, $node_id);
         $status = $ids !== false;
