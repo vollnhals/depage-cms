@@ -321,7 +321,7 @@ class asset_manager {
         }
     }
 
-    private function create_tag($node_id, $name) {
+    public function create_tag($node_id, $name) {
         // store new tag
         $query = $this->pdo->prepare("INSERT IGNORE INTO {$this->tags_tbl} SET id = :node_id, name = :name");
         $query->execute(array(
