@@ -84,8 +84,7 @@ class cms_asset extends cms_jstree {
 
     // {{{ after_rename_node
     public function after_rename_node() {
-        $asset_id = $this->asset_manager->get_asset_id_for_node_id($_REQUEST["id"]);
-        $this->asset_manager->rename_asset($asset_id, $_REQUEST["name"]);
+        $this->asset_manager->rename_tag($_REQUEST["id"], $_REQUEST["name"]);
     }
     // }}}
 

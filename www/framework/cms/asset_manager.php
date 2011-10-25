@@ -342,6 +342,13 @@ class asset_manager {
         ));
     }
 
+    public function rename_tag($tag_id, $name) {
+        $query = $this->pdo->prepare("UPDATE {$this->tags_tbl} SET name = :name WHERE id = :tag_id");
+        $query->execute(array(
+            "tag_id" => $tag_id,
+            "name" => $name,
+        ));
+    }
     private function create_tag_nodes($xml_path) {
         $doc_info = $this->xmldb->get_doc_info($this->doc_id);
         $parent_id = $doc_info->rootid;
