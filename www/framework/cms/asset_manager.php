@@ -292,10 +292,9 @@ class asset_manager {
         ));
     }
 
-
-    public function reset_tags($asset_id, $tags, $type = self::TAG_TYPE_ALL) {
-        $this->unbind_tags($asset_id, $type);
-        $this->bind_tags($asset_id, $tags, $type);
+    public function reset_tags($asset_id, $tag_ids) {
+        $this->unbind_tags($asset_id);
+        $this->bind_tags($asset_id, $tag_ids);
     }
 
     public function unbind_tags($asset_id) {
@@ -331,23 +330,17 @@ class asset_manager {
         ));
     }
 
-    // {{{ normalize_tags
-    /**
-     * @param       $tags (array)   array of tags. each entry may be a tag name (string)
-     *                              or an array consisting of a tag name (string) and a type (int).
-     * @param       $type (int)     default tag type.
-     * @return      (array)         returns an array of arrays containing tag names and types.
-     *                              type is set to TAG_TYPE_ADDITIONAL by default.
-     */
-    private function normalize_tags($tags, $type = self::TAG_TYPE_ADDITIONAL) {
-        foreach($tags as &$tag) {
-            if (!is_array($tag))
-                $tag = array($tag, $type);
-        }
+    public function remove_tag($tag_id) {
+        $query = $this->pdo->prepare("DELETE FROM {$this->assets_tags_tbl} WHERE tag_id = :tag_id");
+        $query->execute(array(
+            "tag_id" => $tag_id,
+        ));
 
-        return $tags;
+        $query = $this->pdo->prepare("DELETE FROM {$this->tags_tbl} WHERE id = :tag_id");
+        $query->execute(array(
+            "tag_id" => $tag_id,
+        ));
     }
-    // }}}
 
     private function create_tag_nodes($xml_path) {
         $doc_info = $this->xmldb->get_doc_info($this->doc_id);
