@@ -95,9 +95,6 @@ class cms_asset extends cms_jstree {
     // }}}
 
     // {{{ after_remove_node
-    public function after_remove_node() {
-        $asset_id = $this->asset_manager->get_asset_id_for_node_id($_REQUEST["id"]);
-        $this->asset_manager->remove_asset($asset_id);
     public function before_remove_node() {
         $this->asset_manager->remove_tag($_REQUEST["id"]);
 
