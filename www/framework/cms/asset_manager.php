@@ -269,6 +269,15 @@ class asset_manager {
         return search(null);
     }
 
+    public function get_asset_ids_for_tag($tag_id) {
+        $query = $this->pdo->prepare("SELECT asset_id FROM {$this->assets_tags_tbl} WHERE tag_id = :tag_id");
+        $query->execute(array(
+            "tag_id" => $tag_id,
+        ));
+
+        return $query->fetchAll(\PDO::FETCH_COLUMN);
+    }
+
     public function remove_asset($asset_id) {
         $this->unbind_tags($asset_id);
         $query = $this->pdo->prepare("DELETE FROM {$this->assets_tbl} WHERE id = :asset_id");
