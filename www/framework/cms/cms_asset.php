@@ -88,9 +88,22 @@ class cms_asset extends cms_jstree {
     }
     // }}}
 
+    // {{{ before_move_node
+    public function before_move_node() {
+        // record parent ids before move for later tag rebinding
+        $this->before_move_parent_ids = $this->get_parent_node_ids($_REQUEST["id"]);
+    }
+    // }}}
+
     // {{{ after_move_node
     public function after_move_node() {
-        $this->reset_xml_tags($_REQUEST["id"]);
+        $new_parent_ids = $this->get_parent_node_ids($_REQUEST["id"]);
+        $asset_ids = $this->asset_manager->get_asset_ids_for_tag($_REQUEST["id"]);
+
+        foreach($asset_ids as $asset_id) {
+            $this->asset_manager->unbind_tags($asset_id, $this->before_move_parent_ids);
+            $this->asset_manager->bind_tags($asset_id, $new_parent_ids);
+        }
     }
     // }}}
 
