@@ -1440,3 +1440,21 @@ var placeholder;
     });
 })(jQuery);
 //*/
+
+/*
+ * ajax load div plugin
+ */
+(function ($) {
+    $.jstree.plugin("ajax_load_div", {
+		__init : function () {
+            var c = this.get_container();
+            c.bind("select_node.jstree", function (e, data) {
+                var div = $("#" + c.attr("data-ajax-load-div-id"));
+                var url = c.attr("data-ajax-load-div-url") + data.rslt.obj.attr("id").replace("node_","")
+
+                div.load(url);
+            });
+        }
+    });
+})(jQuery);
+//*/
