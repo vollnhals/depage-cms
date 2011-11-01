@@ -59,7 +59,7 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
         data-seq-nr = "<?php echo $this->seq_nr; ?>"
         data-selected-nodes = ""
         data-open-nodes = "all"
-        data-plugins = "themes pedantic_html_data ui crrm dnd_placeholder types_from_url hotkeys contextmenu span dblclick_rename tooltips select_created_nodes delta_updates add_marker create_with_upload"
+        data-plugins = "themes pedantic_html_data ui crrm dnd_placeholder types_from_url hotkeys contextmenu span dblclick_rename tooltips select_created_nodes delta_updates add_marker create_with_upload ajax_load_div"
         data-theme = "../framework/cms/css/assets.css"
         data-delta-updates-websocket-url = "ws://127.0.0.1:8000/jstree/"
         data-delta-updates-fallback-poll-url = "./fallback/updates/"
@@ -67,10 +67,13 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
         data-types-settings-url = "./types_settings/"
         data-add-marker-special-children = "folder separator"
         data-create-with-upload-action = "./upload/"
+        data-ajax-load-div-id = "assets"
+        data-ajax-load-div-url = "./assets_for_tag/"
     >
         <?php echo $this->nodes; ?>
     </div>
 
+    <div id="assets"></div>
 </div>
 
 </body>
