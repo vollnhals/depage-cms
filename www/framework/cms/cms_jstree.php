@@ -151,6 +151,9 @@ class cms_jstree extends depage_ui {
     // }}}
 
     protected function do_move_node($doc_id, $node_id, $target_id, $position) {
+        if (method_exists($this, "before_move_node"))
+            $this->before_move_node();
+
         $old_parent_id = $this->xmldb->get_parentId_by_elementId($doc_id, $node_id);
         $status = $this->xmldb->move_node($doc_id, $node_id, $target_id, $position);
         if ($status) {
