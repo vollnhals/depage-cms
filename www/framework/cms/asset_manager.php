@@ -306,11 +306,21 @@ class asset_manager {
         $this->bind_tags($asset_id, $tag_ids);
     }
 
-    public function unbind_tags($asset_id) {
-        $query = $this->pdo->prepare("DELETE FROM {$this->assets_tags_tbl} WHERE asset_id = :asset_id");
-        $query->execute(array(
-            "asset_id" => $asset_id,
-        ));
+    public function unbind_tags($asset_id, $tag_ids = null) {
+        if ($tag_ids) {
+            $query = $this->pdo->prepare("DELETE FROM {$this->assets_tags_tbl} WHERE asset_id = :asset_id AND tag_id = :tag_id");
+            foreach($tag_ids as $tag_id) {
+                $query->execute(array(
+                    "asset_id" => $asset_id,
+                    "tag_id" => $tag_id,
+                ));
+            }
+        } else {
+            $query = $this->pdo->prepare("DELETE FROM {$this->assets_tags_tbl} WHERE asset_id = :asset_id");
+            $query->execute(array(
+                "asset_id" => $asset_id,
+            ));
+        }
     }
 
     /**
