@@ -168,6 +168,15 @@ class cms_asset extends cms_jstree {
         }
     }
 
+    protected function get_parent_node_ids($node_id) {
+        $parent_ids = array();
+
+        while ($parent_id = $this->xmldb->get_parentId_by_elementId($this->doc_id, $node_id)) {
+            $parent_ids[] = $parent_id;
+        }
+
+        return $parent_ids;
+    }
 
 }
 
