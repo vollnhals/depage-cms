@@ -107,12 +107,17 @@ class cms_asset extends cms_jstree {
     }
     // }}}
 
-    // {{{ after_remove_node
+    // {{{ before_remove_node
     public function before_remove_node() {
-        $this->asset_manager->remove_tag($_REQUEST["id"]);
+        // record node ids for later removal
+        $this->before_remove_ids = $this->xmldb->get_childIds_by_name($this->doc_id, $_REQUEST["id"]);
+        $this->before_remove_ids[] = $_REQUEST["id"];
+    }
+    // }}}
 
-        $child_ids = $this->xmldb->get_childIds_by_name($this->doc_id, $_REQUEST["id"]);
-        foreach ($child_ids as $node_id) {
+    // {{{ after_remove_node
+    public function after_remove_node() {
+        foreach ($this->before_remove_ids as $node_id) {
             $this->asset_manager->remove_tag($node_id);
         }
     }
