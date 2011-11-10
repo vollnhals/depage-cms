@@ -1447,17 +1447,24 @@ var placeholder;
 (function ($) {
     $.jstree.plugin("ajax_load_div", {
 		__init : function () {
+            this.data.ajax_load_div.last_selected = this.get_container();
+
             var c = this.get_container();
             var _this = this;
             c.bind("select_node.jstree", function (e, data) {
+                if (_this.data.ajax_load_div.last_selected[0] == data.rslt.obj[0])
+                    return;
+
                 var tag_id = data.rslt.obj.attr("id").replace("node_","");
                 var search = window.location.search ? window.location.search + "&" : "?";
                 var url = c.attr("data-ajax-load-div-url")
-                    + window.location.search
+                    + search
                     + "tag_id=" + tag_id;
 
                 var div = $("#" + c.attr("data-ajax-load-div-id"));
                 div.load(url);
+
+                _this.data.ajax_load_div.last_selected = data.rslt.obj;
             });
         }
     });
