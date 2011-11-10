@@ -82,6 +82,22 @@ class cms_asset extends cms_jstree {
     }
     // }}}
 
+    // {{{ assets_for_tag
+    public function assets_for_tag() {
+        $this->auth->enforce();
+
+        $query = $_GET["query"];
+        $filters = $_GET["filters"];
+        $filters["tag_id"] = $_GET["tag_id"];
+
+        $h = new html("assets_for_tag.tpl", array(
+            "assets" => $this->asset_manager->search_for_assets($query, $filters),
+        ), $this->html_options);
+
+        return $h;
+    }
+    // }}}
+
     // {{{ after_rename_node
     public function after_rename_node() {
         $this->asset_manager->rename_tag($_REQUEST["id"], $_REQUEST["name"]);
