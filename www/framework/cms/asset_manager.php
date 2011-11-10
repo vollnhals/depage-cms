@@ -380,10 +380,12 @@ class asset_manager {
             if (empty($element_ids)) {
                 $node = $this->xmldb->build_node($this->doc_id, self::DIR_TAG, array("name" => $dir));
                 $node_id = $this->xmldb->add_node($this->doc_id, $node, $parent_id, -1);
-                $this->create_tag($node_id, $name);
+                $this->create_tag($node_id, $dir);
                 $tag_ids[] = $node_id;
+                $parent_id = $node_id;
             } else {
                 $tag_ids[] = $element_ids[0];
+                $parent_id = $element_ids[0];
             }
         }
 
