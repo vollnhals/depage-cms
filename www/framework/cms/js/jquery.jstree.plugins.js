@@ -1448,10 +1448,15 @@ var placeholder;
     $.jstree.plugin("ajax_load_div", {
 		__init : function () {
             var c = this.get_container();
+            var _this = this;
             c.bind("select_node.jstree", function (e, data) {
-                var div = $("#" + c.attr("data-ajax-load-div-id"));
-                var url = c.attr("data-ajax-load-div-url") + data.rslt.obj.attr("id").replace("node_","")
+                var tag_id = data.rslt.obj.attr("id").replace("node_","");
+                var search = window.location.search ? window.location.search + "&" : "?";
+                var url = c.attr("data-ajax-load-div-url")
+                    + window.location.search
+                    + "tag_id=" + tag_id;
 
+                var div = $("#" + c.attr("data-ajax-load-div-id"));
                 div.load(url);
             });
         }
