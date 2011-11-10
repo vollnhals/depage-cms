@@ -163,7 +163,8 @@ class cms_asset extends cms_jstree {
 
     // {{{ get_html_nodes
     protected function get_html_nodes_by_search($query, $filters) {
-        $doc = $this->asset_manager->search($query, $filters);
+        $search = $this->asset_manager->search($query, $filters);
+        $doc = $search->tags;
         $html = \depage\cms\jstree_xml_to_html::toHTML(array($doc));
 
         return current($html);
