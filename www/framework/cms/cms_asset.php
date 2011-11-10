@@ -171,20 +171,7 @@ class cms_asset extends cms_jstree {
     }
     // }}}
 
-    protected function reset_xml_tags($node_id) {
-        $asset_id = $this->asset_manager->get_asset_id_for_node_id($node_id);
-        if ($asset_id) {
-            $path_tags = $this->asset_manager->get_parent_name_attributes($node_id);
-            $this->asset_manager->reset_tags($asset_id, $path_tags, \depage\cms\asset_manager::TAG_TYPE_XML);
-        } else {
-            // this node is probably a dir node, reset tags for children
-            $children_ids = $this->xmldb->get_childIds_by_name($this->doc_id, $node_id);
-            foreach ($children_ids as $child_id) {
-                $this->reset_xml_tags($child_id);
-            }
-        }
-    }
-
+    // {{{
     protected function get_parent_node_ids($node_id) {
         $parent_ids = array();
 
@@ -194,7 +181,7 @@ class cms_asset extends cms_jstree {
 
         return $parent_ids;
     }
-
+    // }}}
 }
 
 /* vim:set ft=php fenc=UTF-8 sw=4 sts=4 fdm=marker et : */
