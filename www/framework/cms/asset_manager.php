@@ -107,7 +107,6 @@ class asset_manager {
     protected function basic_create($tmpfile, $original_filename, $processed_filename, $filetype = null, $width = null, $height = null, $created_at = null, $page_id = null, $tag_ids = array()) {
         // store additional data
         $query = $this->pdo->prepare("INSERT INTO {$this->assets_tbl} SET " .
-            "node_id = :node_id," .
             "original_filename = :original_filename," .
             "processed_filename = :processed_filename," .
             "filetype = :filetype," .
@@ -117,7 +116,6 @@ class asset_manager {
             "page_id = :page_id"
         );
         $query->execute(array(
-            "node_id" => $node_id,
             "original_filename" => $original_filename,
             "processed_filename" => $processed_filename,
             "filetype" => $filetype,
