@@ -32,8 +32,8 @@ class cms_jstree extends depage_ui {
         );
 
         // TODO: set project correctly
-        $proj = "proj";
-        $this->prefix = "{$this->pdo->prefix}_{$proj}";
+        $this->project = "proj";
+        $this->prefix = "{$this->pdo->prefix}_{$this->project}";
         $this->xmldb = new \depage\xmldb\xmldb ($this->prefix, $this->pdo, \depage\cache\cache::factory($this->prefix));
 
         // get auth object
@@ -70,6 +70,7 @@ class cms_jstree extends depage_ui {
         $doc_info = $this->xmldb->get_doc_info($doc_id);
 
         $h = new html("jstree.tpl", array(
+            'project_name' => $this->project,
             'doc_id' => $doc_id,
             'root_id' => $doc_info->rootid, 
             'seq_nr' => $this->get_current_seq_nr($doc_id),

@@ -965,7 +965,7 @@ var placeholder;
             this.data.delta_updates.active_ajax_requests = 0;
             this.data.delta_updates.pending_updates = [];
 
-            var webSocketURL = settings.webSocketURL + tree.attr("data-doc-id");
+            var webSocketURL = settings.webSocketURL + tree.attr("data-project-name") + "/" + tree.attr("data-doc-id");
             this.data.delta_updates.ws = $.gracefulWebSocket(webSocketURL, {
                 fallbackPollURL: settings.fallbackPollURL,
                 fallbackPollParams:  {

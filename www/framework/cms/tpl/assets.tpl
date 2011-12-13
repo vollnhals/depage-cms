@@ -55,6 +55,7 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
     <div
         id="node_<?php echo $this->root_id; ?>"
         class="jstree-container"
+        data-project-name = "<?php echo $this->project_name; ?>"
         data-doc-id = "<?php echo $this->doc_id; ?>"
         data-seq-nr = "<?php echo $this->seq_nr; ?>"
         data-selected-nodes = ""

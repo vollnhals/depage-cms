@@ -31,11 +31,6 @@ class JsTreeApplication extends \Websocket\Application\Application {
             )
         );
 
-        // TODO: set project correctly
-        $proj = "proj";
-        $this->prefix = "{$this->pdo->prefix}_{$proj}";
-        $this->xmldb = new \depage\xmldb\xmldb ($this->prefix, $this->pdo, \depage\cache\cache::factory($this->prefix));
-
         /* get auth object
         $this->auth = \auth::factory(
             $this->pdo, // db_pdo 
@@ -48,10 +43,16 @@ class JsTreeApplication extends \Websocket\Application\Application {
     public function onConnect($client)
     {
         // TODO: authentication ? beware of timeouts
+        // $client->param is a string of the format "{$project_name}/{$doc_id}"
 
         if (empty($this->clients[$client->param])) {
             $this->clients[$client->param] = array();
-            $this->delta_updates[$client->param] = new \depage\websocket\jstree\jstree_delta_updates($this->prefix, $this->pdo, $this->xmldb, $client->param);
+
+            list($project_name, $doc_id) = explode("/", $client->param);
+            $prefix = "{$this->pdo->prefix}_{$project_name}";
+            $xmldb = new \depage\xmldb\xmldb ($prefix, $this->pdo, \depage\cache\cache::factory($prefix));
+
+            $this->delta_updates[$client->param] = new \depage\websocket\jstree\jstree_delta_updates($prefix, $this->pdo, $xmldb, $doc_id);
         }
 
         $this->clients[$client->param][] = $client;
@@ -70,8 +71,8 @@ class JsTreeApplication extends \Websocket\Application\Application {
     }
 
     public function onTick() {
-        foreach ($this->clients as $doc_id => $clients) {
-            $data = $this->delta_updates[$doc_id]->encodedDeltaUpdate();
+        foreach ($this->clients as $project_name_and_doc_id => $clients) {
+            $data = $this->delta_updates[$project_name_and_doc_id]->encodedDeltaUpdate();
 
             if (!empty($data)) {
                 // send to clients

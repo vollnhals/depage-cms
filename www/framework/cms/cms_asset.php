@@ -38,6 +38,7 @@ class cms_asset extends cms_jstree {
         $doc_info = $this->xmldb->get_doc_info($this->doc_id);
 
         $h = new html("assets.tpl", array(
+            'project_name' => $this->project,
             'doc_id' => $this->doc_id,
             'root_id' => $doc_info->rootid, 
             'seq_nr' => $this->get_current_seq_nr($this->doc_id),
