@@ -68,6 +68,7 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
         data-types-settings-url = "./types_settings/"
         data-add-marker-special-children = "folder separator"
         data-create-with-upload-action = "./upload/"
+        data-create-with-upload-elem = "asset"
         data-ajax-load-div-id = "assets"
         data-ajax-load-div-url = "./assets_for_tag/"
     >
