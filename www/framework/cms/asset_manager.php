@@ -197,8 +197,8 @@ class asset_manager {
         $needle_params = array();
         if ($needle) {
             $processed_needle = self::process_filename($needle);
-            $needle_where = "(MATCH(processed_filename) AGAINST(:processed_needle) OR {$this->tags_tbl}.name = :needle)";
-            $needle_params = array("needle" => $needle);
+            $needle_where = "(MATCH(processed_filename) AGAINST(:needle IN BOOLEAN MODE) OR {$this->tags_tbl}.name = :needle)";
+            $needle_params = array("needle" => $processed_needle);
         }
 
         $filter_params = array();
