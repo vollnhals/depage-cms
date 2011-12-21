@@ -81,8 +81,10 @@ class cms_asset extends cms_jstree {
             $file = $this->handle_form_upload();
         }
 
+
+        $tag_ids = $this->get_parent_node_ids($_REQUEST["id"], array($_REQUEST["id"]));
+
         // TODO: $page_id
-        $tag_ids = $this->get_parent_node_ids($_REQUEST["id"]);
         if ($this->asset_manager->create($file->tmpfile, $file->filename, null, $tag_ids)) {
             return new json(array("success" => true));
         } else {

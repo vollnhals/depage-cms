@@ -16,6 +16,7 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
     )); ?>
     <?php $this->include_js("jstree", array(
         "../framework/cms/js/fileuploader.js",
+        "../framework/cms/js/asset_uploader.js",
         "../framework/cms/js/jstree.js",
         "../framework/cms/js/jquery.jstree.js",
         "../framework/cms/js/jquery.jstree.plugins.js",
@@ -60,15 +61,13 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
         data-seq-nr = "<?php echo $this->seq_nr; ?>"
         data-selected-nodes = ""
         data-open-nodes = "all"
-        data-plugins = "themes pedantic_html_data ui crrm dnd_placeholder types_from_url hotkeys contextmenu span dblclick_rename tooltips select_created_nodes delta_updates add_marker create_with_upload ajax_load_div"
+        data-plugins = "themes pedantic_html_data ui crrm dnd_placeholder types_from_url hotkeys contextmenu span dblclick_rename tooltips select_created_nodes delta_updates add_marker ajax_load_div"
         data-theme = "../framework/cms/css/assets.css"
         data-delta-updates-websocket-url = "ws://127.0.0.1:8000/jstree/"
         data-delta-updates-fallback-poll-url = "./fallback/updates/"
         data-delta-updates-post-url = "./"
         data-types-settings-url = "./types_settings/"
         data-add-marker-special-children = "folder separator"
-        data-create-with-upload-action = "./upload/"
-        data-create-with-upload-elem = "asset"
         data-ajax-load-div-id = "assets"
         data-ajax-load-div-url = "./assets_for_tag/"
     >
@@ -77,6 +76,10 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 
     <div id="assets">
         <?php echo $this->assets; ?>
+    </div>
+
+    <div class="jstree-uploader" data-upload-action="./upload/" data-jstree="#node_<?php echo $this->root_id; ?>">
+        <div class="jstree-uploader-button">Upload a file</div>
     </div>
 </div>
 
