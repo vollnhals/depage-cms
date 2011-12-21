@@ -179,10 +179,9 @@ class asset_manager {
 
     // {{{
     public function get_tag_ids_for_assets($asset_ids) {
-        $query = $this->pdo->prepare("SELECT DISTINCT tag_id FROM {$this->assets_tags_tbl} WHERE asset_id IN (:asset_ids)");
-        $query->execute(array(
-            "asset_ids" => implode(",", $asset_ids),
-        ));
+        $param_list = ':id_' . implode(',:id_', array_keys($asset_ids));
+        $query = $this->pdo->prepare("SELECT DISTINCT tag_id FROM {$this->assets_tags_tbl} WHERE asset_id IN ($param_list)");
+        $query->execute(array_combine(explode(",", $param_list), $asset_ids));
 
         return $query->fetchAll(\PDO::FETCH_COLUMN);
     }
