@@ -175,8 +175,10 @@ class cms_asset extends cms_jstree {
         $parent_ids = $additional_parent_ids;
         $doc_info = $this->xmldb->get_doc_info($this->doc_id);
 
-        while ($node_id = $this->xmldb->get_parentId_by_elementId($this->doc_id, $node_id) && $node_id != $doc_info->rootid) {
-            $parent_ids[] = $node_id;
+        while ($node_id = $this->xmldb->get_parentId_by_elementId($this->doc_id, $node_id)) {
+            if ($node_id != $doc_info->rootid) {
+                $parent_ids[] = $node_id;
+            }
         }
 
         return $parent_ids;
