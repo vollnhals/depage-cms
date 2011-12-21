@@ -75,7 +75,9 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
         <?php echo $this->nodes; ?>
     </div>
 
-    <div id="assets"></div>
+    <div id="assets">
+        <?php echo $this->assets; ?>
+    </div>
 </div>
 
 </body>

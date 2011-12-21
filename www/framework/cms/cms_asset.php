@@ -37,12 +37,19 @@ class cms_asset extends cms_jstree {
 
         $doc_info = $this->xmldb->get_doc_info($this->doc_id);
 
+        $search = $this->asset_manager->search($query, $filters);
+        $nodes = $search->tags;
+        $html = \depage\cms\jstree_xml_to_html::toHTML(array($nodes));
+
         $h = new html("assets.tpl", array(
             'project_name' => $this->project,
             'doc_id' => $this->doc_id,
             'root_id' => $doc_info->rootid, 
             'seq_nr' => $this->get_current_seq_nr($this->doc_id),
-            'nodes' => $this->get_html_nodes_by_search($query, $filters),
+            'nodes' => current($html),
+            'assets' => new html("assets_for_tag.tpl", array(
+                "assets" => $search->assets,
+            )),
         ), $this->html_options); 
 
         return $h;
@@ -160,16 +167,6 @@ class cms_asset extends cms_jstree {
     // {{{ handle_form_upload
     protected function handle_form_upload() {
         return (object)array("tmpfile" => $_FILES["qqfile"]["tmp_name"], "filename" => $_FILES["qqfile"]["name"]);
-    }
-    // }}}
-
-    // {{{ get_html_nodes
-    protected function get_html_nodes_by_search($query, $filters) {
-        $search = $this->asset_manager->search($query, $filters);
-        $doc = $search->tags;
-        $html = \depage\cms\jstree_xml_to_html::toHTML(array($doc));
-
-        return current($html);
     }
     // }}}
 
