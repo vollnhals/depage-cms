@@ -1423,6 +1423,12 @@ var placeholder;
 				var t, _this = this;
 				obj = this._get_node(obj);
 				if(!obj) {obj = -1;}
+                else {
+                    if (obj.attr("rel") != this.get_container().attr("data-create-with-upload-elem")) {
+                        // use normal crrm create handling
+                        return this.__call_old();
+                    }
+                }
 				this.__rollback();
 				t = this.create_node(obj, position, js, function (t) {
 					var p = this._get_parent(t),
