@@ -168,6 +168,7 @@ class asset_manager {
      * @param $original_filename (string)   filename
      * @param $xml_path (string)            path in xml tree to structure assets. for example "/photos/new/good".
      *                                      path is split on "/". each part will automatically become a tag.
+     * @param $page_id (int)                page id in xml tree to associate this asset with a specific page,
      */
     public function create_legacy($file, $original_filename, $xml_path, $page_id = null) {
         $tag_ids = $this->create_tag_nodes($xml_path);
@@ -176,48 +177,63 @@ class asset_manager {
     }
     // }}}
 
-    // {{{ basic_search
+    // {{{
+    public function get_tag_ids_for_assets($asset_ids) {
+        $query = $this->pdo->prepare("SELECT DISTINCT tag_id FROM {$this->assets_tags_tbl} WHERE asset_id IN (:asset_ids)");
+        $query->execute(array(
+            "asset_ids" => implode(",", $asset_ids),
+        ));
+
+        return $query->fetchAll(\PDO::FETCH_COLUMN);
+    }
+    // }}}
+
+    // {{{ search_for_assets
     /**
      * search for $needle in filename and tags.
      * filter results by defined $filters.
-     *
-     * either $needle or $filters needs to be present.
      */
-    public function basic_search($needle, $filters = array(), $select = "node_id", $fetch_style = \PDO::FETCH_COLUMN) {
-        $query_str =
-            "SELECT DISTINCT {$this->assets_tbl}.$select " .
-            "FROM {$this->assets_tbl} ";
-        $params = array();
-
+    public function search_for_assets($needle, $filters = array()) {
+        $needle_params = array();
         if ($needle) {
-            $query_str .=
-                "LEFT JOIN {$this->assets_tags_tbl} ON {$this->assets_tbl}.id = {$this->assets_tags_tbl}.asset_id " .
-                "LEFT JOIN {$this->tags_tbl} ON {$this->assets_tags_tbl}.tag_id = {$this->tags_tbl}.id " .
-                "WHERE " .
-                    "(MATCH(processed_filename) AGAINST(:needle) " .
-                    "OR {$this->tags_tbl}.name = :needle) ";
-            $params = array("needle" => $needle);
+            $processed_needle = self::process_filename($needle);
+            $needle_where = "(MATCH(processed_filename) AGAINST(:processed_needle) OR {$this->tags_tbl}.name = :needle)";
+            $needle_params = array("needle" => $needle);
         }
 
+        $filter_params = array();
         if ($filters) {
             $query_filters = array();
             foreach ($filters as $filter => $value) {
                 $query_filters[] = "{$filter} = :{$filter}";
             }
 
-            if ($needle)
-                $query_str .= "AND ";
-            else
-                $query_str .= "WHERE ";
-
-            $query_str .= implode(" AND ", $query_filters);
-            $params = array_merge($params, $filters);
+            $filter_where = implode(" AND ", $query_filters);
+            $filter_params = $filters;
         }
 
-        $query = $this->pdo->prepare($query_str);
-        $query->execute($params);
+        $where = ($needle || $filters) ? "WHERE " : "";
+        $where .= implode (" AND ", array_filter(array($needle_where, $filter_where)));
 
-        return $query->fetchAll($fetch_style);
+        $query = $this->pdo->prepare("
+                SELECT DISTINCT {$this->assets_tbl}.id,
+                {$this->assets_tbl}.created_at,
+                {$this->assets_tbl}.original_filename,
+                {$this->assets_tbl}.processed_filename,
+                {$this->assets_tbl}.filetype
+                FROM {$this->assets_tbl}
+                LEFT JOIN {$this->assets_tags_tbl} ON {$this->assets_tbl}.id = {$this->assets_tags_tbl}.asset_id
+                LEFT JOIN {$this->tags_tbl} ON {$this->assets_tags_tbl}.tag_id = {$this->tags_tbl}.id
+                {$where}");
+
+        $query->execute(array_merge($needle_params, $filter_params));
+
+        $assets = $query->fetchAll(\PDO::FETCH_OBJ);
+        foreach ($assets as &$asset) {
+            $asset->url = self::get_filepath($asset->created_at, $asset->id, $asset->processed_filename, $asset->filetype);
+        }
+
+        return $assets;
     }
     // }}}
 
@@ -229,38 +245,31 @@ class asset_manager {
      * if neither $needle nor $filters is present then all assets are returned.
      */
     public function search($needle, $filters = array()) {
+        $assets = $this->search_for_assets($needle, $filters);
+
         if ($needle || $filters) {
-            $ids = array_filter($this->basic_search($needle, $filters));
-            if (empty($ids))
-                return false;
+            $asset_ids = array_map(function ($a) { return $a->id; }, $assets);
+            $tag_ids = $this->get_tag_ids_for_assets($asset_ids);
 
             /*
              * try to minimize db queries,
-             * only retrieve found assets from xml tree.
-             * all tags are retrieved as there is currently no way to restrict that.
-             * unneccesary tags without assets are filtered later.
+             * only retrieve found tags from xml tree.
              */
+            $tag_id_list = implode(",", $tag_ids);
+            if (!$tag_id_list)
+                $tag_id_list = "NULL";
 
-            $xml_filter = "id in (" . implode(",", $ids) . ") OR name != 'asset'";
+            $xml_filter = "id in (" . $tag_id_list . ")";
         }
 
         $doc_info = $this->xmldb->get_doc_info($this->doc_id);
         $doc = $this->xmldb->get_subdoc_by_elementId($this->doc_id, $doc_info->rootid, true, PHP_INT_MAX, $xml_filter);
 
-        if ($needle || $filters) {
-            /*
-             * remove all tags that have no assets as descendants
-             */
+        $result = new \stdClass;
+        $result->assets = $assets;
+        $result->tags = $doc;
 
-            $xpath = new \DOMXPath($doc);
-            $remove_nodes = $xpath->query("//" . self::DIR_TAG . "[not(descendant::asset)]");
-            // TODO: maybe catch notFound Exceptions ??
-            foreach ($remove_nodes as $node) {
-                $node->parentNode->removeChild($node);
-            }
-        }
-
-        return $doc;
+        return $result;
     }
 
     public function all() {
@@ -415,7 +424,8 @@ class asset_manager {
 
         // delete and replace anything but a-z and 0-9
         $find = array('/[^a-z0-9]/', '/[\_]+/');
-        $repl = array('_', '_');
+        // use a MySQL FULLTEXT search word delimiter character as replacement
+        $repl = array('.', '.');
         $processed_filename = preg_replace ($find, $repl, $processed_filename);
 
         return trim($processed_filename, "_");
