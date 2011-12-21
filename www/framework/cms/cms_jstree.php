@@ -97,7 +97,10 @@ class cms_jstree extends depage_ui {
 
     // {{{ do_create_node
     protected function do_create_node($doc_id, $node_data, $target_id, $position) {
-        $node = $this->xmldb->build_node($doc_id, $node_data["_type"], $node_data);
+        $type = $node_data["_type"];
+        unset($node_data["_type"]);
+
+        $node = $this->xmldb->build_node($doc_id, $type, $node_data);
         $id = $this->xmldb->add_node($doc_id, $node, $target_id, $position);
         $status = $id !== false;
         if ($status) {
