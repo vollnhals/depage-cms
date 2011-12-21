@@ -74,8 +74,9 @@ class cms_asset extends cms_jstree {
             $file = $this->handle_form_upload();
         }
 
-        // TODO: $page_id and $additional_tags
-        if ($this->asset_manager->create($file->tmpfile, $file->filename, $_REQUEST["id"], null, null)) {
+        // TODO: $page_id
+        $tag_ids = $this->get_parent_node_ids($_REQUEST["id"]);
+        if ($this->asset_manager->create($file->tmpfile, $file->filename, null, $tag_ids)) {
             return new json(array("success" => true));
         } else {
             return new json(array("error" => "could not create asset"));
@@ -173,11 +174,12 @@ class cms_asset extends cms_jstree {
     // }}}
 
     // {{{
-    protected function get_parent_node_ids($node_id) {
-        $parent_ids = array();
+    protected function get_parent_node_ids($node_id, $additional_parent_ids = array()) {
+        $parent_ids = $additional_parent_ids;
+        $doc_info = $this->xmldb->get_doc_info($this->doc_id);
 
-        while ($parent_id = $this->xmldb->get_parentId_by_elementId($this->doc_id, $node_id)) {
-            $parent_ids[] = $parent_id;
+        while ($node_id = $this->xmldb->get_parentId_by_elementId($this->doc_id, $node_id) && $node_id != $doc_info->rootid) {
+            $parent_ids[] = $node_id;
         }
 
         return $parent_ids;
