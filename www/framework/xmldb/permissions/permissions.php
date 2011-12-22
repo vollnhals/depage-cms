@@ -14,6 +14,8 @@
 namespace depage\xmldb\permissions;
 
 abstract class permissions {
+    const wildcard = "*";
+
     abstract public function is_element_allowed_in($element, $target);
 
     abstract public function is_unlink_allowed_of($element);

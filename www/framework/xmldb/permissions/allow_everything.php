@@ -14,8 +14,6 @@
 namespace depage\xmldb\permissions;
 
 class allow_everything extends permissions {
-    const wildcard = "*";
-
     public function is_element_allowed_in($element, $target) {
         return true;
     }
