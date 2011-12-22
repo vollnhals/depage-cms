@@ -49,6 +49,8 @@ class xmldb {
         $this->db_ns = new xmlns("db", "http://cms.depagecms.net/ns/database");
         $this->dont_strip_white = $dont_strip_white;
 
+        $this->permissions = array();
+
         $this->set_tables($tableprefix);
     }
     // }}}
@@ -589,7 +591,7 @@ class xmldb {
     // }}}
 
     // {{{ get_permissions()
-    public function get_permissions($doc_id) {
+    protected function load_permissions($doc_id) {
         $query = $this->pdo->prepare(
             "SELECT docs.permissions AS permissions
             FROM {$this->table_docs} AS docs
@@ -601,11 +603,29 @@ class xmldb {
         ));
 
         $result = $query->fetchObject();
-        return new permissions($result->permissions);
+        if (empty($result->permissions))
+                $result->permissions = "\depage\xml\permissions\allow_everything";
+
+        return new $result->permissions;
+    }
+    // }}}
+    // {{{ get_permissions()
+    public function get_permissions($doc_id) {
+        if (!isset($this->permissions[$doc_id])) {
+            $this->permissions[$doc_id] = $this->load_permissions($doc_id);
+        }
+
+        return $this->permissions[$doc_id];
     }
     // }}}
     // {{{ set_permissions()
     public function set_permissions($doc_id, $permissions) {
+        if (is_object($permissions)) {
+            $permissions = get_class($permissions);
+        }
+
+        $this->permissions[$doc_id] = $permissions;
+
         $query = $this->pdo->prepare(
             "UPDATE {$this->table_docs} 
             SET permissions = :permissions 
