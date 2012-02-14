@@ -27,9 +27,13 @@ class jstree_delta_updates {
         return -1;
     }
 
-    public function recordChange($parent_id) {
-        $query = $this->db->prepare("INSERT INTO " . $this->table_name . " (node_id, doc_id) VALUES (?, ?)");
-        $query->execute(array((int)$parent_id, $this->doc_id));
+    /**
+     * @param int $parent_id                    node id of parent element that is changed
+     * @param int $additional_children_depth    how many level of children need to be updated? direct children are always updated.
+     */
+    public function recordChange($parent_id, $additional_children_depth = 0) {
+        $query = $this->db->prepare("INSERT INTO " . $this->table_name . " (node_id, doc_id, depth) VALUES (?, ?, ?)");
+        $query->execute(array((int)$parent_id, $this->doc_id, $additional_children_depth));
     }
 
     public function discardOldChanges() {
@@ -42,40 +46,37 @@ class jstree_delta_updates {
     }
 
     private function changedParentIds() {
-        $parent_ids = array();
+        $parent_ids_and_depth = array();
 
-        $query = $this->db->prepare("SELECT id, node_id FROM " . $this->table_name . " WHERE id > ? AND doc_id = ? ORDER BY id ASC");
+        $query = $this->db->prepare("SELECT id, node_id, depth FROM " . $this->table_name . " WHERE id > ? AND doc_id = ? ORDER BY id ASC");
         if ($query->execute(array($this->seq_nr, $this->doc_id))) {
             while ($row = $query->fetch()) {
                 $node_id = (int)$row["node_id"];
-                if (!in_array($node_id, $parent_ids))
-                    $parent_ids[] = $node_id;
+                $parent_ids_and_depth[$node_id] = max($parent_ids_and_depth[$node_id], (int)$row["depth"]);
 
                 // set seq_nr to seq_nr of processed change
                 $this->seq_nr = $row["id"];
             }
         }
 
-        return $parent_ids;
+        return $parent_ids_and_depth;
     }
 
     // returns an associative array of parent node id keys and children node values, that where involved in a recent change
+    // do a partial update with only immediate children by default
     public function changedNodes() {
-        // do a partial update with only immediate children by default
-        $level_of_children = 0;
         $initial_seq_nr = $this->seq_nr;
-        $parent_ids = $this->changedParentIds();
+        $parent_ids_and_depth = $this->changedParentIds();
 
         // very unlikely case that more delta updates happened than will be retained in db. reload whole document
-        if ($this->seq_nr - $initial_seq_nr > MAX_UPDATES_BEFORE_RELOAD) {
-            $level_of_children = PHP_INT_MAX;
+        if ($this->seq_nr - $initial_seq_nr > self::MAX_UPDATES_BEFORE_RELOAD) {
             $doc_info = $this->xmldb->get_doc_info($this->doc_id);
-            $parent_ids = array($doc_info->rootid);
+            $parent_ids_and_depth = array($doc_info->rootid => PHP_INT_MAX);
         }
 
         $changed_nodes = array();
-        foreach ($parent_ids as $parent_id) {
-            $changed_nodes[$parent_id] = $this->xmldb->get_subdoc_by_elementId($this->doc_id, $parent_id, true, $level_of_children);
+        foreach ($parent_ids_and_depth as $parent_id => $depth) {
+            $changed_nodes[$parent_id] = $this->xmldb->get_subdoc_by_elementId($this->doc_id, $parent_id, true, $depth);
         }
 
         return $changed_nodes;
