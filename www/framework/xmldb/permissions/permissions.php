@@ -16,13 +16,29 @@ namespace depage\xmldb\permissions;
 abstract class permissions {
     const wildcard = "*";
 
+    /**
+     * @return boolean
+     */
     abstract public function is_element_allowed_in($element, $target);
 
+    /**
+     * @return boolean
+     */
     abstract public function is_unlink_allowed_of($element);
 
+    /**
+     * @return array    associative array. keys are element names, values are arrays of allowed parent element names
+     */
     abstract public function get_allowed_parents();
+
+    /**
+     * @return array    inverse of get_allowed_parents. keys are parent element names, values are arrays of allowed children element names
+     */
     abstract public function get_allowed_children();
-    
+
+    /**
+     * @return array    array of element names that can be unlinked.
+     */
     abstract public function get_allowed_unlinks();
 }
 
