@@ -100,11 +100,15 @@ class cms_jstree extends depage_ui {
         $type = $node_data["_type"];
         unset($node_data["_type"]);
 
-        $node = $this->xmldb->build_node($doc_id, $type, $node_data);
+        $node = $this->build_node($doc_id, $type, $node_data);
         $id = $this->xmldb->add_node($doc_id, $node, $target_id, $position);
         $status = $id !== false;
         if ($status) {
             $this->recordChange($doc_id, array($target_id));
+            // $node may have children so record an update for $id and all children
+            if ($node->hasChildNodes()) {
+                $this->recordChange($doc_id, array($id), PHP_INT_MAX);
+            }
 
             if (method_exists($this, "after_create_node"))
                 $this->after_create_node($id);
@@ -262,13 +266,49 @@ class cms_jstree extends depage_ui {
     // }}}
 
     // {{{ recordChange
-    protected function recordChange($doc_id, $parent_ids) {
+    protected function recordChange($doc_id, $parent_ids, $additional_children_depth = 0) {
         $delta_updates = new \depage\websocket\jstree\jstree_delta_updates($this->prefix, $this->pdo, $this->xmldb, $doc_id);
 
         $unique_parent_ids = array_unique($parent_ids);
         foreach ($unique_parent_ids as $parent_id) {
-            $delta_updates->recordChange($parent_id);
+            $delta_updates->recordChange($parent_id, $additional_children_depth);
         }
+    }
+    // }}}
+
+    // {{{ build_node
+    protected function build_node($doc_id, $type, $node_data) {
+        // read template
+        // TODO: think about template directories. maybe use other dirs.
+        $default_template_dir = DEPAGE_FM_PATH . "/" . "xml/jstree";
+        $project_template_dir = $default_template_dir . "/" . $this->project;
+
+        $template = file_get_contents($project_template_dir . "/" . $type . ".xml");
+        if (!$template) {
+            $template = file_get_contents($default_template_dir . "/" . $type . ".xml");
+            if (!$template) {
+                // fallback to xmldb build node
+                return $this->xmldb->build_node($doc_id, $type, $node_data);
+            }
+
+        }
+
+        // inject variables
+        $namespaces = $this->xmldb->get_namespaces_and_entities($doc_id)->namespaces;
+        $patterns = array("/%__NS%/");
+        $replacements = array($namespaces);
+        foreach ($node_data as $key => $value) {
+            $patterns[] = "/%$key%/";
+            $replacements[] = $value;
+        }
+
+        $template = preg_replace($patterns, $replacements, $template);
+
+        // return node
+        $doc = new \DOMDocument;
+        $doc->loadXML($template);
+
+        return $doc->documentElement;
     }
     // }}}
 

@@ -1389,7 +1389,7 @@ class xmldb {
     }
     // }}}
     // {{{ get_namespaces_and_entities()
-    private function get_namespaces_and_entities($doc_id) {
+    public function get_namespaces_and_entities($doc_id) {
         $query = $this->pdo->prepare(
             "SELECT docs.entities AS entities, docs.ns AS namespaces
             FROM {$this->table_docs} AS docs
