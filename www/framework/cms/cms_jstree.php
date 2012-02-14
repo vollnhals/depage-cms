@@ -210,47 +210,52 @@ class cms_jstree extends depage_ui {
         $root_element_name = $this->xmldb->get_nodeName_by_elementId($doc_id, $doc_info->rootid);
 
         $permissions = $this->xmldb->get_permissions($doc_id);
-        $valid_children = $permissions->valid_children();
+        $allowed_children = $permissions->get_allowed_children();
+        if (isset($allowed_children[$root_element_name])) {
+            $root_children = self::allowed_children($allowed_children[$root_element_name]);
+        } else {
+            $root_children = self::allowed_children($allowed_children[\depage\xmldb\permissions\permissions::wildcard]);
+        }
+
         $settings = array(
             "types_from_url" => array(
                 "max_depth" => -2,
                 "max_children" => -2,
-                "valid_children" => self::valid_children_or_none($valid_children, $root_element_name),
+                "valid_children" => $root_children,
                 "types" => array(),
             ),
         );
 
-        $known_elements = $permissions->known_elements();
-        $types = &$settings["types_from_url"]["types"];
-        foreach ($known_elements as $element) {
-            $setting = array();
 
-            /* TODO: disallow drags? is it better if every element is draggable even if it is not movable?
-            if (!$permissions->is_element_allowed_in_any($element)) {
-                $setting["start_drag"] = false;
-                $setting["move_node"] = false;
-            }
-            */
-
-            if (!$permissions->is_unlink_allowed_of($element)) {
-                $setting["delete_node"] = false;
-                $setting["remove"] = false;
+        foreach ($allowed_children as $parent => $children) {
+            if ($parent == \depage\xmldb\permissions\permissions::wildcard) {
+                $parent = "default";
             }
 
-            if (isset($valid_children[$element])) {
-                $setting["valid_children"] = $valid_children[$element];
-            } else if (isset($valid_children[\depage\xmldb\permissions::default_element])) {
-                $setting["valid_children"] = self::valid_children_or_none($valid_children, \depage\xmldb\permissions::default_element);
-            }
-
-            $types[$element] = $setting;
+            $settings["types_from_url"]["types"][$parent] = array();
+            $settings["types_from_url"]["types"][$parent]["valid_children"] = self::allowed_children($children);
         }
 
-        if (!isset($types[\depage\xmldb\permissions::default_element])) {
-            $types[\depage\xmldb\permissions::default_element] = array(
-                "valid_children" => self::valid_children_or_none($valid_children, \depage\xmldb\permissions::default_element),
-            );
+        $allowed_unlinks = $permissions->get_allowed_unlinks();
+        foreach ($allowed_unlinks as $element) {
+            if ($element == \depage\xmldb\permissions\permissions::wildcard) {
+                $element = "default";
+            }
+
+            if (!isset($settings["types_from_url"]["types"][$element])) {
+                $settings["types_from_url"]["types"][$element] = array();
+            }
+
+            $settings["types_from_url"]["types"][$element]["delete_node"] = true;
+            $settings["types_from_url"]["types"][$element]["remove"] = true;
         }
+
+        /* TODO: disallow drags? is it better if every element is draggable even if it is not movable?
+        if (!$permissions->is_element_allowed_in_any($element)) {
+            $setting["start_drag"] = false;
+            $setting["move_node"] = false;
+        }
+        */
 
         return new json($settings);
     }
@@ -296,12 +301,14 @@ class cms_jstree extends depage_ui {
     }
     // }}}
 
-    // {{{ valid_children_or_none
-    static protected function valid_children_or_none(&$valid_children, $element) {
-        if (empty($valid_children[$element])) {
+    // {{{ allowed_children value for jstree types permissions
+    static protected function allowed_children(&$children) {
+        if (empty($children)) {
             return "none";
+        } else if (in_array(\depage\xmldb\permissions\permissions::wildcard, $children)) {
+            return "all";
         } else {
-            return $valid_children[$element];
+            return $children;
         }
     }
     // }}}
