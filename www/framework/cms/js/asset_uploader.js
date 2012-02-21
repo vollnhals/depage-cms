@@ -22,7 +22,14 @@ $(function () {
 
                     uploader._handler.upload(id, {"id" : node.attr("id").replace("node_", "")});
 
-                    // TODO: render assets_for_tag again!
+                    return false;
+            },
+            onComplete: function(id, filename, responseJSON) {
+                // reselect node to trigger reload of asset div
+                var tree = $(uploader_div.attr("data-jstree"));
+                var node = tree.jstree("get_selected");
+                tree.jstree("deselect_node", node);
+                tree.jstree("select_node", node);
             }
         });
     });
