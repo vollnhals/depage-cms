@@ -2,6 +2,19 @@
 
 namespace depage\websocket\jstree;
 
+/**
+ * delta updates for jstree
+
+CREATE TABLE `tt_proj_delta_updates` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `node_id` int(11) unsigned NOT NULL,
+  `doc_id` int(11) unsigned NOT NULL,
+  `depth` int(11) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `doc_id` (`doc_id`)
+) ENGINE=MyISAM AUTO_INCREMENT=535 DEFAULT CHARSET=latin1;
+
+ */
 class jstree_delta_updates {
     // clients will update themselves about every 3 seconds maximum. retain enough updates to update partially.
     // if we estimate 10 updates per second, then retain at least 30 updates. some buffer on top and we should be good.
