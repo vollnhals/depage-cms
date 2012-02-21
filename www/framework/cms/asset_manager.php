@@ -13,63 +13,55 @@
 namespace depage\cms;
 
 
-// DB SCHEMA:
-//
-// asset code needs a "assets" xml doc with root node.
-//
-//
-//INSERT INTO `tt_proj_xmldocs` (`id`, `name`, `ns`, `entities`, `rootid`, `permissions`)
-//VALUES
-//	(1, 'assets', '', '', 1, 'a:2:{i:0;a:2:{s:5:\"asset\";a:1:{i:0;s:3:\"dir\";}s:3:\"dir\";a:1:{i:0;s:3:\"dir\";}}i:1;a:0:{}}');
-//INSERT INTO `tt_proj_xmltree` (`id`, `id_parent`, `id_doc`, `pos`, `name`, `value`, `type`)
-//VALUES
-//	(1, NULL, 1, 0, 'dir', '', 'ELEMENT_NODE');
-//
-//
-//CREATE TABLE `tt_proj_assets` (
-//  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-//  `processed_filename` varchar(255) DEFAULT NULL,
-//  `filetype` varchar(7) DEFAULT NULL,
-//  `width` mediumint(8) unsigned DEFAULT NULL,
-//  `height` mediumint(8) unsigned DEFAULT NULL,
-//  `created_at` datetime DEFAULT NULL,
-//  `page_id` int(11) unsigned DEFAULT NULL,
-//  `node_id` int(11) unsigned DEFAULT NULL,
-//  PRIMARY KEY (`id`),
-//  FULLTEXT KEY `processed_filename` (`processed_filename`)
-//) ENGINE=MyISAM AUTO_INCREMENT=30 DEFAULT CHARSET=latin1;
-//
-//CREATE TABLE `tt_proj_assets_tags` (
-//  `asset_id` int(11) unsigned NOT NULL DEFAULT '0',
-//  `tag_id` int(11) unsigned NOT NULL DEFAULT '0',
-//  `type` tinyint(2) unsigned NOT NULL DEFAULT '0',
-//  PRIMARY KEY (`asset_id`,`tag_id`),
-//  KEY `tag_id` (`tag_id`,`asset_id`)
-//) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-//
-//CREATE TABLE `tt_proj_tags` (
-//  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-//  `name` varchar(255) DEFAULT NULL,
-//  PRIMARY KEY (`id`),
-//  UNIQUE KEY `name` (`name`)
-//) ENGINE=MyISAM AUTO_INCREMENT=15 DEFAULT CHARSET=latin1;
+/**
+ * asset manager
+ *
+ * asset code needs a "assets" xml doc with root node.
+ *
+ * DB Schema:
+ *
 
+CREATE TABLE `tt_proj_assets` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `processed_filename` varchar(255) DEFAULT NULL,
+  `original_filename` varchar(255) DEFAULT NULL,
+  `filetype` varchar(7) DEFAULT NULL,
+  `width` mediumint(8) unsigned DEFAULT NULL,
+  `height` mediumint(8) unsigned DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `page_id` int(11) unsigned DEFAULT NULL,
+  `node_id` int(11) unsigned DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  FULLTEXT KEY `processed_filename` (`processed_filename`)
+) ENGINE=MyISAM AUTO_INCREMENT=15 DEFAULT CHARSET=latin1;
+
+
+CREATE TABLE `tt_proj_assets_tags` (
+  `asset_id` int(11) unsigned NOT NULL DEFAULT '0',
+  `tag_id` int(11) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`asset_id`,`tag_id`),
+  KEY `tag_id` (`tag_id`,`asset_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+
+CREATE TABLE `tt_proj_tags` (
+  `id` int(11) unsigned NOT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `name` (`name`)
+) ENGINE=MyISAM AUTO_INCREMENT=15 DEFAULT CHARSET=latin1;
+
+ *
+ */
 
 //    '*/depage-cms/assets/' => array(
 //        'handler' => 'cms_asset',
 //    )
 
-//
-//indexes:
-//    FULL TEXT index on processed filename
-//    INDEX (file_id, tag_id) and INDEX(tag_id, file_id)
-//    index for page, size, filetype, date
-//
-
 // TODO: tags are never removed from the tag table. think about that.
 // TODO: think about necessary indices again.
 // TODO: testsuite
-// TODO: document type bitmask
+
 
 class asset_manager {
     const PARTIAL_ASSET_PATH = "lib/assets";
