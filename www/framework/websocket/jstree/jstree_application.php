@@ -31,6 +31,10 @@ class JsTreeApplication extends \Websocket\Application\Application {
             )
         );
 
+        // TODO: websocket needs authentication.
+        // when using auth_http_cookie, then the cookie can be transmitted in
+        // the first message and authentication can happen in on_data().
+        
         /* get auth object
         $this->auth = \auth::factory(
             $this->pdo, // db_pdo 

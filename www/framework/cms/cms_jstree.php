@@ -4,7 +4,9 @@
  *
  * depage cms jstree module
  *
- * subclass cms_jstree to implement more specific behaviour
+ * subclass cms_jstree to implement more specific behaviour.
+ * callbacks can be used to hook into create, rename, move, remove.
+ *
  *
  * TODO: xml document rights / access management. which user can edit which document?
  *
@@ -279,6 +281,13 @@ class cms_jstree extends depage_ui {
     // }}}
 
     // {{{ build_node
+    /*
+     * build a new node from node data.
+     * if there is a template for this node type then that is used.
+     * variables can be used in the form of %variable_name%.
+     *
+     * overwrite this method if you want other behaviour.
+     */
     protected function build_node($doc_id, $type, $node_data) {
         // read template
         // TODO: think about template directories. maybe use other dirs.
@@ -343,7 +352,8 @@ class cms_jstree extends depage_ui {
     }
     // }}}
 
-    // {{{ allowed_children value for jstree types permissions
+    // {{{ allowed_children
+    // translate value for jstree types permissions
     static protected function allowed_children(&$children) {
         if (empty($children)) {
             return "none";
