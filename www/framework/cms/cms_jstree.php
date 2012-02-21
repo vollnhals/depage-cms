@@ -112,9 +112,11 @@ class cms_jstree extends depage_ui {
 
             if (method_exists($this, "after_create_node"))
                 $this->after_create_node($id);
+
+            $children = current(\depage\cms\jstree_xml_to_html::toHTML(array($id => $node)));
         }
 
-        return new json(array("status" => $status, "id" => $id));
+        return new json(array("status" => $status, "id" => $id, "children" => $children));
     }
     // }}}
 

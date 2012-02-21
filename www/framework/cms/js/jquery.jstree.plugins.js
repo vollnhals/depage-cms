@@ -1012,7 +1012,13 @@ var placeholder;
                     },
                     success : function (r) {
                         if(r.status) {
-                            $(data.rslt.obj).attr("id", "node_" + r.id);
+                            data.rslt.obj.attr("id", "node_" + r.id);
+                            if (r.children) {
+                                data.rslt.obj.append(r.children);
+                                _this.clean_node(data.rslt.obj);
+                                _this.open_node(data.rslt.obj, false, false);
+                            }
+                            console.log(r);
                             tree.triggerHandler("delta_updates_create.jstree", data);
                         } else {
                             _this._rollback_in_order(this.seq, data.rlbk);
