@@ -1476,6 +1476,10 @@ var placeholder;
 
                 _this.data.ajax_load_div.last_selected = data.rslt.obj;
             });
+
+            c.bind("deselect_node.jstree", function (e, data) {
+                _this.data.ajax_load_div.last_selected = _this.get_container();
+            });
         }
     });
 })(jQuery);
