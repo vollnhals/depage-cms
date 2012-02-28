@@ -69,10 +69,6 @@ class asset_manager {
     const DIR_TAG = "dir";
     const ASSET_TAG = "asset";
 
-    const TAG_TYPE_XML = 1;
-    const TAG_TYPE_ADDITIONAL = 2;
-    const TAG_TYPE_ALL = 3;
-
     /* {{{ constructor */
     /**
      * @param       $prefix database table prefix
