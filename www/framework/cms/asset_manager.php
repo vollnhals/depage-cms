@@ -58,7 +58,6 @@ CREATE TABLE `tt_proj_tags` (
 //        'handler' => 'cms_asset',
 //    )
 
-// TODO: tags are never removed from the tag table. think about that.
 // TODO: think about necessary indices again.
 // TODO: testsuite
 
@@ -234,6 +233,10 @@ class asset_manager {
      * filter results by defined $filters.
      *
      * if neither $needle nor $filters is present then all assets are returned.
+     *
+     * implementation strategy:
+     * search for assets first and then load corresponding tags
+     * 
      */
     public function search($needle, $filters = array()) {
         $assets = $this->search_for_assets($needle, $filters);
