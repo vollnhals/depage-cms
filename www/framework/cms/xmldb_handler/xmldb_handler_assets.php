@@ -39,8 +39,7 @@ class xmldb_handler_assets extends xmldb_handler {
     // {{{ before_remove_node
     public function before_remove_node() {
         // record node ids for later removal
-        $this->before_remove_ids = $this->xmldb->get_childIds_by_name($this->doc_id, $_REQUEST["id"]);
-        $this->before_remove_ids[] = $_REQUEST["id"];
+        $this->before_remove_ids = $this->get_descendant_node_ids($_REQUEST["id"], array($_REQUEST["id"]));
     }
     // }}}
 
@@ -64,6 +63,22 @@ class xmldb_handler_assets extends xmldb_handler {
         }
 
         return $parent_ids;
+    }
+    // }}}
+
+    // {{{
+    protected function get_descendant_node_ids($node_id, $additional_descendant_ids = array()) {
+        $descendant_ids = $additional_descendant_ids;
+
+        $child_ids = $this->xmldb->get_childIds_by_name($this->doc_id, $node_id);
+        $descendant_ids = array_merge($descendant_ids, $child_ids);
+
+        foreach ($child_ids as $child_id) {
+            $further_child_ids = $this->get_descendant_node_ids($child_id);
+            $descendant_ids = array_merge($descendant_ids, $further_child_ids);
+        }
+
+        return $descendant_ids;
     }
     // }}}
 }
