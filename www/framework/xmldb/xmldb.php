@@ -1216,7 +1216,7 @@ class xmldb {
         $identifier = "{$this->table_docs}/d{$doc_id}/{$id}.xml";
 
         $xml_str = $this->cache->get($identifier);
-        if ($xml_str !== false) {
+        if ($filter === null && $xml_str !== false) {
             // read from cache
             $xml_doc = new \DOMDocument();
             $xml_doc->loadXML($xml_str);
