@@ -7,7 +7,7 @@ class xmldb_handler_assets extends xmldb_handler {
     public function __construct($doc_id, $prefix, $pdo, $xmldb, $options = array()) {
         parent::__construct($doc_id, $prefix, $pdo, $xmldb, $options);
         
-        $this->asset_manager = new depage\cms\asset_manager($this->prefix, $this->pdo, $this->xmldb, $this->doc_id);
+        $this->asset_manager = new \depage\cms\asset_manager($this->prefix, $this->pdo, $this->xmldb, $this->doc_id);
     }
     // }}}
 
