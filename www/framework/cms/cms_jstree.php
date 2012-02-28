@@ -92,6 +92,7 @@ class cms_jstree extends depage_ui {
      */
     public function create_node() {
         $this->auth->enforce();
+        $this->set_xmldb_handler();
 
         return $this->do_create_node($_REQUEST["doc_id"], $_REQUEST["node"], $_REQUEST["target_id"], $_REQUEST["position"]);
     }
@@ -102,7 +103,7 @@ class cms_jstree extends depage_ui {
         $type = $node_data["_type"];
         unset($node_data["_type"]);
 
-        $node = $this->build_node($doc_id, $type, $node_data);
+        $node = $this->xmldb_handler->build_node($type, $node_data);
         $id = $this->xmldb->add_node($doc_id, $node, $target_id, $position);
         $status = $id !== false;
         if ($status) {
@@ -112,8 +113,7 @@ class cms_jstree extends depage_ui {
                 $this->recordChange($doc_id, array($id), PHP_INT_MAX);
             }
 
-            if (method_exists($this, "after_create_node"))
-                $this->after_create_node($id);
+            $this->xmldb_handler->after_create_node($id);
 
             $children = current(\depage\cms\jstree_xml_to_html::toHTML(array($id => $node)));
         }
@@ -130,6 +130,7 @@ class cms_jstree extends depage_ui {
      */
     public function rename_node() {
         $this->auth->enforce();
+        $this->set_xmldb_handler();
 
         return $this->do_rename_node($_REQUEST["doc_id"], $_REQUEST["id"], $_REQUEST["name"]);
     }
@@ -141,8 +142,7 @@ class cms_jstree extends depage_ui {
         $parent_id = $this->xmldb->get_parentId_by_elementId($doc_id, $node_id);
         $this->recordChange($doc_id, array($parent_id));
 
-        if (method_exists($this, "after_rename_node"))
-            $this->after_rename_node();
+        $this->xmldb_handler->after_rename_node();
 
         return new json(array("status" => 1));
     }
@@ -157,22 +157,21 @@ class cms_jstree extends depage_ui {
      */
     public function move_node() {
         $this->auth->enforce();
+        $this->set_xmldb_handler();
 
         return $this->do_move_node($_REQUEST["doc_id"], $_REQUEST["id"], $_REQUEST["target_id"], $_REQUEST["position"]);
     }
     // }}}
 
     protected function do_move_node($doc_id, $node_id, $target_id, $position) {
-        if (method_exists($this, "before_move_node"))
-            $this->before_move_node();
+        $this->xmldb_handler->before_move_node();
 
         $old_parent_id = $this->xmldb->get_parentId_by_elementId($doc_id, $node_id);
         $status = $this->xmldb->move_node($doc_id, $node_id, $target_id, $position);
         if ($status) {
             $this->recordChange($doc_id, array($old_parent_id, $target_id));
 
-            if (method_exists($this, "after_move_node"))
-                $this->after_move_node();
+            $this->xmldb_handler->after_move_node();
         }
 
         return new json(array("status" => $status));
@@ -186,14 +185,14 @@ class cms_jstree extends depage_ui {
      */
     public function remove_node() {
         $this->auth->enforce();
+        $this->set_xmldb_handler();
 
         return $this->do_remove_node($_REQUEST["doc_id"], $_REQUEST["id"]);
     }
     // }}}
 
     protected function do_remove_node($doc_id, $node_id) {
-        if (method_exists($this, "before_remove_node"))
-            $this->before_remove_node();
+        $this->xmldb_handler->before_remove_node();
 
         $parent_id = $this->xmldb->get_parentId_by_elementId($doc_id, $node_id);
         $ids = $this->xmldb->unlink_node($doc_id, $node_id);
@@ -201,8 +200,7 @@ class cms_jstree extends depage_ui {
         if ($status) {
             $this->recordChange($doc_id, array($parent_id));
 
-            if (method_exists($this, "after_remove_node"))
-                $this->after_remove_node();
+            $this->xmldb_handler->after_remove_node();
         }
 
         return new json(array("status" => $status));
@@ -280,49 +278,6 @@ class cms_jstree extends depage_ui {
     }
     // }}}
 
-    // {{{ build_node
-    /*
-     * build a new node from node data.
-     * if there is a template for this node type then that is used.
-     * variables can be used in the form of %variable_name%.
-     *
-     * overwrite this method if you want other behaviour.
-     */
-    protected function build_node($doc_id, $type, $node_data) {
-        // read template
-        // TODO: think about template directories. maybe use other dirs.
-        $default_template_dir = DEPAGE_FM_PATH . "/" . "xml/jstree";
-        $project_template_dir = $default_template_dir . "/" . $this->project;
-
-        $template = file_get_contents($project_template_dir . "/" . $type . ".xml");
-        if (!$template) {
-            $template = file_get_contents($default_template_dir . "/" . $type . ".xml");
-            if (!$template) {
-                // fallback to xmldb build node
-                return $this->xmldb->build_node($doc_id, $type, $node_data);
-            }
-
-        }
-
-        // inject variables
-        $namespaces = $this->xmldb->get_namespaces_and_entities($doc_id)->namespaces;
-        $patterns = array("/%__NS%/");
-        $replacements = array($namespaces);
-        foreach ($node_data as $key => $value) {
-            $patterns[] = "/%$key%/";
-            $replacements[] = $value;
-        }
-
-        $template = preg_replace($patterns, $replacements, $template);
-
-        // return node
-        $doc = new \DOMDocument;
-        $doc->loadXML($template);
-
-        return $doc->documentElement;
-    }
-    // }}}
-
     // {{{ get_doc_id
     protected function get_doc_id($doc_name) {
         $doc_list = $this->xmldb->get_doc_list($doc_name);
@@ -343,6 +298,16 @@ class cms_jstree extends depage_ui {
     protected function get_current_seq_nr($doc_id) {
        $delta_updates = new \depage\websocket\jstree\jstree_delta_updates($this->prefix, $this->pdo, $this->xmldb, $doc_id);
        return $delta_updates->currentChangeNumber();
+    }
+    // }}}
+
+    // {{{
+    protected function set_xmldb_handler() {
+        $doc_id = $_REQUEST["doc_id"];
+        $doc_info = $this->xmldb->get_doc_info($doc_id);
+        $type = $doc_info->type;
+
+        $this->xmldb_handler = \depage\cms\xmldb_handler\xmldb_handler::factory($type, $doc_id, $this->prefix, $this->pdo, $this->xmldb);
     }
     // }}}
 
