@@ -107,7 +107,7 @@ class xmldb {
      */
     public function get_doc_info($doc_id) {
         $query = $this->pdo->prepare(
-            "SELECT docs.id AS id, docs.name AS name, docs.rootid AS rootid
+            "SELECT docs.id AS id, docs.name AS name, docs.rootid AS rootid, docs.type AS type
             FROM {$this->table_docs} AS docs
             WHERE docs.id = :doc_id
             LIMIT 1"
