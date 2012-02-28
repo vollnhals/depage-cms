@@ -149,6 +149,7 @@ class asset_manager {
 
     // {{{ create_legacy
     /*
+     * use this to create assets from an existing directory structure.
      * creates a new asset, a new node and if necessary new parent nodes
      *
      * @param $file (string)                path to file on disk
