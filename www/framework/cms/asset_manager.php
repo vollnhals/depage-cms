@@ -221,7 +221,7 @@ class asset_manager {
 
         $assets = $query->fetchAll(\PDO::FETCH_OBJ);
         foreach ($assets as &$asset) {
-            $asset->url = self::get_filepath($asset->created_at, $asset->id, $asset->processed_filename, $asset->filetype);
+            $asset->url = self::get_filepath(strtotime($asset->created_at), $asset->id, $asset->processed_filename, $asset->filetype);
         }
 
         return $assets;
