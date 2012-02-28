@@ -109,47 +109,6 @@ class cms_asset extends cms_jstree {
     }
     // }}}
 
-    // {{{ after_rename_node
-    public function after_rename_node() {
-        $this->asset_manager->rename_tag($_REQUEST["id"], $_REQUEST["name"]);
-    }
-    // }}}
-
-    // {{{ before_move_node
-    public function before_move_node() {
-        // record parent ids before move for later tag rebinding
-        $this->before_move_parent_ids = $this->get_parent_node_ids($_REQUEST["id"]);
-    }
-    // }}}
-
-    // {{{ after_move_node
-    public function after_move_node() {
-        $new_parent_ids = $this->get_parent_node_ids($_REQUEST["id"]);
-        $asset_ids = $this->asset_manager->get_asset_ids_for_tag($_REQUEST["id"]);
-
-        foreach($asset_ids as $asset_id) {
-            $this->asset_manager->unbind_tags($asset_id, $this->before_move_parent_ids);
-            $this->asset_manager->bind_tags($asset_id, $new_parent_ids);
-        }
-    }
-    // }}}
-
-    // {{{ before_remove_node
-    public function before_remove_node() {
-        // record node ids for later removal
-        $this->before_remove_ids = $this->xmldb->get_childIds_by_name($this->doc_id, $_REQUEST["id"]);
-        $this->before_remove_ids[] = $_REQUEST["id"];
-    }
-    // }}}
-
-    // {{{ after_remove_node
-    public function after_remove_node() {
-        foreach ($this->before_remove_ids as $node_id) {
-            $this->asset_manager->remove_tag($node_id);
-        }
-    }
-    // }}}
-
     // {{{ handle_xhr_upload
     protected function handle_xhr_upload($tmpfile) {
         $input = fopen("php://input", "r");
