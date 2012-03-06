@@ -2,6 +2,16 @@
 
 namespace depage\cms\xmldb_handler;
 
+/**
+ * handler classes for jstree
+ *
+ * subclass and define callbacks for before and after actions.
+ *
+ * before callbacks have a return value. return array(true, $message) to allow action and
+ * return array(false, $message) to cancel the action.
+ *
+ * the final json object will include the specified message.
+ */
 class xmldb_handler {
     // {{{ factory
     public static function factory($type, $doc_id, $prefix, $pdo, $xmldb, $options = array()) {
@@ -24,8 +34,20 @@ class xmldb_handler {
     }
     // }}}
 
+    // {{{ before_create_node
+    public function before_create_node() {
+        return array(true, null);
+    }
+    // }}}
+
     // {{{ after_create_node
     public function after_create_node($id) {}
+    // }}}
+
+    // {{{ before_rename_node
+    public function before_rename_node() {
+        return array(true, null);
+    }
     // }}}
 
     // {{{ after_rename_node
@@ -33,7 +55,9 @@ class xmldb_handler {
     // }}}
 
     // {{{ before_move_node
-    public function before_move_node() {}
+    public function before_move_node() {
+        return array(true, null);
+    }
     // }}}
 
     // {{{ after_move_node
@@ -41,7 +65,9 @@ class xmldb_handler {
     // }}}
 
     // {{{ before_remove_node
-    public function before_remove_node() {}
+    public function before_remove_node() {
+        return array(true, null);
+    }
     // }}}
 
     // {{{ after_remove_node

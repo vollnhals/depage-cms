@@ -21,6 +21,8 @@ class xmldb_handler_assets extends xmldb_handler {
     public function before_move_node() {
         // record parent ids before move for later tag rebinding
         $this->before_move_parent_ids = $this->get_parent_node_ids($_REQUEST["id"]);
+
+        return array(true, null);
     }
     // }}}
 
@@ -40,6 +42,8 @@ class xmldb_handler_assets extends xmldb_handler {
     public function before_remove_node() {
         // record node ids for later removal
         $this->before_remove_ids = $this->get_descendant_node_ids($_REQUEST["id"], array($_REQUEST["id"]));
+
+        return array(true, null);
     }
     // }}}
 

@@ -100,25 +100,29 @@ class cms_jstree extends depage_ui {
 
     // {{{ do_create_node
     protected function do_create_node($doc_id, $node_data, $target_id, $position) {
-        $type = $node_data["_type"];
-        unset($node_data["_type"]);
+        list($callback_ok, $message) = $this->xmldb_handler->before_create_node();
+        if ($callback_ok) {
 
-        $node = $this->xmldb_handler->build_node($type, $node_data);
-        $id = $this->xmldb->add_node($doc_id, $node, $target_id, $position);
-        $status = $id !== false;
-        if ($status) {
-            $this->recordChange($doc_id, array($target_id));
-            // $node may have children so record an update for $id and all children
-            if ($node->hasChildNodes()) {
-                $this->recordChange($doc_id, array($id), PHP_INT_MAX);
+            $type = $node_data["_type"];
+            unset($node_data["_type"]);
+
+            $node = $this->xmldb_handler->build_node($type, $node_data);
+            $id = $this->xmldb->add_node($doc_id, $node, $target_id, $position);
+            $status = $id !== false;
+            if ($status) {
+                $this->recordChange($doc_id, array($target_id));
+                // $node may have children so record an update for $id and all children
+                if ($node->hasChildNodes()) {
+                    $this->recordChange($doc_id, array($id), PHP_INT_MAX);
+                }
+
+                $this->xmldb_handler->after_create_node($id);
+
+                $children = current(\depage\cms\jstree_xml_to_html::toHTML(array($id => $node)));
             }
-
-            $this->xmldb_handler->after_create_node($id);
-
-            $children = current(\depage\cms\jstree_xml_to_html::toHTML(array($id => $node)));
         }
 
-        return new json(array("status" => $status, "id" => $id, "children" => $children));
+        return new json(array("status" => $status, "id" => $id, "children" => $children, "message" => $message));
     }
     // }}}
 
@@ -138,13 +142,17 @@ class cms_jstree extends depage_ui {
 
     // {{{ do_rename_node
     protected function do_rename_node($doc_id, $node_id, $name) {
-        $this->xmldb->set_attribute($doc_id, $node_id, "name", $name);
-        $parent_id = $this->xmldb->get_parentId_by_elementId($doc_id, $node_id);
-        $this->recordChange($doc_id, array($parent_id));
+        list($callback_ok, $message) = $this->xmldb_handler->before_rename_node();
+        if ($callback_ok) {
 
-        $this->xmldb_handler->after_rename_node();
+            $this->xmldb->set_attribute($doc_id, $node_id, "name", $name);
+            $parent_id = $this->xmldb->get_parentId_by_elementId($doc_id, $node_id);
+            $this->recordChange($doc_id, array($parent_id));
 
-        return new json(array("status" => 1));
+            $this->xmldb_handler->after_rename_node();
+        }
+
+        return new json(array("status" => 1, "message" => $message));
     }
     // }}}
 
@@ -164,17 +172,19 @@ class cms_jstree extends depage_ui {
     // }}}
 
     protected function do_move_node($doc_id, $node_id, $target_id, $position) {
-        $this->xmldb_handler->before_move_node();
+        list($callback_ok, $message) = $this->xmldb_handler->before_move_node();
+        if ($callback_ok) {
 
-        $old_parent_id = $this->xmldb->get_parentId_by_elementId($doc_id, $node_id);
-        $status = $this->xmldb->move_node($doc_id, $node_id, $target_id, $position);
-        if ($status) {
-            $this->recordChange($doc_id, array($old_parent_id, $target_id));
+            $old_parent_id = $this->xmldb->get_parentId_by_elementId($doc_id, $node_id);
+            $status = $this->xmldb->move_node($doc_id, $node_id, $target_id, $position);
+            if ($status) {
+                $this->recordChange($doc_id, array($old_parent_id, $target_id));
 
-            $this->xmldb_handler->after_move_node();
+                $this->xmldb_handler->after_move_node();
+            }
         }
 
-        return new json(array("status" => $status));
+        return new json(array("status" => $status, "message" => $message));
     }
     // }}}
 
@@ -192,18 +202,20 @@ class cms_jstree extends depage_ui {
     // }}}
 
     protected function do_remove_node($doc_id, $node_id) {
-        $this->xmldb_handler->before_remove_node();
+        list($callback_ok, $message) = $this->xmldb_handler->before_remove_node();
+        if ($callback_ok) {
+            
+            $parent_id = $this->xmldb->get_parentId_by_elementId($doc_id, $node_id);
+            $ids = $this->xmldb->unlink_node($doc_id, $node_id);
+            $status = $ids !== false;
+            if ($status) {
+                $this->recordChange($doc_id, array($parent_id));
 
-        $parent_id = $this->xmldb->get_parentId_by_elementId($doc_id, $node_id);
-        $ids = $this->xmldb->unlink_node($doc_id, $node_id);
-        $status = $ids !== false;
-        if ($status) {
-            $this->recordChange($doc_id, array($parent_id));
-
-            $this->xmldb_handler->after_remove_node();
+                $this->xmldb_handler->after_remove_node();
+            }
         }
 
-        return new json(array("status" => $status));
+        return new json(array("status" => $status, "message" => $message));
     }
     // }}}
 
